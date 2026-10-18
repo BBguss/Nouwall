@@ -27,7 +27,7 @@ log = { version = "0.4", features = ["std"] }
 
 [target.'cfg(windows)'.dependencies]
 wgpu = { version = "30", features = ["glsl"] }
-pollster = "0.4"
+pollster = "1.0"
 bytemuck = { version = "1", features = ["derive"] }
 wry = "0.57"
 tray-icon = "0.26"
