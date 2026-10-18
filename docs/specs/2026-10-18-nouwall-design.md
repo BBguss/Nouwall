@@ -1,6 +1,6 @@
 # nouwall — Live Wallpaper Engine untuk Windows (Rust) — Desain
 
-Tanggal: 2026-10-18 · Status: disetujui (opsi 4, seluruh bagian A–F)
+Tanggal: 2026-10-18 · Status: diimplementasikan (opsi 4, seluruh bagian A–F)
 
 ## Tujuan
 
@@ -41,10 +41,15 @@ Workspace Cargo dengan dua crate:
   - `render::{shader, video, web}` — implementasi trait `Renderer`
   - `tray`, `settings` (WebView2 + IPC JSON), `media_info` (resolusi/codec video via `IMFSourceReader`), `autostart` (HKCU Run)
 
-Event loop: `winit` (`ApplicationHandler`). Satu `Host` per monitor = jendela borderless
-yang di-`SetParent` ke WorkerW + satu `Renderer`. Timer 500 ms memeriksa pause policy dan
-perubahan config (mtime) — CLI dan jendela pengaturan berkomunikasi dengan instance utama
-lewat file `config.toml` dan `command` di `%APPDATA%\nouwall`.
+Event loop: Win32 murni (tanpa `winit`). Jendela controller tersembunyi menerima
+`WM_COPYDATA` (perintah dari `nouwallctl`/instance kedua), `WM_DISPLAYCHANGE`,
+`TaskbarCreated`, notifikasi sesi terkunci (WTS) dan status layar
+(`GUID_CONSOLE_DISPLAY_STATE`). Penantian memakai `MsgWaitForMultipleObjectsEx` + waitable
+timer resolusi tinggi untuk tenggat frame. Satu `Host` per monitor = jendela child borderless
+di WorkerW (atau di Progman pada 24H2) + satu `Renderer`; host dibuat ulang setiap renderer
+berganti (swapchain DXGI terikat ke HWND). Tick 500 ms memeriksa pause policy; `config.toml`
+dipantau via mtime (~2 s), sehingga `nouwallctl apply` dari sesi lain (mis. SSH) tetap
+termuat.
 
 ## Tier & peringatan (F)
 
@@ -83,8 +88,10 @@ render, video `Pause()`, web disembunyikan.
 
 ## CLI
 
-`nouwall` (jalan + tray) · `nouwall probe` (JSON hardware + tier) · `nouwall list` ·
-`nouwall apply <id> [--monitor N]` · `nouwall settings` · `nouwall quit`
+`nouwall.exe` (GUI, tray) dan `nouwallctl.exe` (konsol): `probe [--json]` · `list` ·
+`apply <id> [--monitor N] [--force]` (exit 3 bila ditahan peringatan) · `import <file|folder>` ·
+`settings | pause | resume | toggle | reload | quit` · `paths` · `capture [folder]`
+(PrintWindow jendela wallpaper + pengaturan → BMP, untuk diagnostik)
 
 ## Build & uji
 
