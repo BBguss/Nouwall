@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>nouwall</title>
+<style>
+:root {
+  --bg: hsl(228 30% 7%);
+  --bg-2: hsl(228 28% 10%);
+  --glass: hsl(228 30% 16% / .55);
+  --glass-2: hsl(228 30% 22% / .5);
+  --line: hsl(225 40% 80% / .10);
+  --line-2: hsl(225 40% 80% / .18);
+  --text: hsl(225 30% 95%);
+  --muted: hsl(225 14% 66%);
+  --faint: hsl(225 12% 48%);
+  --accent: hsl(258 90% 72%);
+  --accent-2: hsl(172 70% 52%);
+  --accent-ink: hsl(258 60% 12%);
+  --info: hsl(205 85% 62%);
+  --warn: hsl(38 95% 60%);
+  --crit: hsl(354 85% 64%);
+  --ok: hsl(150 60% 52%);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 20px 60px hsl(230 60% 2% / .5);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font: 14px/1.5 "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+body { overflow: hidden; }
+body::before { content: ""; position: fixed; inset: -20%; z-index: -1; background:
+  radial-gradient(40% 40% at 15% 10%, hsl(258 80% 50% / .22), transparent 70%),
+  radial-gradient(35% 35% at 90% 85%, hsl(172 80% 40% / .16), transparent 70%),
+  radial-gradient(30% 30% at 70% 15%, hsl(320 70% 50% / .10), transparent 70%); }
+button, input, select { font: inherit; color: inherit; }
+svg.i { width: 18px; height: 18px; flex: none; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.app { display: grid; grid-template-columns: 228px 1fr; height: 100vh; }
+nav { padding: 22px 14px; border-right: 1px solid var(--line); background: hsl(228 30% 8% / .7); backdrop-filter: blur(20px); display: flex; flex-direction: column; gap: 4px; }
+.brand { display: flex; align-items: center; gap: 10px; padding: 4px 10px 22px; font-weight: 650; font-size: 17px; letter-spacing: -.01em; }
+.logo { width: 30px; height: 30px; border-radius: 9px; background: linear-gradient(135deg, hsl(258 85% 66%), hsl(172 70% 46%)); display: grid; place-items: center; box-shadow: 0 6px 20px hsl(258 80% 50% / .35); }
+.logo svg { width: 18px; height: 18px; stroke: #fff; }
+.nav-btn { display: flex; align-items: center; gap: 12px; padding: 9px 12px; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--muted); cursor: pointer; text-align: left; transition: background .15s, color .15s; }
+.nav-btn:hover { background: var(--glass); color: var(--text); }
+.nav-btn[aria-current="true"] { background: var(--glass-2); color: var(--text); box-shadow: inset 0 0 0 1px var(--line); }
+.nav-foot { margin-top: auto; padding: 12px; border-radius: var(--radius); background: var(--glass); border: 1px solid var(--line); font-size: 12.5px; color: var(--muted); }
+.nav-foot b { color: var(--text); font-weight: 600; }
+main { overflow-y: auto; padding: 26px 32px 40px; }
+header.top { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
+header.top h1 { font-size: 22px; font-weight: 650; letter-spacing: -.02em; margin: 0; }
+header.top .sub { color: var(--muted); font-size: 13px; }
+.spacer { flex: 1; }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: var(--radius-sm); border: 1px solid var(--line-2); background: var(--glass); cursor: pointer; transition: background .15s, border-color .15s, transform .05s; white-space: nowrap; }
+.btn:hover { background: var(--glass-2); border-color: hsl(225 40% 80% / .28); }
+.btn:active { transform: translateY(1px); }
+.btn.primary { background: linear-gradient(135deg, hsl(258 85% 68%), hsl(250 80% 62%)); border-color: transparent; color: #fff; font-weight: 600; }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.ghost { background: transparent; border-color: transparent; color: var(--muted); }
+.btn.ghost:hover { color: var(--text); background: var(--glass); }
+.btn.danger:hover { color: var(--crit); border-color: hsl(354 85% 64% / .4); }
+.btn.sm { padding: 5px 10px; font-size: 13px; }
+.btn:disabled { opacity: .5; cursor: default; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; border-radius: 999px; font-size: 12px; background: var(--glass-2); border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+.chip.accent { color: hsl(258 90% 82%); border-color: hsl(258 90% 72% / .35); background: hsl(258 90% 60% / .14); }
+.chip.ok { color: var(--ok); border-color: hsl(150 60% 52% / .35); background: hsl(150 60% 40% / .12); }
+.chip.info { color: var(--info); border-color: hsl(205 85% 62% / .35); background: hsl(205 85% 50% / .12); }
+.chip.warn { color: var(--warn); border-color: hsl(38 95% 60% / .35); background: hsl(38 95% 50% / .12); }
+.chip.critical { color: var(--crit); border-color: hsl(354 85% 64% / .4); background: hsl(354 85% 50% / .12); }
+.chip svg.i { width: 13px; height: 13px; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 18px; }
+.seg { display: inline-flex; padding: 3px; border-radius: 12px; background: var(--glass); border: 1px solid var(--line); }
+.seg button { border: 0; background: transparent; padding: 5px 12px; border-radius: 9px; color: var(--muted); cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--glass-2); color: var(--text); box-shadow: inset 0 0 0 1px var(--line-2); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+.card { position: relative; border-radius: var(--radius); background: var(--glass); border: 1px solid var(--line); backdrop-filter: blur(18px) saturate(130%); box-shadow: var(--shadow); overflow: hidden; }
+.card.active { border-color: hsl(258 90% 72% / .55); box-shadow: 0 0 0 1px hsl(258 90% 72% / .35), var(--shadow); }
+.thumb { height: 110px; display: grid; place-items: center; position: relative; }
+.thumb > svg.i { width: 34px; height: 34px; stroke: hsl(0 0% 100% / .85); stroke-width: 1.6; }
+.thumb.shader { background: radial-gradient(70% 90% at 20% 20%, hsl(258 80% 55% / .7), transparent), radial-gradient(70% 90% at 90% 90%, hsl(172 70% 45% / .6), transparent), hsl(240 40% 14%); }
+.thumb.video { background: radial-gradient(70% 90% at 80% 20%, hsl(205 85% 50% / .65), transparent), radial-gradient(70% 90% at 10% 100%, hsl(320 70% 50% / .45), transparent), hsl(230 40% 14%); }
+.thumb.web { background: radial-gradient(70% 90% at 15% 85%, hsl(38 90% 55% / .5), transparent), radial-gradient(70% 90% at 90% 15%, hsl(172 70% 45% / .5), transparent), hsl(228 35% 14%); }
+.thumb .now { position: absolute; top: 10px; left: 10px; }
+.card .body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 8px; }
+.card h3 { margin: 0; font-size: 15px; font-weight: 620; letter-spacing: -.01em; }
+.card p { margin: 0; color: var(--muted); font-size: 13px; min-height: 19px; }
+.badges { display: flex; flex-wrap: wrap; gap: 6px; }
+.actions { display: flex; gap: 8px; margin-top: 4px; align-items: center; }
+.actions select { flex: 1; min-width: 0; }
+select, input[type=text], input[type=url] { padding: 7px 10px; border-radius: var(--radius-sm); border: 1px solid var(--line-2); background: hsl(228 30% 12% / .8); outline: none; }
+select:focus, input:focus { border-color: hsl(258 90% 72% / .6); box-shadow: 0 0 0 3px hsl(258 90% 72% / .18); }
+.empty { padding: 50px 20px; text-align: center; color: var(--muted); border: 1px dashed var(--line-2); border-radius: var(--radius); }
+section[hidden] { display: none !important; }
+.panel { border-radius: var(--radius); background: var(--glass); border: 1px solid var(--line); backdrop-filter: blur(18px); padding: 18px 20px; margin-bottom: 16px; }
+.panel h2 { font-size: 15px; margin: 0 0 12px; font-weight: 620; display: flex; align-items: center; gap: 10px; }
+.kv { display: grid; grid-template-columns: 170px 1fr; gap: 8px 16px; font-size: 13.5px; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+th { color: var(--muted); font-weight: 500; }
+tr:last-child td { border-bottom: 0; }
+.tier-hero { display: flex; align-items: center; gap: 18px; }
+.tier-big { font-size: 34px; font-weight: 700; letter-spacing: -.03em; padding: 6px 18px; border-radius: 14px; background: linear-gradient(135deg, hsl(258 85% 66% / .3), hsl(172 70% 46% / .25)); border: 1px solid var(--line-2); }
+ul.reasons { margin: 10px 0 0; padding-left: 18px; color: var(--muted); font-size: 13px; }
+.row { display: flex; align-items: center; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.row:last-child { border-bottom: 0; }
+.row .t { flex: 1; }
+.row .t b { display: block; font-weight: 560; }
+.row .t span { color: var(--muted); font-size: 13px; }
+.switch { position: relative; width: 42px; height: 24px; flex: none; }
+.switch input { opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; position: absolute; z-index: 1; }
+.switch span { position: absolute; inset: 0; border-radius: 999px; background: hsl(228 20% 30%); transition: background .15s; }
+.switch span::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform .15s; }
+.switch input:checked + span { background: linear-gradient(135deg, hsl(258 85% 66%), hsl(250 80% 60%)); }
+.switch input:checked + span::after { transform: translateX(18px); }
+.switch input:focus-visible + span { box-shadow: 0 0 0 3px hsl(258 90% 72% / .3); }
+input[type=range] { accent-color: hsl(258 85% 66%); width: 160px; }
+.mon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.screen { aspect-ratio: 16 / 9; border-radius: 10px; border: 1px solid var(--line-2); display: grid; place-items: center; color: var(--muted); font-size: 13px; margin-bottom: 12px; background: hsl(228 30% 10%); }
+.overlay { position: fixed; inset: 0; background: hsl(230 40% 3% / .6); backdrop-filter: blur(6px); display: grid; place-items: center; z-index: 50; padding: 20px; }
+.overlay[hidden] { display: none; }
+.modal { width: min(560px, 100%); border-radius: 20px; background: hsl(228 30% 13% / .92); border: 1px solid var(--line-2); box-shadow: var(--shadow); padding: 22px 24px; }
+.modal h2 { margin: 0 0 6px; font-size: 18px; display: flex; gap: 10px; align-items: center; }
+.modal .lead { color: var(--muted); margin: 0 0 16px; }
+.warn-item { display: flex; gap: 12px; padding: 12px 14px; border-radius: 12px; background: hsl(228 30% 18% / .6); border: 1px solid var(--line); margin-bottom: 10px; }
+.warn-item .ico { margin-top: 2px; }
+.warn-item.critical .ico { color: var(--crit); }
+.warn-item.warn .ico { color: var(--warn); }
+.warn-item.info .ico { color: var(--info); }
+.warn-item b { display: block; margin-bottom: 2px; }
+.warn-item span { color: var(--muted); font-size: 13px; }
+.modal .foot { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.field label { color: var(--muted); font-size: 13px; }
+.toasts { position: fixed; right: 20px; bottom: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 60; }
+.toast { min-width: 260px; max-width: 380px; padding: 12px 14px; border-radius: 12px; background: hsl(228 30% 16% / .95); border: 1px solid var(--line-2); box-shadow: var(--shadow); display: flex; gap: 10px; align-items: flex-start; animation: in .2s ease-out; }
+.toast.err { border-color: hsl(354 85% 64% / .45); }
+@keyframes in { from { opacity: 0; transform: translateY(8px); } }
+.muted { color: var(--muted); }
+.mono { font-family: "Cascadia Code", Consolas, monospace; font-size: 12.5px; }
+a { color: hsl(258 90% 80%); }
+@media (max-width: 820px) { .app { grid-template-columns: 1fr; } nav { display: none; } main { padding: 20px 16px; } .kv { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 2 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5"/><path d="m3 17 9 5 9-5"/></symbol>
+  <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></symbol>
+  <symbol id="i-cpu" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></symbol>
+  <symbol id="i-wave" viewBox="0 0 24 24"><path d="M2 12c2.5-5 5-5 7.5 0s5 5 7.5 0 3.5-3 5-2"/></symbol>
+  <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="m12 3 1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3Z"/><path d="M5 3v4M3 5h4M19 17v4M17 19h4"/></symbol>
+  <symbol id="i-film" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2.5"/><path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 17h5M17 7h5"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 4 10 15 15 0 0 1-4 10 15 15 0 0 1-4-10 15 15 0 0 1 4-10Z"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.7-.9l-.8-1.2A2 2 0 0 0 7.9 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="m6 3 14 9-14 9V3Z"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="m21.7 18-8-14a2 2 0 0 0-3.4 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3Z"/><path d="M12 9v4M12 17h.01"/></symbol>
+  <symbol id="i-octagon" viewBox="0 0 24 24"><path d="M7.9 2h8.2L22 7.9v8.2L16.1 22H7.9L2 16.1V7.9L7.9 2Z"/><path d="M12 8v4M12 16h.01"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Z"/><path d="M14 2v6h6"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+</svg>
+
+<div class="app">
+  <nav aria-label="Navigasi">
+    <div class="brand"><div class="logo"><svg class="i"><use href="#i-wave"/></svg></div>nouwall</div>
+    <button class="nav-btn" data-tab="library" aria-current="true"><svg class="i"><use href="#i-layers"/></svg>Library</button>
+    <button class="nav-btn" data-tab="monitors"><svg class="i"><use href="#i-monitor"/></svg>Monitor</button>
+    <button class="nav-btn" data-tab="hardware"><svg class="i"><use href="#i-cpu"/></svg>Hardware</button>
+    <button class="nav-btn" data-tab="settings"><svg class="i"><use href="#i-sliders"/></svg>Pengaturan</button>
+    <button class="nav-btn" data-tab="about"><svg class="i"><use href="#i-info"/></svg>Tentang</button>
+    <div class="nav-foot" id="navFoot">Memuat...</div>
+  </nav>
+
+  <main>
+    <header class="top">
+      <div>
+        <h1 id="title">Library</h1>
+        <div class="sub" id="subtitle">Wallpaper yang terpasang di perangkat ini</div>
+      </div>
+      <div class="spacer"></div>
+      <span class="chip accent" id="tierChip" title="Tier hardware">Tier -</span>
+      <button class="btn" id="pauseBtn"><svg class="i"><use href="#i-pause"/></svg><span>Jeda</span></button>
+    </header>
+
+    <section id="tab-library">
+      <div class="toolbar">
+        <button class="btn primary" id="importFile"><svg class="i"><use href="#i-plus"/></svg>Impor file</button>
+        <button class="btn" id="importFolder"><svg class="i"><use href="#i-folder"/></svg>Impor folder HTML</button>
+        <button class="btn" id="importUrl"><svg class="i"><use href="#i-link"/></svg>Tambah URL</button>
+        <div class="spacer"></div>
+        <div class="seg" role="group" aria-label="Filter jenis">
+          <button data-filter="all" aria-pressed="true">Semua</button>
+          <button data-filter="shader" aria-pressed="false">Shader</button>
+          <button data-filter="video" aria-pressed="false">Video</button>
+          <button data-filter="web" aria-pressed="false">Web</button>
+        </div>
+      </div>
+      <div class="grid" id="library"></div>
+    </section>
+
+    <section id="tab-monitors" hidden><div class="mon-grid" id="monitors"></div></section>
+
+    <section id="tab-hardware" hidden>
+      <div class="panel">
+        <div class="tier-hero">
+          <div class="tier-big" id="tierBig">-</div>
+          <div style="flex:1">
+            <div><b id="tierTitle">Tier</b></div>
+            <div class="muted" id="tierBudget"></div>
+          </div>
+          <div class="field" style="margin:0">
+            <label for="tierOverride">Tier yang dipakai</label>
+            <select id="tierOverride">
+              <option value="">Otomatis</option>
+              <option value="low">Low</option>
+              <option value="mid">Mid</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+        </div>
+        <ul class="reasons" id="tierReasons"></ul>
+      </div>
+      <div class="panel">
+        <h2><svg class="i"><use href="#i-cpu"/></svg>Perangkat<div class="spacer"></div><button class="btn sm" id="rescan"><svg class="i"><use href="#i-refresh"/></svg>Pindai ulang</button></h2>
+        <dl class="kv" id="hwKv"></dl>
+      </div>
+      <div class="panel">
+        <h2><svg class="i"><use href="#i-film"/></svg>Decoder video hardware</h2>
+        <table><thead><tr><th>Codec</th><th>Resolusi maksimal</th><th>4K</th></tr></thead><tbody id="decode"></tbody></table>
+      </div>
+    </section>
+
+    <section id="tab-settings" hidden>
+      <div class="panel">
+        <h2>Hemat daya</h2>
+        <div class="row"><div class="t"><b>Jeda saat aplikasi layar penuh</b><span>Game, video, atau presentasi menutupi monitor</span></div><label class="switch"><input type="checkbox" data-key="pause_on_fullscreen"><span></span></label></div>
+        <div class="row"><div class="t"><b>Jeda saat jendela dimaksimalkan</b><span>Wallpaper tidak terlihat di belakang jendela penuh</span></div><label class="switch"><input type="checkbox" data-key="pause_on_maximized"><span></span></label></div>
+        <div class="row"><div class="t"><b>Jeda saat memakai baterai</b><span>Berhenti total ketika laptop tidak dicolok</span></div><label class="switch"><input type="checkbox" data-key="pause_on_battery"><span></span></label></div>
+        <div class="row"><div class="t"><b>Mode hemat baterai</b><span>Frame rate shader dibagi dua saat memakai baterai</span></div><label class="switch"><input type="checkbox" data-key="battery_saver"><span></span></label></div>
+        <div class="row"><div class="t"><b>Turunkan kualitas otomatis</b><span>Kurangi resolusi render lalu fps bila frame terlambat</span></div><label class="switch"><input type="checkbox" data-key="auto_downgrade"><span></span></label></div>
+        <div class="row"><div class="t"><b>Batas frame rate shader</b><span>Tier perangkat dapat menurunkannya lagi</span></div>
+          <select data-key="fps_cap" data-type="number"><option>15</option><option>24</option><option>30</option><option>60</option><option>120</option><option>144</option></select></div>
+      </div>
+      <div class="panel">
+        <h2>Audio</h2>
+        <div class="row"><div class="t"><b>Bisukan wallpaper</b><span>Video dan halaman web tanpa suara</span></div><label class="switch"><input type="checkbox" data-key="mute"><span></span></label></div>
+        <div class="row"><div class="t"><b>Volume</b><span id="volLabel">50%</span></div><input type="range" min="0" max="1" step="0.05" data-key="volume" data-type="number"></div>
+      </div>
+      <div class="panel">
+        <h2>Umum</h2>
+        <div class="row"><div class="t"><b>Mulai bersama Windows</b><span>Jalankan nouwall saat masuk ke Windows</span></div><label class="switch"><input type="checkbox" data-key="autostart"><span></span></label></div>
+        <div class="row"><div class="t"><b>Jangan tampilkan peringatan hardware</b><span>Langsung pasang wallpaper walau melebihi tier perangkat</span></div><label class="switch"><input type="checkbox" data-key="suppress_warnings"><span></span></label></div>
+      </div>
+    </section>
+
+    <section id="tab-about" hidden>
+      <div class="panel">
+        <h2><div class="logo"><svg class="i"><use href="#i-wave"/></svg></div>nouwall <span class="chip" id="ver"></span></h2>
+        <p class="muted" style="margin-top:0">Live wallpaper open source untuk Windows: shader, video, dan halaman web di belakang ikon desktop, dengan peringatan otomatis sesuai kemampuan hardware.</p>
+        <dl class="kv" id="paths"></dl>
+        <div class="toolbar" style="margin:16px 0 0">
+          <button class="btn" id="openLib"><svg class="i"><use href="#i-folder"/></svg>Folder library</button>
+          <button class="btn" id="openLog"><svg class="i"><use href="#i-file"/></svg>Buka log</button>
+          <button class="btn" id="openRepo"><svg class="i"><use href="#i-link"/></svg>GitHub</button>
+          <div class="spacer"></div>
+          <button class="btn danger" id="quit"><svg class="i"><use href="#i-x"/></svg>Keluar dari nouwall</button>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Membuat wallpaper</h2>
+        <p class="muted" style="margin:0">Shader GLSL memakai konvensi Shadertoy: <span class="mono">void mainImage(out vec4 fragColor, in vec2 fragCoord)</span> dengan <span class="mono">iTime</span>, <span class="mono">iResolution</span>, <span class="mono">iMouse</span>. Shader WGSL mendefinisikan <span class="mono">fn main_image(frag_coord: vec2&lt;f32&gt;) -&gt; vec4&lt;f32&gt;</span>. Halaman web menerima event <span class="mono">nouwall:pause</span> dan <span class="mono">nouwall:resume</span>.</p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="overlay" id="confirm" hidden role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+  <div class="modal">
+    <h2 id="confirmTitle"><svg class="i" style="color:var(--warn)"><use href="#i-alert"/></svg><span>Perangkat mungkin tidak mendukung</span></h2>
+    <p class="lead" id="confirmLead"></p>
+    <div id="confirmList"></div>
+    <div class="foot">
+      <button class="btn" id="confirmCancel">Batal</button>
+      <button class="btn primary" id="confirmOk">Tetap pakai</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="urlDlg" hidden role="dialog" aria-modal="true" aria-labelledby="urlTitle">
+  <div class="modal">
+    <h2 id="urlTitle"><svg class="i"><use href="#i-globe"/></svg>Tambah halaman web</h2>
+    <p class="lead">Halaman akan dimuat dari internet setiap kali wallpaper dimulai.</p>
+    <div class="field"><label for="urlInput">URL</label><input type="url" id="urlInput" placeholder="https://"></div>
+    <div class="field"><label for="urlName">Nama</label><input type="text" id="urlName" placeholder="Opsional"></div>
+    <div class="foot"><button class="btn" id="urlCancel">Batal</button><button class="btn primary" id="urlOk">Tambah</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="delDlg" hidden role="dialog" aria-modal="true" aria-labelledby="delTitle">
+  <div class="modal">
+    <h2 id="delTitle"><svg class="i" style="color:var(--crit)"><use href="#i-trash"/></svg>Hapus wallpaper?</h2>
+    <p class="lead" id="delLead"></p>
+    <div class="foot"><button class="btn" id="delCancel">Batal</button><button class="btn primary" id="delOk">Hapus</button></div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script>
+(() => {
+  const pending = new Map();
+  const listeners = {};
+  let seq = 0;
+  window.__nouwall = {
+    resolve(id, ok, payload) { const p = pending.get(id); if (!p) return; pending.delete(id); ok ? p.res(payload) : p.rej(new Error(payload)); },
+    emit(name, payload) { (listeners[name] || []).forEach(f => f(payload)); },
+  };
+  const call = (cmd, args = {}) => new Promise((res, rej) => { const id = ++seq; pending.set(id, { res, rej }); window.ipc.postMessage(JSON.stringify({ id, cmd, args })); });
+  const on = (name, f) => (listeners[name] ||= []).push(f);
+
+  const $ = s => document.querySelector(s);
+  const $$ = s => [...document.querySelectorAll(s)];
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const icon = (id, cls = 'i') => `<svg class="${cls}"><use href="#i-${id}"/></svg>`;
+  const KIND_ICON = { shader: 'sparkles', video: 'film', web: 'globe' };
+  const SEV_ICON = { critical: 'octagon', warn: 'alert', info: 'info' };
+  const PAUSE_TEXT = { user: 'dijeda manual', locked: 'layar terkunci', display_off: 'layar mati', fullscreen: 'aplikasi layar penuh', maximized: 'jendela dimaksimalkan', battery: 'memakai baterai' };
+  const TITLES = {
+    library: ['Library', 'Wallpaper yang terpasang di perangkat ini'],
+    monitors: ['Monitor', 'Wallpaper dan status tiap layar'],
+    hardware: ['Hardware', 'Kemampuan perangkat dan batas yang dipakai nouwall'],
+    settings: ['Pengaturan', 'Hemat daya, audio, dan perilaku aplikasi'],
+    about: ['Tentang', 'Versi, lokasi berkas, dan panduan singkat'],
+  };
+
+  let state = null;
+  let filter = 'all';
+
+  function toast(text, err = false) {
+    const el = document.createElement('div');
+    el.className = 'toast' + (err ? ' err' : '');
+    el.innerHTML = icon(err ? 'alert' : 'check') + `<div>${esc(text)}</div>`;
+    $('#toasts').append(el);
+    setTimeout(() => el.remove(), 4200);
+  }
+
+  function res(v) { return v ? `${v.width}x${v.height}` : ''; }
+  function resLabel(w, h) { const s = Math.min(w, h); return s >= 4320 ? '8K' : s >= 2160 ? '4K' : s >= 1440 ? '1440p' : s >= 1080 ? '1080p' : s >= 720 ? '720p' : `${w}x${h}`; }
+
+  function monitorOptions(selected) {
+    const ms = state.monitors;
+    let o = `<option value="all">Semua monitor</option>`;
+    if (ms.length > 1) ms.forEach(m => o += `<option value="${m.index}" ${selected === m.index ? 'selected' : ''}>Monitor ${m.index + 1} (${m.width}x${m.height})</option>`);
+    return o;
+  }
+
+  function renderLibrary() {
+    const lib = state.library.filter(e => filter === 'all' || e.kind === filter);
+    const active = new Set(state.monitors.map(m => m.wallpaper));
+    if (!lib.length) {
+      $('#library').innerHTML = `<div class="empty">Belum ada wallpaper${filter !== 'all' ? ' jenis ini' : ''}. Impor video, shader (.glsl, .wgsl) atau halaman HTML.</div>`;
+      return;
+    }
+    $('#library').innerHTML = lib.map(e => {
+      const badges = [];
+      badges.push(`<span class="chip">${icon(KIND_ICON[e.kind])}${e.kind === 'shader' ? 'Shader' : e.kind === 'video' ? 'Video' : 'Web'}</span>`);
+      if (e.video) {
+        badges.push(`<span class="chip">${resLabel(e.video.width, e.video.height)}</span>`);
+        if (e.video.fps) badges.push(`<span class="chip">${e.video.fps} fps</span>`);
+        if (e.video.codec) badges.push(`<span class="chip">${esc(e.video.codec.toUpperCase())}</span>`);
+      }
+      if (e.shader_cost) badges.push(`<span class="chip">beban ${e.shader_cost}/5</span>`);
+      if (e.remote) badges.push(`<span class="chip">online</span>`);
+      const worst = e.warnings[0];
+      if (worst) badges.push(`<span class="chip ${worst.severity}" title="${esc(worst.message)}">${icon(SEV_ICON[worst.severity])}${esc(worst.title)}</span>`);
+      const on = active.has(e.id);
+      return `<article class="card${on ? ' active' : ''}" data-id="${esc(e.id)}">
+        <div class="thumb ${e.kind}">${icon(KIND_ICON[e.kind])}${on ? '<span class="chip ok now">' + icon('check') + 'Aktif</span>' : ''}</div>
+        <div class="body">
+          <h3>${esc(e.title)}</h3>
+          <p>${esc(e.description || (e.author ? 'oleh ' + e.author : ''))}</p>
+          <div class="badges">${badges.join('')}</div>
+          <div class="actions">
+            <select aria-label="Monitor tujuan">${monitorOptions()}</select>
+            <button class="btn primary sm" data-act="apply">Pasang</button>
+            <button class="btn ghost sm danger" data-act="remove" title="Hapus" aria-label="Hapus">${icon('trash')}</button>
+          </div>
+        </div>
+      </article>`;
+    }).join('');
+  }
+
+  function renderMonitors() {
+    $('#monitors').innerHTML = state.monitors.map(m => {
+      const wp = state.library.find(e => e.id === m.wallpaper);
+      const status = m.paused ? `<span class="chip warn">${icon('pause')}${esc(PAUSE_TEXT[m.paused] || m.paused)}</span>` : `<span class="chip ok">${icon('play')}${esc(m.status || 'berjalan')}</span>`;
+      return `<div class="panel">
+        <div class="screen" style="aspect-ratio:${m.width}/${m.height}">${wp ? icon(KIND_ICON[wp.kind]) : ''}</div>
+        <h2>Monitor ${m.index + 1}${m.primary ? ' <span class="chip">utama</span>' : ''}</h2>
+        <dl class="kv"><dt>Resolusi</dt><dd>${m.width}x${m.height} @ ${m.refresh_hz} Hz</dd>
+        <dt>Wallpaper</dt><dd>${wp ? esc(wp.title) : '<span class="muted">tidak ada</span>'}</dd>
+        <dt>Status</dt><dd>${status}</dd></dl>
+      </div>`;
+    }).join('') || '<div class="empty">Tidak ada monitor terdeteksi.</div>';
+  }
+
+  function renderHardware() {
+    const hw = state.hardware, t = state.tier, b = t.budget;
+    $('#tierBig').textContent = t.tier.toUpperCase();
+    $('#tierTitle').textContent = t.overridden ? `Tier ${t.tier} (terdeteksi ${t.detected})` : `Tier ${t.tier}`;
+    $('#tierBudget').textContent = `Video hingga ${resLabel(b.max_video_width, b.max_video_height)} ${b.max_video_fps} fps, shader ${b.shader_fps} fps, render ${Math.round(b.render_scale * 100)}%`;
+    $('#tierReasons').innerHTML = t.reasons.map(r => `<li>${esc(r)}</li>`).join('');
+    $('#tierOverride').value = state.config.general.tier_override || '';
+    const kind = { integrated: 'Terintegrasi', discrete: 'Diskrit', software: 'Software' }[hw.gpu.kind];
+    const power = hw.power === 'battery' ? `Baterai${hw.battery_percent != null ? ' ' + hw.battery_percent + '%' : ''}` : hw.power === 'ac' ? `Listrik${hw.battery_percent != null ? ' (baterai ' + hw.battery_percent + '%)' : ''}` : 'Tidak diketahui';
+    $('#hwKv').innerHTML = `<dt>GPU</dt><dd>${esc(hw.gpu.name)}</dd><dt>Jenis</dt><dd>${kind}, VRAM ${hw.gpu.dedicated_vram_mb} MB</dd>
+      <dt>CPU</dt><dd>${hw.logical_cpus} thread</dd><dt>RAM</dt><dd>${(hw.ram_mb / 1024).toFixed(1)} GB</dd>
+      <dt>Daya</dt><dd>${power}</dd><dt>Windows</dt><dd>build ${hw.os_build}</dd>
+      <dt>Monitor</dt><dd>${hw.monitors.map(m => `${m.width}x${m.height} @ ${m.refresh_hz} Hz`).join(', ')}</dd>`;
+    const codecs = ['h264', 'hevc', 'vp9', 'av1'];
+    const names = { h264: 'H.264', hevc: 'HEVC', vp9: 'VP9', av1: 'AV1' };
+    $('#decode').innerHTML = codecs.map(c => {
+      const d = hw.decode.find(x => x.codec === c);
+      if (!d) return `<tr><td>${names[c]}</td><td class="muted">tidak didukung (decode CPU)</td><td><span class="chip critical">tidak</span></td></tr>`;
+      const fourk = Math.max(d.max_width, d.max_height) >= 3840 && Math.min(d.max_width, d.max_height) >= 2160;
+      return `<tr><td>${names[c]}</td><td>${d.max_width}x${d.max_height}</td><td><span class="chip ${fourk ? 'ok' : 'warn'}">${fourk ? 'ya' : 'tidak'}</span></td></tr>`;
+    }).join('');
+  }
+
+  function renderSettings() {
+    const g = state.config.general;
+    $$('[data-key]').forEach(el => {
+      const v = el.dataset.key === 'autostart' ? state.autostart : g[el.dataset.key];
+      if (el.type === 'checkbox') el.checked = !!v; else el.value = String(v);
+    });
+    $('#volLabel').textContent = Math.round(g.volume * 100) + '%';
+  }
+
+  function renderAbout() {
+    $('#ver').textContent = 'v' + state.version;
+    $('#paths').innerHTML = `<dt>Library</dt><dd class="mono">${esc(state.paths.library)}</dd><dt>Config</dt><dd class="mono">${esc(state.paths.config)}</dd><dt>Log</dt><dd class="mono">${esc(state.paths.log)}</dd>`;
+  }
+
+  function render() {
+    if (!state) return;
+    const t = state.tier;
+    $('#tierChip').innerHTML = `${icon('cpu')}Tier ${t.tier.toUpperCase()}`;
+    $('#pauseBtn').innerHTML = state.paused ? `${icon('play')}<span>Lanjutkan</span>` : `${icon('pause')}<span>Jeda</span>`;
+    const gpu = state.hardware.gpu.name;
+    $('#navFoot').innerHTML = `<b>${esc(gpu)}</b><br>${state.monitors.length} monitor${state.attached ? '' : '<br><span style="color:var(--warn)">Desktop belum terpasang</span>'}`;
+    renderLibrary(); renderMonitors(); renderHardware(); renderSettings(); renderAbout();
+  }
+
+  async function refresh() { state = await call('state'); render(); }
+  on('state', s => { state = s; render(); });
+
+  // Confirmation dialog for hardware warnings.
+  let pendingApply = null;
+  function showConfirm(id, monitor, warnings) {
+    const e = state && state.library.find(x => x.id === id);
+    pendingApply = { id, monitor };
+    const crit = warnings.some(w => w.severity === 'critical');
+    $('#confirmTitle span').textContent = crit ? 'Perangkat tidak mendukung wallpaper ini dengan baik' : 'Perangkat Anda mungkin tidak mendukung ini dengan lancar';
+    $('#confirmLead').textContent = `${e ? e.title : id} melebihi kemampuan yang disarankan untuk perangkat ini (tier ${state ? state.tier.tier : ''}).`;
+    $('#confirmList').innerHTML = warnings.map(w => `<div class="warn-item ${w.severity}"><span class="ico">${icon(SEV_ICON[w.severity])}</span><div><b>${esc(w.title)}</b><span>${esc(w.message)}</span></div></div>`).join('');
+    $('#confirm').hidden = false;
+    $('#confirmOk').focus();
+  }
+  on('confirm', p => showConfirm(p.id, p.monitor, p.warnings));
+  $('#confirmCancel').onclick = () => { $('#confirm').hidden = true; pendingApply = null; };
+  $('#confirmOk').onclick = async () => {
+    $('#confirm').hidden = true;
+    if (!pendingApply) return;
+    const { id, monitor } = pendingApply; pendingApply = null;
+    await apply(id, monitor, true);
+  };
+
+  async function apply(id, monitor, force = false) {
+    try {
+      const r = await call('apply', { id, monitor: monitor === 'all' ? 'all' : Number(monitor), force });
+      if (!r.applied) return showConfirm(id, monitor, r.warnings);
+      const e = state.library.find(x => x.id === id);
+      toast(`${e ? e.title : id} dipasang`);
+    } catch (err) { toast(err.message, true); }
+  }
+
+  let pendingDelete = null;
+  $('#library').addEventListener('click', ev => {
+    const btn = ev.target.closest('button[data-act]');
+    if (!btn) return;
+    const card = btn.closest('.card');
+    const id = card.dataset.id;
+    if (btn.dataset.act === 'apply') apply(id, card.querySelector('select').value);
+    if (btn.dataset.act === 'remove') {
+      const e = state.library.find(x => x.id === id);
+      pendingDelete = id;
+      $('#delLead').textContent = `"${e ? e.title : id}" dan berkasnya akan dihapus dari library.`;
+      $('#delDlg').hidden = false;
+    }
+  });
+  $('#delCancel').onclick = () => { $('#delDlg').hidden = true; pendingDelete = null; };
+  $('#delOk').onclick = async () => {
+    $('#delDlg').hidden = true;
+    try { await call('remove', { id: pendingDelete }); toast('Wallpaper dihapus'); } catch (err) { toast(err.message, true); }
+    pendingDelete = null;
+  };
+
+  function afterImport(r) {
+    if (!r) return;
+    const w = r.warnings && r.warnings[0];
+    toast(w ? `${r.title} diimpor. ${w.title}` : `${r.title} diimpor`);
+  }
+  $('#importFile').onclick = async () => { try { afterImport(await call('import')); } catch (err) { toast(err.message, true); } };
+  $('#importFolder').onclick = async () => { try { afterImport(await call('import_folder')); } catch (err) { toast(err.message, true); } };
+  $('#importUrl').onclick = () => { $('#urlDlg').hidden = false; $('#urlInput').focus(); };
+  $('#urlCancel').onclick = () => { $('#urlDlg').hidden = true; };
+  $('#urlOk').onclick = async () => {
+    try { afterImport(await call('import_url', { url: $('#urlInput').value.trim(), title: $('#urlName').value })); $('#urlDlg').hidden = true; $('#urlInput').value = ''; $('#urlName').value = ''; }
+    catch (err) { toast(err.message, true); }
+  };
+
+  $$('.seg button').forEach(b => b.onclick = () => {
+    filter = b.dataset.filter;
+    $$('.seg button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    renderLibrary();
+  });
+
+  function showTab(tab) {
+    $$('.nav-btn').forEach(b => b.setAttribute('aria-current', String(b.dataset.tab === tab)));
+    $$('main section').forEach(s => s.hidden = s.id !== 'tab-' + tab);
+    $('#title').textContent = TITLES[tab][0];
+    $('#subtitle').textContent = TITLES[tab][1];
+    try { localStorage.setItem('nouwall.tab', tab); } catch (_) {}
+  }
+  $$('.nav-btn').forEach(b => b.onclick = () => showTab(b.dataset.tab));
+  try { const t = localStorage.getItem('nouwall.tab'); if (t && TITLES[t]) showTab(t); } catch (_) {}
+
+  $('#pauseBtn').onclick = () => call('pause', { paused: !state.paused });
+
+  async function saveSettings() {
+    const g = { ...state.config.general };
+    $$('[data-key]').forEach(el => {
+      const k = el.dataset.key;
+      g[k] = el.type === 'checkbox' ? el.checked : el.dataset.type === 'number' ? Number(el.value) : el.value;
+    });
+    g.tier_override = $('#tierOverride').value || null;
+    try { await call('settings', { general: g }); } catch (err) { toast(err.message, true); refresh(); }
+  }
+  $$('[data-key]').forEach(el => el.addEventListener('change', saveSettings));
+  $('[data-key="volume"]').addEventListener('input', e => { $('#volLabel').textContent = Math.round(e.target.value * 100) + '%'; });
+  $('#tierOverride').addEventListener('change', async () => { await saveSettings(); toast('Tier diperbarui'); });
+  $('#rescan').onclick = async () => { state = await call('rescan'); render(); toast('Hardware dipindai ulang'); };
+  $('#openLib').onclick = () => call('open_library');
+  $('#openLog').onclick = () => call('open_log');
+  $('#openRepo').onclick = () => call('open_url', { url: 'https://github.com/BBguss/nouwall' });
+  $('#quit').onclick = () => call('quit');
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') $$('.overlay').forEach(o => o.hidden = true);
+  });
+
+  refresh();
+})();
+</script>
+</body>
+</html>

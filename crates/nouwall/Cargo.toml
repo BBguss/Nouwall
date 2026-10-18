@@ -6,3 +6,61 @@ edition.workspace = true
 license.workspace = true
 repository.workspace = true
 authors.workspace = true
+
+[lib]
+name = "nouwall"
+path = "src/lib.rs"
+
+[[bin]]
+name = "nouwall"
+path = "src/bin/nouwall.rs"
+
+[[bin]]
+name = "nouwallctl"
+path = "src/bin/nouwallctl.rs"
+
+[dependencies]
+nouwall-core = { path = "../nouwall-core" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+log = { version = "0.4", features = ["std"] }
+
+[target.'cfg(windows)'.dependencies]
+wgpu = { version = "30", features = ["glsl"] }
+pollster = "0.4"
+bytemuck = { version = "1", features = ["derive"] }
+wry = "0.57"
+tray-icon = "0.26"
+rfd = "0.17"
+raw-window-handle = "0.6"
+windows-core = "0.62"
+
+[target.'cfg(windows)'.dependencies.windows]
+version = "0.62"
+features = [
+    "Win32_Foundation",
+    "Win32_Graphics_Direct3D",
+    "Win32_Graphics_Direct3D11",
+    "Win32_Graphics_Direct3D12",
+    "Win32_Graphics_Dwm",
+    "Win32_Graphics_Dxgi",
+    "Win32_Graphics_Dxgi_Common",
+    "Win32_Graphics_Gdi",
+    "Win32_Media_MediaFoundation",
+    "Win32_System_Com",
+    "Win32_System_Console",
+    "Win32_System_DataExchange",
+    "Win32_System_LibraryLoader",
+    "Win32_System_Power",
+    "Win32_System_Registry",
+    "Win32_System_RemoteDesktop",
+    "Win32_System_SystemInformation",
+    "Win32_System_SystemServices",
+    "Win32_System_Threading",
+    "Win32_Storage_Xps",
+    "Win32_System_Variant",
+    "Win32_UI_HiDpi",
+    "Win32_UI_Input_KeyboardAndMouse",
+    "Win32_UI_Shell",
+    "Win32_UI_WindowsAndMessaging",
+]
