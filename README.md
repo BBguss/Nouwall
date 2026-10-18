@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/assets/banner_1280×640px_2.png" alt="nouwall" width="360">
+<img src="docs/assets/banner_1280×640px_2.png" alt="nouwall">
 
 # nouwall
 
