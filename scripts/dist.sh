@@ -18,7 +18,7 @@ NAME="nouwall-$VERSION-windows-x64"
 rm -rf "dist/$NAME" "dist/$NAME.zip"
 mkdir -p "dist/$NAME"
 cp "target/$TARGET/release/nouwall.exe" "target/$TARGET/release/nouwallctl.exe" \
-   README.md LICENSE-MIT LICENSE-APACHE "dist/$NAME/"
+   README.md README.id.md CHANGELOG.md LICENSE-MIT LICENSE-APACHE "dist/$NAME/"
 if [ $# -gt 0 ]; then
     mkdir -p "dist/$NAME/samples"
     cp "$@" "dist/$NAME/samples/"

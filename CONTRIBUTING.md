@@ -1,7 +1,8 @@
 # Contributing to nouwall
 
 Thanks for helping. You can contribute in several ways: GPU profiles, wallpapers,
-bug reports, and code.
+bug reports, translations, and code. Please follow the
+[Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Adding or fixing a GPU profile
 
@@ -49,12 +50,26 @@ Include:
 - `nouwall` holds the Windows-only code: Win32, Direct3D, Media Foundation,
   WebView2. Keep the `unsafe` blocks small and add a comment when an API
   behaves in a surprising way.
-- Before sending changes, run `cargo fmt`, `cargo clippy --all-targets`, and
-  `cargo test -p nouwall-core`.
-- User-facing text is in Bahasa Indonesia for now. Keep messages short and
-  concrete.
+- Before sending changes, run `cargo fmt`,
+  `cargo clippy --workspace --all-targets -- -D warnings`, and
+  `cargo test -p nouwall-core`. Add user-visible changes to `CHANGELOG.md`
+  under **Unreleased**.
+- Logs are in English. Everything a user reads (warnings, tier reasons, tray,
+  CLI, error messages) is in English and Bahasa Indonesia. In Rust, use
+  `tr!("English {x}", "Indonesia {x}", x = ...)` from `nouwall_core`. In the
+  settings UI, add the key to both `STRINGS.en` and `STRINGS.id` and reference it
+  with `data-i18n="key"` or `t('key')`. Keep messages short and concrete.
 - The settings UI (`crates/nouwall/assets/ui/settings.html`) is a single file
   with no build step. It uses inline Lucide SVG icons and no emoji.
+- The app icon is generated from the artwork in `docs/assets/brand/`. After
+  changing it, run `python3 scripts/make-icons.py` (needs Pillow) and commit the
+  generated files under `crates/nouwall/assets/icon/` and `docs/assets/`.
+
+## Translations
+
+A new language needs a `Lang` variant in `crates/nouwall-core/src/i18n.rs`, a third
+template in the `tr!` macro, and a `STRINGS` table in the settings UI. Please open
+an issue first so the macro change can be discussed.
 
 ## Licensing
 

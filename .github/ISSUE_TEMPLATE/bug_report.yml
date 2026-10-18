@@ -1,0 +1,56 @@
+name: Bug report
+description: Something does not work as expected.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for the report. The probe output and the log usually let us find the cause quickly.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Import ...
+        2. Apply to monitor 2 ...
+        3. ...
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Wallpaper kind
+      multiple: true
+      options: [Shader (GLSL), Shader (WGSL), Video, Web, Not wallpaper related]
+  - type: input
+    id: version
+    attributes:
+      label: nouwall version
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+      description: Run `winver`.
+      placeholder: Windows 11 24H2 (26100.2033)
+    validations:
+      required: true
+  - type: textarea
+    id: probe
+    attributes:
+      label: "`nouwallctl probe` output"
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Log
+      description: The end of `%LOCALAPPDATA%\nouwall\nouwall.log`. Start `nouwall.exe --verbose` for more detail.
+      render: text

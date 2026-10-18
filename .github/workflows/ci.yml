@@ -37,7 +37,7 @@ jobs:
           $v = (cargo metadata --no-deps --format-version 1 | ConvertFrom-Json).packages[0].version
           $d = "nouwall-$v-windows-x64"
           New-Item -ItemType Directory $d | Out-Null
-          Copy-Item target/release/nouwall.exe, target/release/nouwallctl.exe, README.md, LICENSE-MIT, LICENSE-APACHE $d
+          Copy-Item target/release/nouwall.exe, target/release/nouwallctl.exe, README.md, README.id.md, CHANGELOG.md, LICENSE-MIT, LICENSE-APACHE $d
           Compress-Archive $d "$d.zip"
           "ZIP=$d.zip" >> $env:GITHUB_ENV
       - uses: actions/upload-artifact@v4

@@ -1,0 +1,37 @@
+name: Hardware report
+description: My GPU is in the wrong tier, or a warning is wrong for my device.
+labels: [hardware-profile]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Tier profiles only work if they know real hardware. Two minutes of testing helps everyone with the same GPU.
+        You can also try a fix yourself: copy `profiles.toml` to `%APPDATA%\nouwall\profiles.toml`, edit it, and restart nouwall.
+  - type: textarea
+    id: probe
+    attributes:
+      label: "`nouwallctl probe` output"
+      render: text
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Device
+      placeholder: Lenovo ThinkPad T480, Intel UHD 620
+    validations:
+      required: true
+  - type: dropdown
+    id: tier
+    attributes:
+      label: Which tier fits better?
+      options: [low, mid, high]
+    validations:
+      required: true
+  - type: textarea
+    id: tested
+    attributes:
+      label: What did you test?
+      description: Videos (resolution, codec, fps) and shaders, smooth or not, fan noise, CPU/GPU usage in Task Manager, plugged in or on battery.
+    validations:
+      required: true
