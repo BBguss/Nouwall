@@ -22,6 +22,8 @@ jobs:
   windows:
     name: build (windows)
     runs-on: windows-latest
+    permissions:
+      contents: write # create the GitHub release on v* tags
     steps:
       - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
