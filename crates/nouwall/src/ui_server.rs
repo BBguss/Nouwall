@@ -1,6 +1,6 @@
 //! `http://nouwall.localhost/`: the custom protocol behind the settings window.
 //!
-//! `/` serves the embedded UI and `/lib/<id>/<file>` serves files from the
+//! `/` serves the embedded UI (and `/logo.png`) and `/lib/<id>/<file>` serves files from the
 //! wallpaper library so the page can preview videos, shaders and web pages.
 //! Byte ranges are honoured so large videos stream instead of loading whole.
 
@@ -18,6 +18,7 @@ pub const SCHEME: &str = "nouwall";
 pub const ORIGIN: &str = "http://nouwall.localhost/";
 
 const UI_HTML: &str = include_str!("../assets/ui/settings.html");
+const LOGO_PNG: &[u8] = include_bytes!("../assets/icon/logo.png");
 /// Largest slice returned for one range request.
 const MAX_CHUNK: u64 = 4 * 1024 * 1024;
 
@@ -27,6 +28,9 @@ pub fn handle(request: Request<Vec<u8>>) -> Resp {
     let path = request.uri().path();
     if path == "/" || path == "/index.html" {
         return respond(StatusCode::OK, "text/html; charset=utf-8", UI_HTML.as_bytes().to_vec());
+    }
+    if path == "/logo.png" {
+        return respond(StatusCode::OK, "image/png", LOGO_PNG.to_vec());
     }
     let Some(rest) = path.strip_prefix("/lib/") else {
         return not_found();
