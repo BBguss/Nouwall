@@ -1,0 +1,16 @@
+[workspace]
+resolver = "2"
+members = ["crates/nouwall-core", "crates/nouwall"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/BBguss/nouwall"
+authors = ["BBguss <mbbbdg@gmail.com>"]
+
+[profile.release]
+lto = "thin"
+codegen-units = 4
+strip = true
+panic = "abort"

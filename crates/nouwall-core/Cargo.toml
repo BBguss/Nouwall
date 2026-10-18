@@ -1,0 +1,13 @@
+[package]
+name = "nouwall-core"
+description = "Platform-independent logic for the nouwall live wallpaper engine"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+toml = "0.9"
+thiserror = "2"

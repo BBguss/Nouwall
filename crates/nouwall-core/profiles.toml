@@ -1,0 +1,70 @@
+# nouwall GPU profiles.
+#
+# Each [[gpu]] entry lists case-insensitive substrings of the adapter name as
+# reported by DXGI (see `nouwall probe`). The first matching entry decides the
+# tier. GPUs that match nothing fall back to a heuristic: discrete with >= 4 GB
+# VRAM is High, other discrete GPUs are Mid, unknown integrated GPUs are Low.
+#
+# Contributions welcome: run `nouwall probe`, test a few wallpapers, and add an
+# entry with a short note about what ran smoothly.
+
+# --- Low: older or entry-level integrated graphics -------------------------
+[[gpu]]
+match = ["HD Graphics", "UHD Graphics 6", "UHD Graphics 7", "UHD Graphics 600", "Iris Plus Graphics 6", "Iris(R) Plus Graphics 6"]
+tier = "low"
+note = "Intel Gen9 / Gen9.5 iGPU: hardware decode 4K ada, tetapi render 4K boros daya"
+
+[[gpu]]
+match = ["Radeon R5", "Radeon R7", "Radeon(TM) Vega 3", "Radeon Vega 3", "Radeon(TM) Vega 6", "Radeon Vega 6"]
+tier = "low"
+
+[[gpu]]
+match = ["Microsoft Basic Render", "Basic Display"]
+tier = "low"
+note = "Driver GPU belum terpasang"
+
+# --- Mid: modern integrated graphics and entry discrete GPUs ----------------
+[[gpu]]
+match = ["Iris Xe", "Iris(R) Xe", "Iris Plus Graphics G7", "Iris(R) Plus Graphics G7", "Intel(R) Graphics", "Intel(R) Arc(TM) Graphics", "Arc Graphics"]
+tier = "mid"
+note = "Intel Xe iGPU"
+
+[[gpu]]
+match = ["Radeon(TM) Vega 8", "Radeon Vega 8", "Radeon(TM) Vega 10", "Radeon(TM) Vega 11", "Radeon 610M", "Radeon 660M", "Radeon 680M", "Radeon 740M", "Radeon 760M", "Radeon 780M", "Radeon 880M", "Radeon 890M", "Radeon(TM) Graphics"]
+tier = "mid"
+note = "AMD APU"
+
+[[gpu]]
+match = ["GeForce MX", "GeForce GT ", "GeForce GTX 9", "GeForce GTX 10", "Radeon RX 5", "Radeon RX 4"]
+tier = "mid"
+note = "GPU diskrit lama atau entry-level"
+
+[[gpu]]
+match = ["Snapdragon", "Adreno"]
+tier = "mid"
+
+# --- High: anything else discrete with enough VRAM is detected automatically
+
+[budget.low]
+max_video_width = 1920
+max_video_height = 1080
+max_video_fps = 30
+shader_fps = 30
+render_scale = 0.75
+max_shader_cost = 2
+
+[budget.mid]
+max_video_width = 2560
+max_video_height = 1440
+max_video_fps = 60
+shader_fps = 60
+render_scale = 1.0
+max_shader_cost = 3
+
+[budget.high]
+max_video_width = 3840
+max_video_height = 2160
+max_video_fps = 60
+shader_fps = 60
+render_scale = 1.0
+max_shader_cost = 5
