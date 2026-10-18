@@ -33,7 +33,7 @@ wry = "0.57"
 tray-icon = "0.26"
 rfd = "0.17"
 raw-window-handle = "0.6"
-windows-core = "0.62"
+windows-core = "0.100"
 
 [target.'cfg(windows)'.dependencies.windows]
 version = "0.62"
