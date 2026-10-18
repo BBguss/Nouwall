@@ -137,6 +137,11 @@ children. On 24H2 and later it is a child of `Progman`, so nouwall places a
 layered child window just above it. When nouwall exits, it re-applies your static
 wallpaper.
 
+> **Known untested:** the 24H2+ layout is implemented but has not yet been verified
+> on real hardware (development testing ran on Windows 11 22H2). If wallpapers
+> don't appear on 24H2 or later, please open an issue with `nouwallctl probe`
+> output and the log; the log line `desktop layout Raised` confirms which path ran.
+
 ## License
 
 Licensed under either of [MIT](LICENSE-MIT) or [Apache-2.0](LICENSE-APACHE), at
