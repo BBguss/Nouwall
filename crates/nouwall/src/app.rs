@@ -441,7 +441,7 @@ impl App {
             };
             let reason = pause::decide(&inputs, &g);
             if reason != host.paused {
-                log::debug!("monitor {} pause: {:?}", host.monitor.index, reason);
+                log::info!("monitor {} pause: {:?}", host.monitor.index, reason);
                 host.paused = reason;
                 if let Some(r) = host.renderer.as_mut() {
                     r.set_paused(reason.is_some());
