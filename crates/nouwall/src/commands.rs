@@ -91,6 +91,7 @@ pub fn import_path(lib: &Library, path: &Path) -> Result<Entry, String> {
             description: String::new(),
             video: None,
             shader_cost: None,
+            display: Default::default(),
         };
         return lib.import_dir(path, manifest).map_err(|e| e.to_string());
     }
@@ -115,6 +116,7 @@ pub fn import_path(lib: &Library, path: &Path) -> Result<Entry, String> {
         description: String::new(),
         video,
         shader_cost: (kind == Kind::Shader).then_some(2),
+        display: Default::default(),
     };
     lib.import_file(path, manifest).map_err(|e| e.to_string())
 }
@@ -132,6 +134,7 @@ pub fn import_url(lib: &Library, url: &str, title: &str) -> Result<Entry, String
         description: String::new(),
         video: None,
         shader_cost: None,
+        display: Default::default(),
     };
     let id = lib.free_id(&title);
     lib.create(&id, &manifest, &[]).map_err(|e| e.to_string())

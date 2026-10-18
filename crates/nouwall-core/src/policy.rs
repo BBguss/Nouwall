@@ -182,6 +182,7 @@ mod tests {
             description: String::new(),
             video: Some(VideoMeta { width: w, height: h, fps, codec }),
             shader_cost: None,
+            display: Default::default(),
         }
     }
 

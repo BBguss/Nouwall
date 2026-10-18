@@ -1,13 +1,15 @@
 //! Video wallpapers through the Media Foundation Media Engine in frame-server
 //! mode: the engine decodes on the GPU (DXGI device manager) and we copy each
-//! new frame into a flip-model swap chain, cropped to cover the monitor.
+//! new frame into a flip-model swap chain, placed according to the wallpaper's
+//! display settings (fit, zoom, pan). The swap chain may be smaller than the
+//! monitor (`Display::resolution`); DXGI stretches it to the window.
 
 use std::path::Path;
 use std::sync::atomic::{AtomicI32, AtomicU32, Ordering};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
-use nouwall_core::Kind;
+use nouwall_core::{Display, Kind};
 use windows::core::{implement, Interface, BSTR};
 use windows::Win32::Foundation::{HMODULE, HWND, RECT};
 use windows::Win32::Graphics::Direct3D::D3D_DRIVER_TYPE_HARDWARE;
@@ -50,7 +52,11 @@ pub struct VideoRenderer {
     _device: ID3D11Device,
     swapchain: IDXGISwapChain1,
     state: Arc<EngineState>,
+    /// Window (monitor) size; placement is computed against it.
     size: (u32, u32),
+    /// Swap chain size: `size` capped by `display.resolution`.
+    swap_size: (u32, u32),
+    display: Display,
     tick: Duration,
     next: Instant,
     last_pts: i64,
@@ -104,21 +110,6 @@ fn create_swapchain(device: &ID3D11Device, hwnd: HWND, (w, h): (u32, u32)) -> wi
     }
 }
 
-/// Normalized source rectangle that crops the video to fill the target ("cover").
-fn cover_rect(video: (u32, u32), target: (u32, u32)) -> MFVideoNormalizedRect {
-    let va = video.0 as f32 / video.1.max(1) as f32;
-    let ta = target.0 as f32 / target.1.max(1) as f32;
-    if va > ta {
-        let f = ta / va;
-        let l = (1.0 - f) / 2.0;
-        MFVideoNormalizedRect { left: l, top: 0.0, right: 1.0 - l, bottom: 1.0 }
-    } else {
-        let f = va / ta;
-        let t = (1.0 - f) / 2.0;
-        MFVideoNormalizedRect { left: 0.0, top: t, right: 1.0, bottom: 1.0 - t }
-    }
-}
-
 fn error_name(code: u32) -> &'static str {
     match code {
         1 => "dibatalkan",
@@ -131,7 +122,15 @@ fn error_name(code: u32) -> &'static str {
 }
 
 impl VideoRenderer {
-    pub fn new(hwnd: HWND, size: (u32, u32), path: &Path, video_fps: u32, opts: RenderOptions) -> windows::core::Result<Self> {
+    pub fn new(
+        hwnd: HWND,
+        size: (u32, u32),
+        path: &Path,
+        video_fps: u32,
+        display: Display,
+        opts: RenderOptions,
+    ) -> windows::core::Result<Self> {
+        let display = display.sanitized();
         unsafe {
             let device = create_device()?;
             let mut token = 0u32;
@@ -161,7 +160,8 @@ impl VideoRenderer {
             engine.SetSource(&BSTR::from(path.to_string_lossy().as_ref()))?;
             engine.Play()?;
 
-            let swapchain = create_swapchain(&device, hwnd, size)?;
+            let swap_size = display.render_size(size);
+            let swapchain = create_swapchain(&device, hwnd, swap_size)?;
             // Tick at twice the video rate (capped) so frames are picked up promptly.
             let fps = if video_fps == 0 { 30 } else { video_fps };
             let tick = Duration::from_secs_f64(1.0 / f64::from((fps * 2).clamp(20, 120)));
@@ -172,6 +172,8 @@ impl VideoRenderer {
                 swapchain,
                 state,
                 size,
+                swap_size,
+                display,
                 tick,
                 next: Instant::now(),
                 last_pts: -1,
@@ -195,15 +197,41 @@ impl VideoRenderer {
             }
             self.last_pts = pts;
             let target: ID3D11Texture2D = self.swapchain.GetBuffer(0)?;
-            let src = cover_rect((vw, vh), self.size);
-            let dst = RECT { left: 0, top: 0, right: self.size.0 as i32, bottom: self.size.1 as i32 };
-            let border = MFARGB { rgbBlue: 0, rgbGreen: 0, rgbRed: 0, rgbAlpha: 255 };
-            self.engine.TransferVideoFrame(&target, Some(&src), &dst, Some(&border))?;
+            let placement = self.display.place((vw, vh), self.size);
+            // Bars (contain, zoom out, centre) must be black, not last frame's pixels.
+            if placement.is_none_or(|p| !p.dst.is_full()) {
+                self.clear(&target)?;
+            }
+            if let Some(p) = placement {
+                let (w, h) = (self.swap_size.0 as f32, self.swap_size.1 as f32);
+                let src = MFVideoNormalizedRect { left: p.src.left, top: p.src.top, right: p.src.right, bottom: p.src.bottom };
+                let dst = RECT {
+                    left: (p.dst.left * w).round() as i32,
+                    top: (p.dst.top * h).round() as i32,
+                    right: (p.dst.right * w).round() as i32,
+                    bottom: (p.dst.bottom * h).round() as i32,
+                };
+                let border = MFARGB { rgbBlue: 0, rgbGreen: 0, rgbRed: 0, rgbAlpha: 255 };
+                self.engine.TransferVideoFrame(&target, Some(&src), &dst, Some(&border))?;
+            }
             drop(target);
             self.swapchain.Present(1, DXGI_PRESENT(0)).ok()?;
             self.frames += 1;
             Ok(true)
         }
+    }
+}
+
+impl VideoRenderer {
+    fn clear(&self, target: &ID3D11Texture2D) -> windows::core::Result<()> {
+        unsafe {
+            let mut rtv = None;
+            self._device.CreateRenderTargetView(target, None, Some(&mut rtv))?;
+            if let (Some(rtv), Ok(ctx)) = (rtv, self._device.GetImmediateContext()) {
+                ctx.ClearRenderTargetView(&rtv, &[0.0, 0.0, 0.0, 1.0]);
+            }
+        }
+        Ok(())
     }
 }
 
@@ -214,8 +242,10 @@ impl Renderer for VideoRenderer {
 
     fn resize(&mut self, width: u32, height: u32) {
         self.size = (width.max(1), height.max(1));
+        self.swap_size = self.display.render_size(self.size);
         unsafe {
-            if let Err(e) = self.swapchain.ResizeBuffers(0, self.size.0, self.size.1, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG(0)) {
+            let (w, h) = self.swap_size;
+            if let Err(e) = self.swapchain.ResizeBuffers(0, w, h, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG(0)) {
                 log::warn!("video resize: {e}");
             }
         }
@@ -268,7 +298,7 @@ impl Renderer for VideoRenderer {
         } else if self.state.loaded.load(Ordering::Relaxed) == 0 {
             "memuat".into()
         } else {
-            format!("diputar ({} frame)", self.frames)
+            format!("diputar ({} frame, render {}x{})", self.frames, self.swap_size.0, self.swap_size.1)
         }
     }
 
@@ -285,17 +315,5 @@ impl Drop for VideoRenderer {
         unsafe {
             let _ = self.engine.Shutdown();
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn cover_crops_wide_video() {
-        let r = cover_rect((3840, 1080), (1920, 1080));
-        assert!((r.left - 0.25).abs() < 1e-4 && (r.right - 0.75).abs() < 1e-4);
-        assert_eq!((r.top, r.bottom), (0.0, 1.0));
     }
 }

@@ -85,6 +85,7 @@ pub fn install(lib: &Library, config: &mut Config) -> bool {
             description: s.description.into(),
             video: None,
             shader_cost: s.cost,
+            display: Default::default(),
         };
         match lib.create(s.id, &manifest, &[(s.file, s.bytes)]) {
             Ok(_) => log::info!("sampel {} dipasang", s.id),

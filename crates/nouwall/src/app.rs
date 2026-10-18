@@ -9,7 +9,7 @@ use std::time::{Duration, Instant, SystemTime};
 use nouwall_core::pause::{self, PauseInputs};
 use nouwall_core::tier::effective_shader_fps;
 use nouwall_core::{
-    Config, Entry, GeneralSettings, HardwareInfo, Kind, Library, MonitorInfo, MonitorTarget, PauseReason,
+    Config, Display, Entry, GeneralSettings, HardwareInfo, Kind, Library, MonitorInfo, MonitorTarget, PauseReason,
     PowerSource, Profiles, Severity, TierReport,
 };
 use serde::Deserialize;
@@ -351,6 +351,13 @@ impl App {
             Err(e) => return Box::new(Solid::new(hwnd, format!("error: {e}"))),
         };
         let path = entry.entry_path();
+        let display = entry.manifest.display.sanitized();
+        let mut opts = opts;
+        if let Some(res) = display.resolution {
+            // An explicit resolution replaces the tier's default render scale;
+            // the governor may still lower it when frames run late.
+            opts.render_scale = (res as f32 / size.1.max(1) as f32).clamp(0.25, 1.0);
+        }
         let result: Result<Box<dyn Renderer>, String> = match entry.manifest.kind {
             Kind::Shader => {
                 if self.gpu.is_none() {
@@ -370,13 +377,14 @@ impl App {
             }
             Kind::Video => {
                 let fps = entry.manifest.video.as_ref().map(|v| v.fps).unwrap_or(0);
-                VideoRenderer::new(hwnd, size, &path, fps, opts)
+                VideoRenderer::new(hwnd, size, &path, fps, display, opts)
                     .map(|r| Box::new(r) as Box<dyn Renderer>)
                     .map_err(|e| e.to_string())
             }
             Kind::Web => {
                 let url = if entry.manifest.is_remote() { entry.manifest.entry.clone() } else { file_url(&path) };
-                WebRenderer::new(&self.web_ctx, Hwnd(hwnd), size, &url, opts).map(|r| Box::new(r) as Box<dyn Renderer>)
+                WebRenderer::new(&self.web_ctx, Hwnd(hwnd), size, &url, display.zoom, opts)
+                    .map(|r| Box::new(r) as Box<dyn Renderer>)
             }
         };
         match result {
@@ -562,6 +570,8 @@ impl App {
                     "id": e.id,
                     "title": e.manifest.title,
                     "kind": e.manifest.kind,
+                    "entry": e.manifest.entry,
+                    "display": e.manifest.display,
                     "author": e.manifest.author,
                     "description": e.manifest.description,
                     "video": e.manifest.video,
@@ -580,6 +590,8 @@ impl App {
                 json!({
                     "index": m.index,
                     "device": m.device,
+                    "x": m.x,
+                    "y": m.y,
                     "width": m.width,
                     "height": m.height,
                     "refresh_hz": m.refresh_hz,
@@ -706,6 +718,21 @@ impl App {
                 self.load_wallpapers(true);
                 self.refresh_tray();
                 Ok(Value::Null)
+            }
+            "display" => {
+                let id = str_arg("id");
+                let display: Display =
+                    serde_json::from_value(args.get("display").cloned().unwrap_or_default()).map_err(|e| e.to_string())?;
+                let mut entry = self.library.get(&id).map_err(|e| e.to_string())?;
+                entry.manifest.display = display.sanitized();
+                self.library.update_manifest(&id, &entry.manifest).map_err(|e| e.to_string())?;
+                self.rescan_library();
+                // Restart the wallpaper wherever it is showing.
+                for h in self.hosts.iter_mut().filter(|h| h.wallpaper.as_deref() == Some(id.as_str())) {
+                    h.renderer = None;
+                }
+                self.load_wallpapers(false);
+                Ok(json!(entry.manifest.display))
             }
             "pause" => {
                 let paused = args.get("paused").and_then(Value::as_bool).unwrap_or(!self.user_paused);

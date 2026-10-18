@@ -38,13 +38,23 @@ pub struct WebRenderer {
 }
 
 impl WebRenderer {
-    pub fn new(ctx: &Rc<RefCell<WebContext>>, hwnd: Hwnd, size: (u32, u32), url: &str, opts: RenderOptions) -> Result<Self, String> {
+    pub fn new(
+        ctx: &Rc<RefCell<WebContext>>,
+        hwnd: Hwnd,
+        size: (u32, u32),
+        url: &str,
+        zoom: f32,
+        opts: RenderOptions,
+    ) -> Result<Self, String> {
         let mut ctx = ctx.borrow_mut();
         let mut b = builder(&mut ctx).with_url(url).with_bounds(bounds(size.0, size.1)).with_focused(false);
         if opts.mute {
             b = b.with_initialization_script(MUTE_SCRIPT);
         }
         let webview = b.build_as_child(&hwnd).map_err(|e| e.to_string())?;
+        if (zoom - 1.0).abs() > 0.01 {
+            let _ = webview.zoom(f64::from(zoom));
+        }
         Ok(Self { webview, paused: false, url: url.to_string() })
     }
 }

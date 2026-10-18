@@ -3,6 +3,7 @@
 //! frame-time governor. Everything here is pure and unit-tested on any OS.
 
 pub mod config;
+pub mod display;
 pub mod governor;
 pub mod hardware;
 pub mod library;
@@ -11,6 +12,7 @@ pub mod pause;
 pub mod policy;
 pub mod tier;
 
+pub use display::{Display, Fit, NormRect, Placement};
 pub use config::{Assignment, Config, GeneralSettings, MonitorTarget};
 pub use governor::Governor;
 pub use hardware::{Codec, DecodeCaps, GpuInfo, GpuKind, HardwareInfo, MonitorInfo, PowerSource};

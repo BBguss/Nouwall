@@ -2,6 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
+use crate::display::Display;
 use crate::hardware::Codec;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -57,6 +58,9 @@ pub struct Manifest {
     /// Shader cost hint from the author: 1 (trivial) .. 5 (very heavy).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub shader_cost: Option<u8>,
+    /// Placement and render resolution chosen by the user.
+    #[serde(default, skip_serializing_if = "Display::is_default")]
+    pub display: Display,
 }
 
 impl Manifest {
@@ -130,6 +134,7 @@ mod tests {
             description: String::new(),
             video: None,
             shader_cost: Some(2),
+            display: Default::default(),
         };
         assert_eq!(Manifest::parse(&m.to_toml()).unwrap(), m);
     }

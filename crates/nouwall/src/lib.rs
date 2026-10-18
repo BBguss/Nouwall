@@ -36,4 +36,6 @@ pub mod settings;
 #[cfg(windows)]
 pub mod tray;
 #[cfg(windows)]
+pub mod ui_server;
+#[cfg(windows)]
 pub mod util;

@@ -202,6 +202,7 @@ mod tests {
             description: String::new(),
             video: None,
             shader_cost: None,
+            display: Default::default(),
         }
     }
 

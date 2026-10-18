@@ -15,11 +15,11 @@ use windows::Win32::UI::WindowsAndMessaging::*;
 use wry::{WebContext, WebView};
 
 use crate::render::web;
+use crate::ui_server;
 use crate::tray::icon_rgba;
 use crate::util::{rect_size, Hwnd};
 
 const CLASS: PCWSTR = w!("nouwall-settings");
-const UI_HTML: &str = include_str!("../assets/ui/settings.html");
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum WindowEvent {
@@ -105,8 +105,8 @@ impl SettingsWindow {
                 WS_OVERLAPPEDWINDOW,
                 CW_USEDEFAULT,
                 CW_USEDEFAULT,
-                1100,
-                720,
+                1240,
+                800,
                 None,
                 None,
                 Some(hinstance),
@@ -124,7 +124,7 @@ impl SettingsWindow {
             );
             // Scale the default size to the monitor DPI, then centre on screen.
             let dpi = GetDpiForWindow(hwnd).max(96);
-            let (w, h) = (1100 * dpi / 96, 720 * dpi / 96);
+            let (w, h) = (1240 * dpi / 96, 800 * dpi / 96);
             let sw = GetSystemMetrics(SM_CXSCREEN) as u32;
             let sh = GetSystemMetrics(SM_CYSCREEN) as u32;
             let _ = SetWindowPos(
@@ -141,7 +141,8 @@ impl SettingsWindow {
         let webview = {
             let mut ctx = ctx.borrow_mut();
             web::builder(&mut ctx)
-                .with_html(UI_HTML)
+                .with_custom_protocol(ui_server::SCHEME.into(), |_id, req| ui_server::handle(req))
+                .with_url(ui_server::ORIGIN)
                 .with_bounds(web::bounds(cw, ch))
                 .with_ipc_handler(move |req| queue.borrow_mut().push(req.body().clone()))
                 .build_as_child(&Hwnd(hwnd))
