@@ -2,7 +2,7 @@
 
 use std::path::PathBuf;
 
-use nouwall_core::{MonitorTarget, Severity};
+use nouwall_core::{tr, MonitorTarget, Severity};
 use serde_json::json;
 use windows::Win32::System::Com::{CoInitializeEx, COINIT_APARTMENTTHREADED};
 use windows::Win32::UI::HiDpi::{SetProcessDpiAwarenessContext, DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2};
@@ -15,7 +15,31 @@ pub enum Frontend {
     Console,
 }
 
-const HELP: &str = "nouwall - live wallpaper untuk Windows
+const HELP_EN: &str = "nouwall - live wallpapers for Windows
+
+Usage:
+  nouwall                      run the engine (tray icon)
+  nouwallctl probe [--json]    show hardware, tier and decode support
+  nouwallctl list              list wallpapers in the library
+  nouwallctl apply <id> [--monitor N] [--force]
+                               apply a wallpaper (all monitors unless --monitor is given)
+  nouwallctl import <file|folder>
+                               import a video, shader (.glsl/.frag/.wgsl) or web page
+  nouwallctl settings          open the settings window
+  nouwallctl pause | resume | toggle | reload | quit
+  nouwallctl paths             config, library and log locations
+  nouwallctl capture [folder]  save wallpaper windows as BMP (diagnostics)
+  nouwallctl --version
+";
+
+fn help() -> &'static str {
+    match nouwall_core::i18n::current() {
+        nouwall_core::Lang::Id => HELP_ID,
+        nouwall_core::Lang::En => HELP_EN,
+    }
+}
+
+const HELP_ID: &str = "nouwall - live wallpaper untuk Windows
 
 Pemakaian:
   nouwall                      jalankan engine (tray icon)
@@ -60,12 +84,13 @@ pub fn main(frontend: Frontend) -> i32 {
     let args: Vec<String> = args.into_iter().filter(|a| a != "--verbose" && a != "-v").collect();
     logging::init(frontend == Frontend::Console && verbose, verbose);
     let out = Out(frontend);
+    commands::apply_language(&commands::load_config());
 
     let cmd = args.first().map(String::as_str).unwrap_or(if frontend == Frontend::Gui { "run" } else { "help" });
     match cmd {
         "run" => run_engine(),
         "help" | "--help" | "-h" => {
-            out.line(HELP);
+            out.line(help());
             0
         }
         "--version" | "version" => {
@@ -94,20 +119,20 @@ pub fn main(frontend: Frontend) -> i32 {
         "import" => {
             init_com();
             let Some(p) = args.get(1) else {
-                out.line("pemakaian: nouwallctl import <file|folder>");
+                out.line(tr!("usage: nouwallctl import <file|folder>", "pemakaian: nouwallctl import <file|folder>"));
                 return 2;
             };
             let lib = commands::library();
             match commands::import_path(&lib, &PathBuf::from(p)) {
                 Ok(e) => {
-                    out.line(format!("diimpor sebagai \"{}\" ({})", e.id, e.manifest.kind.label()));
+                    out.line(tr!("imported as \"{}\" ({})", "diimpor sebagai \"{}\" ({})", e.id, e.manifest.kind.label()));
                     if instance::is_running() {
                         instance::send("reload");
                     }
                     0
                 }
                 Err(e) => {
-                    out.line(format!("gagal: {e}"));
+                    out.line(tr!("failed: {e}", "gagal: {e}"));
                     1
                 }
             }
@@ -116,13 +141,13 @@ pub fn main(frontend: Frontend) -> i32 {
             let dir = args.get(1).map(PathBuf::from).unwrap_or_else(|| paths::local_dir().join("capture"));
             let results = crate::capture::capture_all(&dir);
             if results.is_empty() {
-                out.line("tidak ada jendela wallpaper (nouwall tidak berjalan?)");
+                out.line(tr!("no wallpaper windows (is nouwall running?)", "tidak ada jendela wallpaper (nouwall tidak berjalan?)"));
                 return 1;
             }
             for r in results {
                 match r {
-                    Ok(p) => out.line(format!("disimpan {p}")),
-                    Err(e) => out.line(format!("gagal: {e}")),
+                    Ok(p) => out.line(tr!("saved {p}", "disimpan {p}")),
+                    Err(e) => out.line(tr!("failed: {e}", "gagal: {e}")),
                 }
             }
             0
@@ -133,12 +158,12 @@ pub fn main(frontend: Frontend) -> i32 {
             } else if cmd == "settings" {
                 run_engine()
             } else {
-                out.line("nouwall tidak sedang berjalan");
+                out.line(tr!("nouwall is not running", "nouwall tidak sedang berjalan"));
                 1
             }
         }
         other => {
-            out.line(format!("perintah tidak dikenal: {other}\n\n{HELP}"));
+            out.line(tr!("unknown command: {other}\n\n{}", "perintah tidak dikenal: {other}\n\n{}", help()));
             2
         }
     }
@@ -151,11 +176,11 @@ fn run_engine() -> i32 {
         return 0;
     };
     init_com();
-    log::info!("nouwall {} mulai", env!("CARGO_PKG_VERSION"));
+    log::info!("nouwall {} starting", env!("CARGO_PKG_VERSION"));
     match app::App::new() {
         Ok(a) => a.run(),
         Err(e) => {
-            log::error!("gagal memulai: {e}");
+            log::error!("cannot start: {e}");
             1
         }
     }
@@ -173,9 +198,10 @@ fn probe_cmd(out: &Out, as_json: bool) -> i32 {
     out.line(format!("GPU      : {} ({:?}, VRAM {} MB, vendor 0x{:04x}, FL 0x{:x})", hw.gpu.name, hw.gpu.kind, hw.gpu.dedicated_vram_mb, hw.gpu.vendor_id, hw.gpu.feature_level));
     out.line(format!("CPU/RAM  : {} thread, {} MB", hw.logical_cpus, hw.ram_mb));
     out.line(format!(
-        "Daya     : {:?}{}",
+        "{}: {:?}{}",
+        tr!("Power    ", "Daya     "),
         hw.power,
-        hw.battery_percent.map(|p| format!(" (baterai {p}%)")).unwrap_or_default()
+        hw.battery_percent.map(|p| tr!(" (battery {p}%)", " (baterai {p}%)")).unwrap_or_default()
     ));
     out.line(format!("Windows  : build {}", hw.os_build));
     for m in &hw.monitors {
@@ -185,17 +211,17 @@ fn probe_cmd(out: &Out, as_json: bool) -> i32 {
             m.width,
             m.height,
             m.refresh_hz,
-            if m.primary { " (utama)" } else { "" },
+            if m.primary { tr!(" (primary)", " (utama)") } else { String::new() },
             m.device
         ));
     }
     if hw.decode.is_empty() {
-        out.line("Decode   : tidak ada decoder hardware terdeteksi");
+        out.line(tr!("Decode   : no hardware decoder found", "Decode   : tidak ada decoder hardware terdeteksi"));
     }
     for d in &hw.decode {
-        out.line(format!("Decode   : {:<5} hingga {}x{}", d.codec.label(), d.max_width, d.max_height));
+        out.line(tr!("Decode   : {:<5} up to {}x{}", "Decode   : {:<5} hingga {}x{}", d.codec.label(), d.max_width, d.max_height));
     }
-    out.line(format!("Tier     : {}{}", report.tier.label(), if report.overridden { format!(" (terdeteksi {})", report.detected.label()) } else { String::new() }));
+    out.line(format!("Tier     : {}{}", report.tier.label(), if report.overridden { tr!(" (detected {})", " (terdeteksi {})", report.detected.label()) } else { String::new() }));
     for r in &report.reasons {
         out.line(format!("           - {r}"));
     }
@@ -241,7 +267,7 @@ fn list_cmd(out: &Out) -> i32 {
 
 fn apply_cmd(out: &Out, args: &[String]) -> i32 {
     let Some(id) = args.first() else {
-        out.line("pemakaian: nouwallctl apply <id> [--monitor N] [--force]");
+        out.line(tr!("usage: nouwallctl apply <id> [--monitor N] [--force]", "pemakaian: nouwallctl apply <id> [--monitor N] [--force]"));
         return 2;
     };
     let force = args.iter().any(|a| a == "--force");
@@ -256,7 +282,7 @@ fn apply_cmd(out: &Out, args: &[String]) -> i32 {
     let mut entry = match lib.get(id) {
         Ok(e) => e,
         Err(e) => {
-            out.line(format!("gagal: {e}"));
+            out.line(tr!("failed: {e}", "gagal: {e}"));
             return 1;
         }
     };
@@ -267,27 +293,27 @@ fn apply_cmd(out: &Out, args: &[String]) -> i32 {
     let warnings = commands::warnings(&entry, &hw, &report, &target);
     for w in &warnings {
         let tag = match w.severity {
-            Severity::Critical => "KRITIS",
-            Severity::Warn => "PERINGATAN",
-            Severity::Info => "info",
+            Severity::Critical => tr!("CRITICAL", "KRITIS"),
+            Severity::Warn => tr!("WARNING", "PERINGATAN"),
+            Severity::Info => "info".to_string(),
         };
         out.line(format!("[{tag}] {}\n         {}", w.title, w.message));
     }
     if warnings.iter().any(|w| w.severity >= Severity::Warn) && !force && !config.general.suppress_warnings {
-        out.line("Tidak dipasang. Ulangi dengan --force untuk tetap memakai wallpaper ini.");
+        out.line(tr!("Not applied. Run again with --force to use this wallpaper anyway.", "Tidak dipasang. Ulangi dengan --force untuk tetap memakai wallpaper ini."));
         return 3;
     }
     config.assign(target, id.as_str());
     if let Err(e) = commands::save_config(&config) {
-        out.line(format!("gagal menyimpan config: {e}"));
+        out.line(tr!("cannot save config: {e}", "gagal menyimpan config: {e}"));
         return 1;
     }
     if instance::send("reload") {
-        out.line(format!("\"{}\" dipasang", entry.manifest.title));
+        out.line(tr!("\"{}\" applied", "\"{}\" dipasang", entry.manifest.title));
     } else {
         // The engine may run in another session (e.g. when called over SSH);
         // it polls config.toml and picks the change up within ~2 s.
-        out.line(format!("\"{}\" disimpan; engine yang berjalan memuatnya otomatis", entry.manifest.title));
+        out.line(tr!("\"{}\" saved; the running engine picks it up automatically", "\"{}\" disimpan; engine yang berjalan memuatnya otomatis", entry.manifest.title));
     }
     0
 }

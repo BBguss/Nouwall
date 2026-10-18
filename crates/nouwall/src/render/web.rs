@@ -4,7 +4,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use std::time::Instant;
 
-use nouwall_core::Kind;
+use nouwall_core::{tr, Kind};
 use wry::dpi::{PhysicalPosition, PhysicalSize};
 use wry::{Rect, WebContext, WebView, WebViewBuilder};
 
@@ -84,9 +84,10 @@ impl Renderer for WebRenderer {
 
     fn status(&self) -> String {
         if self.paused {
-            "dijeda".into()
+            tr!("paused", "dijeda")
         } else {
-            format!("halaman {}", self.url.rsplit(['/', '\\']).next().unwrap_or(""))
+            let page = self.url.rsplit(['/', '\\']).next().unwrap_or("");
+            tr!("page {page}", "halaman {page}")
         }
     }
 }

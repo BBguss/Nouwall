@@ -9,7 +9,7 @@ use std::sync::atomic::{AtomicI32, AtomicU32, Ordering};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
-use nouwall_core::{Display, Kind};
+use nouwall_core::{tr, Display, Kind};
 use windows::core::{implement, Interface, BSTR};
 use windows::Win32::Foundation::{HMODULE, HWND, RECT};
 use windows::Win32::Graphics::Direct3D::D3D_DRIVER_TYPE_HARDWARE;
@@ -110,14 +110,14 @@ fn create_swapchain(device: &ID3D11Device, hwnd: HWND, (w, h): (u32, u32)) -> wi
     }
 }
 
-fn error_name(code: u32) -> &'static str {
+fn error_name(code: u32) -> String {
     match code {
-        1 => "dibatalkan",
-        2 => "jaringan",
-        3 => "gagal decode",
-        4 => "format tidak didukung",
-        5 => "terenkripsi",
-        _ => "tidak diketahui",
+        1 => tr!("aborted", "dibatalkan"),
+        2 => tr!("network", "jaringan"),
+        3 => tr!("decode failed", "gagal decode"),
+        4 => tr!("format not supported", "format tidak didukung"),
+        5 => tr!("encrypted", "terenkripsi"),
+        _ => tr!("unknown", "tidak diketahui"),
     }
 }
 
@@ -292,13 +292,13 @@ impl Renderer for VideoRenderer {
     fn status(&self) -> String {
         let err = self.state.error.load(Ordering::Relaxed);
         if err != 0 {
-            format!("error: {}", error_name(err))
+            tr!("error: {}", "galat: {}", error_name(err))
         } else if self.paused {
-            "dijeda".into()
+            tr!("paused", "dijeda")
         } else if self.state.loaded.load(Ordering::Relaxed) == 0 {
-            "memuat".into()
+            tr!("loading", "memuat")
         } else {
-            format!("diputar ({} frame, render {}x{})", self.frames, self.swap_size.0, self.swap_size.1)
+            tr!("playing ({} frames, render {}x{})", "diputar ({} frame, render {}x{})", self.frames, self.swap_size.0, self.swap_size.1)
         }
     }
 

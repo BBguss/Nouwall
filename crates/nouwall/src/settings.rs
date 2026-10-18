@@ -16,7 +16,6 @@ use wry::{WebContext, WebView};
 
 use crate::render::web;
 use crate::ui_server;
-use crate::tray::icon_rgba;
 use crate::util::{rect_size, Hwnd};
 
 const CLASS: PCWSTR = w!("nouwall-settings");
@@ -66,7 +65,8 @@ fn register_class() -> HINSTANCE {
             lpszClassName: CLASS,
             hCursor: LoadCursorW(None, IDC_ARROW).unwrap_or_default(),
             hbrBackground: HBRUSH(CreateSolidBrush(windows::Win32::Foundation::COLORREF(0x0016_0f0d)).0),
-            hIcon: app_icon(),
+            hIcon: app_icon(GetSystemMetrics(SM_CXICON)),
+            hIconSm: app_icon(GetSystemMetrics(SM_CXSMICON)),
             ..Default::default()
         };
         RegisterClassExW(&wc);
@@ -75,17 +75,13 @@ fn register_class() -> HINSTANCE {
     HINSTANCE(h as *mut _)
 }
 
-/// Window icon from the same artwork as the tray icon.
-pub fn app_icon() -> HICON {
-    let size = 32;
-    let rgba = icon_rgba(size);
-    let mut bgra = rgba.clone();
-    for px in bgra.as_chunks_mut::<4>().0 {
-        px.swap(0, 2);
-    }
-    let and_mask = vec![0u8; (size * size / 8) as usize];
+/// The embedded application icon (resource 1, see build.rs) at `size` pixels.
+pub fn app_icon(size: i32) -> HICON {
     unsafe {
-        CreateIcon(None, size as i32, size as i32, 1, 32, and_mask.as_ptr(), bgra.as_ptr()).unwrap_or_default()
+        let hinstance: HINSTANCE = GetModuleHandleW(None).unwrap_or_default().into();
+        LoadImageW(Some(hinstance), PCWSTR(1 as _), IMAGE_ICON, size, size, LR_DEFAULTCOLOR)
+            .map(|h| HICON(h.0))
+            .unwrap_or_default()
     }
 }
 

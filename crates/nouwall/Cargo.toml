@@ -39,6 +39,7 @@ windows-core = "0.62"
 version = "0.62"
 features = [
     "Win32_Foundation",
+    "Win32_Globalization",
     "Win32_Graphics_Direct3D",
     "Win32_Graphics_Direct3D11",
     "Win32_Graphics_Direct3D12",

@@ -6,6 +6,8 @@
 
 use serde::{Deserialize, Serialize};
 
+use crate::tr;
+
 use crate::hardware::{GpuKind, HardwareInfo, PowerSource};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
@@ -71,6 +73,9 @@ pub struct GpuProfile {
     pub tier: Tier,
     #[serde(default)]
     pub note: String,
+    /// Indonesian version of `note`; `note` is used when empty.
+    #[serde(default)]
+    pub note_id: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -132,45 +137,46 @@ pub fn classify(hw: &HardwareInfo, profiles: &Profiles, tier_override: Option<Ti
     let gpu = &hw.gpu;
 
     let mut tier = if let Some(p) = profiles.match_gpu(&gpu.name) {
-        reasons.push(format!("GPU \"{}\" cocok dengan profil {}", gpu.name, p.tier.label()));
-        if !p.note.is_empty() {
-            reasons.push(p.note.clone());
+        reasons.push(tr!("GPU \"{}\" matches the {} profile", "GPU \"{}\" cocok dengan profil {}", gpu.name, p.tier.label()));
+        let note = if crate::i18n::current() == crate::i18n::Lang::Id && !p.note_id.is_empty() { &p.note_id } else { &p.note };
+        if !note.is_empty() {
+            reasons.push(note.clone());
         }
         p.tier
     } else {
         match gpu.kind {
             GpuKind::Software => {
-                reasons.push("Tidak ada GPU hardware (render software)".into());
+                reasons.push(tr!("No hardware GPU (software rendering)", "Tidak ada GPU hardware (render software)"));
                 Tier::Low
             }
             GpuKind::Discrete if gpu.dedicated_vram_mb >= 4096 => {
-                reasons.push(format!("GPU diskrit dengan VRAM {} MB", gpu.dedicated_vram_mb));
+                reasons.push(tr!("Discrete GPU with {} MB VRAM", "GPU diskrit dengan VRAM {} MB", gpu.dedicated_vram_mb));
                 Tier::High
             }
             GpuKind::Discrete => {
-                reasons.push(format!("GPU diskrit dengan VRAM kecil ({} MB)", gpu.dedicated_vram_mb));
+                reasons.push(tr!("Discrete GPU with little VRAM ({} MB)", "GPU diskrit dengan VRAM kecil ({} MB)", gpu.dedicated_vram_mb));
                 Tier::Mid
             }
             GpuKind::Integrated => {
-                reasons.push(format!("GPU terintegrasi \"{}\" tidak dikenal, diasumsikan Low", gpu.name));
+                reasons.push(tr!("Unknown integrated GPU \"{}\", assuming Low", "GPU terintegrasi \"{}\" tidak dikenal, diasumsikan Low", gpu.name));
                 Tier::Low
             }
         }
     };
 
     if hw.logical_cpus > 0 && hw.logical_cpus < 4 && tier != Tier::Low {
-        reasons.push(format!("Hanya {} thread CPU, tier diturunkan", hw.logical_cpus));
+        reasons.push(tr!("Only {} CPU threads, tier lowered", "Hanya {} thread CPU, tier diturunkan", hw.logical_cpus));
         tier = tier.down();
     }
     if hw.ram_mb > 0 && hw.ram_mb < 4096 && tier != Tier::Low {
-        reasons.push(format!("RAM {} MB, tier diturunkan", hw.ram_mb));
+        reasons.push(tr!("{} MB RAM, tier lowered", "RAM {} MB, tier diturunkan", hw.ram_mb));
         tier = tier.down();
     }
 
     let detected = tier;
     let (tier, overridden) = match tier_override {
         Some(t) if t != detected => {
-            reasons.push(format!("Tier ditimpa manual menjadi {}", t.label()));
+            reasons.push(tr!("Tier manually set to {}", "Tier ditimpa manual menjadi {}", t.label()));
             (t, true)
         }
         _ => (detected, false),

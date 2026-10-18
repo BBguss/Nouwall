@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="id">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -364,27 +364,33 @@ pre.code { margin: 0; padding: 12px 14px; border-radius: var(--r-sm); background
   <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
 </svg>
 
+<style>
+.logo.img { background: none; box-shadow: 0 8px 22px hsl(230 80% 50% / .3); overflow: hidden; }
+.logo.img img { width: 100%; height: 100%; display: block; }
+.lang-seg { min-width: 220px; }
+</style>
+
 <div class="app">
-  <nav aria-label="Navigasi">
-    <div class="brand"><div class="logo"><svg class="i"><use href="#i-wave"/></svg></div><div><b>nouwall</b><small>Live wallpaper</small></div></div>
-    <div class="nav-label">Menu</div>
-    <button class="nav-btn" data-tab="library" aria-current="true" title="Library"><svg class="i"><use href="#i-layers"/></svg><span>Library</span></button>
-    <button class="nav-btn" data-tab="monitors" title="Monitor"><svg class="i"><use href="#i-monitor"/></svg><span>Monitor</span></button>
-    <button class="nav-btn" data-tab="hardware" title="Hardware"><svg class="i"><use href="#i-cpu"/></svg><span>Hardware</span></button>
-    <button class="nav-btn" data-tab="settings" title="Pengaturan"><svg class="i"><use href="#i-sliders"/></svg><span>Pengaturan</span></button>
-    <button class="nav-btn" data-tab="about" title="Tentang"><svg class="i"><use href="#i-info"/></svg><span>Tentang</span></button>
-    <div class="nav-foot" id="navFoot"><div class="gpu">Memuat...</div></div>
+  <nav data-i18n-aria="nav.label">
+    <div class="brand"><div class="logo img"><img src="/logo.png" alt=""></div><div><b>nouwall</b><small data-i18n="brand.sub"></small></div></div>
+    <div class="nav-label" data-i18n="nav.menu"></div>
+    <button class="nav-btn" data-tab="library" aria-current="true"><svg class="i"><use href="#i-layers"/></svg><span data-i18n="tab.library"></span></button>
+    <button class="nav-btn" data-tab="monitors"><svg class="i"><use href="#i-monitor"/></svg><span data-i18n="tab.monitors"></span></button>
+    <button class="nav-btn" data-tab="hardware"><svg class="i"><use href="#i-cpu"/></svg><span data-i18n="tab.hardware"></span></button>
+    <button class="nav-btn" data-tab="settings"><svg class="i"><use href="#i-sliders"/></svg><span data-i18n="tab.settings"></span></button>
+    <button class="nav-btn" data-tab="about"><svg class="i"><use href="#i-info"/></svg><span data-i18n="tab.about"></span></button>
+    <div class="nav-foot" id="navFoot"><div class="gpu" data-i18n="loading"></div></div>
   </nav>
 
   <main>
     <header class="top">
       <div class="ttl">
-        <h1 id="title">Library</h1>
-        <div class="sub" id="subtitle">Pratinjau, atur tampilan, lalu pasang wallpaper</div>
+        <h1 id="title"></h1>
+        <div class="sub" id="subtitle"></div>
       </div>
       <div class="spacer"></div>
-      <span class="chip accent" id="tierChip" title="Tier hardware">Tier -</span>
-      <button class="btn" id="pauseBtn"><svg class="i"><use href="#i-pause"/></svg><span>Jeda</span></button>
+      <span class="chip accent" id="tierChip" data-i18n-title="hw.tierChip">Tier -</span>
+      <button class="btn" id="pauseBtn"><svg class="i"><use href="#i-pause"/></svg><span></span></button>
     </header>
 
     <div class="content" id="content">
@@ -393,46 +399,46 @@ pre.code { margin: 0; padding: 12px 14px; border-radius: var(--r-sm); background
         <div class="lib">
           <div class="stage-col">
             <div class="panel stage">
-              <div class="viewport" id="viewport"><div class="vp-msg"><svg class="i"><use href="#i-layers"/></svg>Pilih wallpaper untuk melihat pratinjau</div></div>
+              <div class="viewport" id="viewport"></div>
               <div class="stage-info" id="stageInfo"></div>
             </div>
             <div class="panel controls" id="controls">
               <div class="ctl-grid">
                 <div class="ctl" id="ctlFit">
-                  <div class="ctl-h"><span class="lbl">Tampilan</span></div>
-                  <div class="seg full" role="group" aria-label="Mode tampilan" id="fitSeg">
-                    <button data-fit="cover" aria-pressed="true" title="Isi layar, potong bagian yang tidak muat">Isi</button>
-                    <button data-fit="contain" aria-pressed="false" title="Tampilkan utuh dengan bilah hitam">Pas</button>
-                    <button data-fit="stretch" aria-pressed="false" title="Regangkan ke seluruh layar">Regang</button>
-                    <button data-fit="center" aria-pressed="false" title="Ukuran piksel asli di tengah">Asli</button>
+                  <div class="ctl-h"><span class="lbl" data-i18n="lib.fit"></span></div>
+                  <div class="seg full" role="group" data-i18n-aria="lib.fit" id="fitSeg">
+                    <button data-fit="cover" aria-pressed="true" data-i18n="fit.cover" data-i18n-title="fit.cover.hint"></button>
+                    <button data-fit="contain" aria-pressed="false" data-i18n="fit.contain" data-i18n-title="fit.contain.hint"></button>
+                    <button data-fit="stretch" aria-pressed="false" data-i18n="fit.stretch" data-i18n-title="fit.stretch.hint"></button>
+                    <button data-fit="center" aria-pressed="false" data-i18n="fit.center" data-i18n-title="fit.center.hint"></button>
                   </div>
                   <div class="hint" id="fitHint"></div>
                 </div>
                 <div class="ctl" id="ctlZoom">
-                  <div class="ctl-h"><label for="zoom" id="zoomLabel">Ukuran</label><span class="val" id="zoomVal">100%</span></div>
+                  <div class="ctl-h"><label for="zoom" id="zoomLabel"></label><span class="val" id="zoomVal">100%</span></div>
                   <input type="range" id="zoom" min="50" max="200" step="5" value="100">
-                  <div class="hint" id="zoomHint">Perbesar untuk memotong tepi, perkecil untuk menyisakan ruang.</div>
+                  <div class="hint" id="zoomHint"></div>
                 </div>
                 <div class="ctl" id="ctlPanX">
-                  <div class="ctl-h"><label for="panX">Posisi horizontal</label><span class="val" id="panXVal">tengah</span></div>
+                  <div class="ctl-h"><label for="panX" data-i18n="lib.panX"></label><span class="val" id="panXVal"></span></div>
                   <input type="range" id="panX" min="-100" max="100" step="5" value="0">
                 </div>
                 <div class="ctl" id="ctlPanY">
-                  <div class="ctl-h"><label for="panY">Posisi vertikal</label><span class="val" id="panYVal">tengah</span></div>
+                  <div class="ctl-h"><label for="panY" data-i18n="lib.panY"></label><span class="val" id="panYVal"></span></div>
                   <input type="range" id="panY" min="-100" max="100" step="5" value="0">
                 </div>
                 <div class="ctl" id="ctlRes">
-                  <div class="ctl-h"><label for="resSel">Resolusi render</label><span class="val" id="resVal"></span></div>
+                  <div class="ctl-h"><label for="resSel" data-i18n="lib.res"></label><span class="val" id="resVal"></span></div>
                   <select id="resSel"></select>
                   <div class="hint" id="resHint"></div>
                 </div>
               </div>
               <div class="actionbar">
-                <select id="targetSel" aria-label="Monitor tujuan"></select>
-                <span class="dirty-dot" id="dirty" hidden>Belum disimpan</span>
-                <button class="btn ghost sm" id="resetDisp" title="Kembalikan tampilan bawaan"><svg class="i"><use href="#i-rotate"/></svg>Reset</button>
-                <button class="btn" id="saveDisp"><svg class="i"><use href="#i-save"/></svg>Simpan</button>
-                <button class="btn primary" id="applyBtn"><svg class="i"><use href="#i-check"/></svg>Pasang</button>
+                <select id="targetSel" data-i18n-aria="lib.target"></select>
+                <span class="dirty-dot" id="dirty" hidden data-i18n="lib.unsaved"></span>
+                <button class="btn ghost sm" id="resetDisp" data-i18n-title="lib.reset.hint"><svg class="i"><use href="#i-rotate"/></svg><span data-i18n="lib.reset"></span></button>
+                <button class="btn" id="saveDisp"><svg class="i"><use href="#i-save"/></svg><span data-i18n="lib.save"></span></button>
+                <button class="btn primary" id="applyBtn"><svg class="i"><use href="#i-check"/></svg><span data-i18n="lib.apply"></span></button>
               </div>
             </div>
           </div>
@@ -441,25 +447,25 @@ pre.code { margin: 0; padding: 12px 14px; border-radius: var(--r-sm); background
             <div class="panel" style="padding:14px">
               <div class="list-tools">
                 <div class="row1">
-                  <input type="search" id="search" placeholder="Cari wallpaper" aria-label="Cari wallpaper">
+                  <input type="search" id="search" data-i18n-placeholder="lib.search" data-i18n-aria="lib.search">
                   <div class="menu-wrap">
-                    <button class="btn primary" id="importBtn" aria-haspopup="menu" aria-expanded="false"><svg class="i"><use href="#i-plus"/></svg>Impor</button>
+                    <button class="btn primary" id="importBtn" aria-haspopup="menu" aria-expanded="false"><svg class="i"><use href="#i-plus"/></svg><span data-i18n="imp.button"></span></button>
                     <div class="menu" id="importMenu" role="menu" hidden>
-                      <button role="menuitem" id="importFile"><svg class="i"><use href="#i-file"/></svg><span>File<small>Video, .glsl, .wgsl, atau .html</small></span></button>
-                      <button role="menuitem" id="importFolder"><svg class="i"><use href="#i-folder"/></svg><span>Folder HTML<small>Folder dengan index.html</small></span></button>
-                      <button role="menuitem" id="importUrl"><svg class="i"><use href="#i-link"/></svg><span>Alamat web<small>Halaman dari internet</small></span></button>
+                      <button role="menuitem" id="importFile"><svg class="i"><use href="#i-file"/></svg><span><span data-i18n="imp.file"></span><small data-i18n="imp.file.sub"></small></span></button>
+                      <button role="menuitem" id="importFolder"><svg class="i"><use href="#i-folder"/></svg><span><span data-i18n="imp.folder"></span><small data-i18n="imp.folder.sub"></small></span></button>
+                      <button role="menuitem" id="importUrl"><svg class="i"><use href="#i-link"/></svg><span><span data-i18n="imp.url"></span><small data-i18n="imp.url.sub"></small></span></button>
                     </div>
                   </div>
                 </div>
-                <div class="seg full" role="group" aria-label="Filter jenis" id="filterSeg">
-                  <button data-filter="all" aria-pressed="true">Semua</button>
-                  <button data-filter="shader" aria-pressed="false">Shader</button>
-                  <button data-filter="video" aria-pressed="false">Video</button>
-                  <button data-filter="web" aria-pressed="false">Web</button>
+                <div class="seg full" role="group" data-i18n-aria="lib.filter" id="filterSeg">
+                  <button data-filter="all" aria-pressed="true" data-i18n="filter.all"></button>
+                  <button data-filter="shader" aria-pressed="false" data-i18n="kind.shader"></button>
+                  <button data-filter="video" aria-pressed="false" data-i18n="kind.video"></button>
+                  <button data-filter="web" aria-pressed="false" data-i18n="kind.web"></button>
                 </div>
               </div>
             </div>
-            <div class="list" id="library" role="listbox" aria-label="Wallpaper"></div>
+            <div class="list" id="library" role="listbox" data-i18n-aria="lib.list"></div>
           </div>
         </div>
       </section>
@@ -468,7 +474,7 @@ pre.code { margin: 0; padding: 12px 14px; border-radius: var(--r-sm); background
       <section id="tab-monitors" hidden>
         <div class="stack">
           <div class="panel">
-            <div class="panel-h"><div class="ico"><svg class="i"><use href="#i-monitor"/></svg></div><div><h2>Susunan layar</h2><p>Posisi monitor sesuai pengaturan tampilan Windows</p></div></div>
+            <div class="panel-h"><div class="ico"><svg class="i"><use href="#i-monitor"/></svg></div><div><h2 data-i18n="mon.layout"></h2><p data-i18n="mon.layout.sub"></p></div></div>
             <div class="layout-map" id="layoutMap"></div>
           </div>
           <div class="mon-grid" id="monitors"></div>
@@ -483,10 +489,10 @@ pre.code { margin: 0; padding: 12px 14px; border-radius: var(--r-sm); background
               <div class="medal" id="medal"><b id="tierBig">-</b><span>tier</span></div>
               <div class="t">
                 <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
-                  <div style="min-width:0;flex:1 1 220px"><h2 id="tierTitle">Tier</h2><div class="muted" id="tierSub" style="font-size:13px"></div></div>
+                  <div style="min-width:0;flex:1 1 220px"><h2 id="tierTitle"></h2><div class="muted" id="tierSub" style="font-size:13px"></div></div>
                   <div class="field" style="flex:0 0 auto">
-                    <label for="tierOverride" class="sr">Tier yang dipakai</label>
-                    <select id="tierOverride"><option value="">Otomatis</option><option value="low">Paksa Low</option><option value="mid">Paksa Mid</option><option value="high">Paksa High</option></select>
+                    <label for="tierOverride" class="sr" data-i18n="hw.override"></label>
+                    <select id="tierOverride"><option value="" data-i18n="hw.auto"></option><option value="low" data-i18n="hw.forceLow"></option><option value="mid" data-i18n="hw.forceMid"></option><option value="high" data-i18n="hw.forceHigh"></option></select>
                   </div>
                 </div>
                 <div class="tiles" id="tiles"></div>
@@ -495,16 +501,16 @@ pre.code { margin: 0; padding: 12px 14px; border-radius: var(--r-sm); background
           </div>
           <div class="two">
             <div class="panel">
-              <div class="panel-h"><div class="ico"><svg class="i"><use href="#i-cpu"/></svg></div><div style="flex:1;min-width:0"><h2>Perangkat</h2><p>Hasil pemindaian saat nouwall dimulai</p></div><button class="btn sm" id="rescan"><svg class="i"><use href="#i-refresh"/></svg>Pindai ulang</button></div>
+              <div class="panel-h"><div class="ico"><svg class="i"><use href="#i-cpu"/></svg></div><div style="flex:1;min-width:0"><h2 data-i18n="hw.device"></h2><p data-i18n="hw.device.sub"></p></div><button class="btn sm" id="rescan"><svg class="i"><use href="#i-refresh"/></svg><span data-i18n="hw.rescan"></span></button></div>
               <dl class="kv" id="hwKv"></dl>
             </div>
             <div class="panel">
-              <div class="panel-h"><div class="ico"><svg class="i"><use href="#i-film"/></svg></div><div><h2>Decoder video hardware</h2><p>Codec tanpa decoder hardware diputar oleh CPU</p></div></div>
+              <div class="panel-h"><div class="ico"><svg class="i"><use href="#i-film"/></svg></div><div><h2 data-i18n="hw.decoders"></h2><p data-i18n="hw.decoders.sub"></p></div></div>
               <div class="tbl-wrap"><table class="matrix"><thead><tr><th>Codec</th><th>1080p</th><th>1440p</th><th>4K</th><th>8K</th></tr></thead><tbody id="decode"></tbody></table></div>
             </div>
           </div>
           <div class="panel">
-            <div class="panel-h"><div class="ico"><svg class="i"><use href="#i-info"/></svg></div><div><h2>Alasan penentuan tier</h2></div></div>
+            <div class="panel-h"><div class="ico"><svg class="i"><use href="#i-info"/></svg></div><div><h2 data-i18n="hw.reasons"></h2></div></div>
             <ul class="reasons" id="tierReasons"></ul>
           </div>
         </div>
@@ -513,35 +519,45 @@ pre.code { margin: 0; padding: 12px 14px; border-radius: var(--r-sm); background
       <!-- Settings -->
       <section id="tab-settings" hidden>
         <div class="settings-grid">
-          <div class="panel">
-            <div class="panel-h"><div class="ico"><svg class="i"><use href="#i-zap"/></svg></div><div><h2>Hemat daya</h2><p>Kapan wallpaper berhenti atau melambat</p></div></div>
-            <div class="rows">
-              <div class="srow"><div class="t"><b>Jeda saat aplikasi layar penuh</b><span>Game, video, atau presentasi menutupi monitor</span></div><div class="ctrl"><label class="switch"><input type="checkbox" data-key="pause_on_fullscreen" aria-label="Jeda saat aplikasi layar penuh"><span></span></label></div></div>
-              <div class="srow"><div class="t"><b>Jeda saat jendela dimaksimalkan</b><span>Wallpaper tertutup jendela penuh</span></div><div class="ctrl"><label class="switch"><input type="checkbox" data-key="pause_on_maximized" aria-label="Jeda saat jendela dimaksimalkan"><span></span></label></div></div>
-              <div class="srow"><div class="t"><b>Jeda saat memakai baterai</b><span>Berhenti total ketika laptop tidak dicolok</span></div><div class="ctrl"><label class="switch"><input type="checkbox" data-key="pause_on_battery" aria-label="Jeda saat memakai baterai"><span></span></label></div></div>
-              <div class="srow"><div class="t"><b>Mode hemat baterai</b><span>Frame rate shader dibagi dua saat memakai baterai</span></div><div class="ctrl"><label class="switch"><input type="checkbox" data-key="battery_saver" aria-label="Mode hemat baterai"><span></span></label></div></div>
-              <div class="srow"><div class="t"><b>Turunkan kualitas otomatis</b><span>Kurangi resolusi render, lalu fps, bila frame terlambat</span></div><div class="ctrl"><label class="switch"><input type="checkbox" data-key="auto_downgrade" aria-label="Turunkan kualitas otomatis"><span></span></label></div></div>
+          <div class="stack">
+            <div class="panel">
+              <div class="panel-h"><div class="ico"><svg class="i"><use href="#i-zap"/></svg></div><div><h2 data-i18n="set.power"></h2><p data-i18n="set.power.sub"></p></div></div>
+              <div class="rows">
+                <div class="srow"><div class="t"><b data-i18n="set.fullscreen"></b><span data-i18n="set.fullscreen.sub"></span></div><div class="ctrl"><label class="switch"><input type="checkbox" data-key="pause_on_fullscreen" data-i18n-aria="set.fullscreen"><span></span></label></div></div>
+                <div class="srow"><div class="t"><b data-i18n="set.maximized"></b><span data-i18n="set.maximized.sub"></span></div><div class="ctrl"><label class="switch"><input type="checkbox" data-key="pause_on_maximized" data-i18n-aria="set.maximized"><span></span></label></div></div>
+                <div class="srow"><div class="t"><b data-i18n="set.battery"></b><span data-i18n="set.battery.sub"></span></div><div class="ctrl"><label class="switch"><input type="checkbox" data-key="pause_on_battery" data-i18n-aria="set.battery"><span></span></label></div></div>
+                <div class="srow"><div class="t"><b data-i18n="set.saver"></b><span data-i18n="set.saver.sub"></span></div><div class="ctrl"><label class="switch"><input type="checkbox" data-key="battery_saver" data-i18n-aria="set.saver"><span></span></label></div></div>
+                <div class="srow"><div class="t"><b data-i18n="set.downgrade"></b><span data-i18n="set.downgrade.sub"></span></div><div class="ctrl"><label class="switch"><input type="checkbox" data-key="auto_downgrade" data-i18n-aria="set.downgrade"><span></span></label></div></div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-h"><div class="ico"><svg class="i"><use href="#i-sparkles"/></svg></div><div><h2 data-i18n="set.fps"></h2><p data-i18n="set.fps.sub"></p></div></div>
+              <div class="seg full" role="group" data-i18n-aria="set.fps" id="fpsSeg">
+                <button data-fps="15">15</button><button data-fps="24">24</button><button data-fps="30">30</button><button data-fps="60">60</button><button data-fps="120">120</button><button data-fps="144">144</button>
+              </div>
             </div>
           </div>
           <div class="stack">
             <div class="panel">
-              <div class="panel-h"><div class="ico"><svg class="i"><use href="#i-sparkles"/></svg></div><div><h2>Batas frame rate shader</h2><p>Tier perangkat dapat menurunkannya lagi</p></div></div>
-              <div class="seg full" role="group" aria-label="Batas frame rate" id="fpsSeg">
-                <button data-fps="15">15</button><button data-fps="24">24</button><button data-fps="30">30</button><button data-fps="60">60</button><button data-fps="120">120</button><button data-fps="144">144</button>
+              <div class="panel-h"><div class="ico"><svg class="i"><use href="#i-globe"/></svg></div><div><h2 data-i18n="set.language"></h2><p data-i18n="set.language.sub"></p></div></div>
+              <div class="seg full lang-seg" role="group" data-i18n-aria="set.language" id="langSeg">
+                <button data-lang="auto" data-i18n="set.language.auto"></button>
+                <button data-lang="en" lang="en">English</button>
+                <button data-lang="id" lang="id">Bahasa Indonesia</button>
               </div>
             </div>
             <div class="panel">
-              <div class="panel-h"><div class="ico"><svg class="i"><use href="#i-volume"/></svg></div><div><h2>Audio</h2><p>Untuk video dan halaman web</p></div></div>
+              <div class="panel-h"><div class="ico"><svg class="i"><use href="#i-volume"/></svg></div><div><h2 data-i18n="set.audio"></h2><p data-i18n="set.audio.sub"></p></div></div>
               <div class="rows">
-                <div class="srow"><div class="t"><b>Bisukan wallpaper</b><span>Tanpa suara dari video dan halaman web</span></div><div class="ctrl"><label class="switch"><input type="checkbox" data-key="mute" aria-label="Bisukan wallpaper"><span></span></label></div></div>
-                <div class="srow"><div class="t"><b>Volume</b><span id="volLabel">50%</span></div><div class="ctrl"><input type="range" min="0" max="1" step="0.05" data-key="volume" data-type="number" aria-label="Volume"></div></div>
+                <div class="srow"><div class="t"><b data-i18n="set.mute"></b><span data-i18n="set.mute.sub"></span></div><div class="ctrl"><label class="switch"><input type="checkbox" data-key="mute" data-i18n-aria="set.mute"><span></span></label></div></div>
+                <div class="srow"><div class="t"><b data-i18n="set.volume"></b><span id="volLabel">50%</span></div><div class="ctrl"><input type="range" min="0" max="1" step="0.05" data-key="volume" data-type="number" data-i18n-aria="set.volume"></div></div>
               </div>
             </div>
             <div class="panel">
-              <div class="panel-h"><div class="ico"><svg class="i"><use href="#i-cog"/></svg></div><div><h2>Umum</h2></div></div>
+              <div class="panel-h"><div class="ico"><svg class="i"><use href="#i-cog"/></svg></div><div><h2 data-i18n="set.general"></h2></div></div>
               <div class="rows">
-                <div class="srow"><div class="t"><b>Mulai bersama Windows</b><span>Jalankan nouwall saat masuk ke Windows</span></div><div class="ctrl"><label class="switch"><input type="checkbox" data-key="autostart" aria-label="Mulai bersama Windows"><span></span></label></div></div>
-                <div class="srow"><div class="t"><b>Lewati peringatan hardware</b><span>Langsung pasang walau melebihi kemampuan perangkat</span></div><div class="ctrl"><label class="switch"><input type="checkbox" data-key="suppress_warnings" aria-label="Lewati peringatan hardware"><span></span></label></div></div>
+                <div class="srow"><div class="t"><b data-i18n="set.autostart"></b><span data-i18n="set.autostart.sub"></span></div><div class="ctrl"><label class="switch"><input type="checkbox" data-key="autostart" data-i18n-aria="set.autostart"><span></span></label></div></div>
+                <div class="srow"><div class="t"><b data-i18n="set.suppress"></b><span data-i18n="set.suppress.sub"></span></div><div class="ctrl"><label class="switch"><input type="checkbox" data-key="suppress_warnings" data-i18n-aria="set.suppress"><span></span></label></div></div>
               </div>
             </div>
           </div>
@@ -553,42 +569,42 @@ pre.code { margin: 0; padding: 12px 14px; border-radius: var(--r-sm); background
         <div class="stack">
           <div class="panel">
             <div class="about-hero">
-              <div class="logo"><svg class="i"><use href="#i-wave"/></svg></div>
+              <div class="logo img"><img src="/logo.png" alt=""></div>
               <div class="t">
                 <h2>nouwall <span class="chip accent" id="ver"></span></h2>
-                <p>Live wallpaper open source untuk Windows. Shader, video, dan halaman web berjalan di belakang ikon desktop, dengan peringatan otomatis sesuai kemampuan hardware.</p>
+                <p data-i18n="about.lead"></p>
               </div>
               <div class="btns">
                 <button class="btn" id="openRepo"><svg class="i"><use href="#i-code"/></svg>GitHub</button>
-                <button class="btn danger" id="quit"><svg class="i"><use href="#i-x"/></svg>Keluar</button>
+                <button class="btn danger" id="quit"><svg class="i"><use href="#i-x"/></svg><span data-i18n="about.quit"></span></button>
               </div>
             </div>
           </div>
           <div class="panel">
-            <div class="panel-h"><div class="ico"><svg class="i"><use href="#i-folder"/></svg></div><div style="flex:1;min-width:0"><h2>Lokasi berkas</h2></div>
-              <button class="btn sm" id="openLib"><svg class="i"><use href="#i-folder"/></svg>Folder library</button>
+            <div class="panel-h"><div class="ico"><svg class="i"><use href="#i-folder"/></svg></div><div style="flex:1;min-width:0"><h2 data-i18n="about.files"></h2></div>
+              <button class="btn sm" id="openLib"><svg class="i"><use href="#i-folder"/></svg><span data-i18n="about.openLib"></span></button>
               <button class="btn sm" id="openLog"><svg class="i"><use href="#i-file"/></svg>Log</button></div>
             <div id="paths"></div>
           </div>
           <div class="panel">
-            <div class="panel-h"><div class="ico"><svg class="i"><use href="#i-code"/></svg></div><div><h2>Membuat wallpaper</h2><p>Setiap wallpaper adalah folder dengan wallpaper.toml</p></div></div>
+            <div class="panel-h"><div class="ico"><svg class="i"><use href="#i-code"/></svg></div><div><h2 data-i18n="about.make"></h2><p data-i18n="about.make.sub"></p></div></div>
             <div class="guide">
-              <div><h3><svg class="i"><use href="#i-sparkles"/></svg>Shader GLSL</h3><p>Konvensi Shadertoy dengan iTime, iResolution, iMouse, iFrame, dan iDate.</p>
+              <div><h3><svg class="i"><use href="#i-sparkles"/></svg>Shader GLSL</h3><p data-i18n="about.glsl"></p>
 <pre class="code">void mainImage(out vec4 fragColor,
                in vec2 fragCoord) {
   vec2 uv = fragCoord / iResolution.xy;
   fragColor = vec4(uv, 0.5 + 0.5 * sin(iTime), 1.0);
 }</pre></div>
-              <div><h3><svg class="i"><use href="#i-sparkles"/></svg>Shader WGSL</h3><p>Uniform tersedia di <span class="mono">u</span>: resolution, time, mouse, frame, date.</p>
+              <div><h3><svg class="i"><use href="#i-sparkles"/></svg>Shader WGSL</h3><p data-i18n-html="about.wgsl"></p>
 <pre class="code">fn main_image(frag_coord: vec2&lt;f32&gt;) -&gt; vec4&lt;f32&gt; {
   let uv = frag_coord / u.resolution.xy;
   return vec4&lt;f32&gt;(uv, 0.5, 1.0);
 }</pre></div>
-              <div><h3><svg class="i"><use href="#i-globe"/></svg>Halaman web</h3><p>Halaman biasa. Saat wallpaper dijeda, halaman menerima event berikut.</p>
+              <div><h3><svg class="i"><use href="#i-globe"/></svg><span data-i18n="kind.webpage"></span></h3><p data-i18n="about.web"></p>
 <pre class="code">addEventListener('nouwall:pause', stop);
 addEventListener('nouwall:resume', start);</pre></div>
             </div>
-            <p class="muted" style="margin:14px 0 0;font-size:12.5px">Dilisensikan MIT atau Apache-2.0.</p>
+            <p class="muted" style="margin:14px 0 0;font-size:12.5px" data-i18n="about.license"></p>
           </div>
         </div>
       </section>
@@ -598,32 +614,205 @@ addEventListener('nouwall:resume', start);</pre></div>
 
 <div class="overlay" id="confirm" hidden role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
   <div class="modal">
-    <h2 id="confirmTitle"><svg class="i" style="color:var(--warn)"><use href="#i-alert"/></svg><span>Perangkat mungkin tidak mendukung</span></h2>
+    <h2 id="confirmTitle"><svg class="i" style="color:var(--warn)"><use href="#i-alert"/></svg><span></span></h2>
     <p class="lead" id="confirmLead"></p>
     <div id="confirmList" style="display:grid;gap:8px"></div>
-    <div class="foot"><button class="btn" id="confirmCancel">Batal</button><button class="btn primary" id="confirmOk">Tetap pakai</button></div>
+    <div class="foot"><button class="btn" id="confirmCancel" data-i18n="dlg.cancel"></button><button class="btn primary" id="confirmOk" data-i18n="dlg.useAnyway"></button></div>
   </div>
 </div>
 <div class="overlay" id="urlDlg" hidden role="dialog" aria-modal="true" aria-labelledby="urlTitle">
   <div class="modal">
-    <h2 id="urlTitle"><svg class="i"><use href="#i-globe"/></svg>Tambah halaman web</h2>
-    <p class="lead">Halaman dimuat dari internet setiap kali wallpaper dimulai.</p>
-    <div class="field"><label for="urlInput">Alamat</label><input type="url" id="urlInput" placeholder="https://"></div>
-    <div class="field"><label for="urlName">Nama</label><input type="text" id="urlName" placeholder="Opsional"></div>
-    <div class="foot"><button class="btn" id="urlCancel">Batal</button><button class="btn primary" id="urlOk">Tambah</button></div>
+    <h2 id="urlTitle"><svg class="i"><use href="#i-globe"/></svg><span data-i18n="url.title"></span></h2>
+    <p class="lead" data-i18n="url.lead"></p>
+    <div class="field"><label for="urlInput" data-i18n="url.address"></label><input type="url" id="urlInput" placeholder="https://"></div>
+    <div class="field"><label for="urlName" data-i18n="url.name"></label><input type="text" id="urlName" data-i18n-placeholder="url.optional"></div>
+    <div class="foot"><button class="btn" id="urlCancel" data-i18n="dlg.cancel"></button><button class="btn primary" id="urlOk" data-i18n="url.add"></button></div>
   </div>
 </div>
 <div class="overlay" id="delDlg" hidden role="dialog" aria-modal="true" aria-labelledby="delTitle">
   <div class="modal">
-    <h2 id="delTitle"><svg class="i" style="color:var(--crit)"><use href="#i-trash"/></svg>Hapus wallpaper?</h2>
+    <h2 id="delTitle"><svg class="i" style="color:var(--crit)"><use href="#i-trash"/></svg><span data-i18n="del.title"></span></h2>
     <p class="lead" id="delLead"></p>
-    <div class="foot"><button class="btn" id="delCancel">Batal</button><button class="btn primary" id="delOk">Hapus</button></div>
+    <div class="foot"><button class="btn" id="delCancel" data-i18n="dlg.cancel"></button><button class="btn primary" id="delOk" data-i18n="del.ok"></button></div>
   </div>
 </div>
 <div class="toasts" id="toasts" aria-live="polite"></div>
 
 <script>
 (() => {
+  // ---------- strings ----------
+  // Every visible string lives here. Keys in markup: data-i18n (text),
+  // data-i18n-html, data-i18n-title, data-i18n-placeholder, data-i18n-aria.
+  const STRINGS = {
+    en: {
+      'brand.sub': 'Live wallpaper', 'nav.label': 'Navigation', 'nav.menu': 'Menu', loading: 'Loading...',
+      'tab.library': 'Library', 'tab.monitors': 'Monitors', 'tab.hardware': 'Hardware', 'tab.settings': 'Settings', 'tab.about': 'About',
+      'sub.library': 'Preview, adjust the fit, then apply a wallpaper', 'sub.monitors': 'Screen layout and the wallpaper on each monitor',
+      'sub.hardware': 'What this device can do and the limits nouwall uses', 'sub.settings': 'Power saving, audio, language and behaviour',
+      'sub.about': 'Version, file locations and how to make wallpapers',
+      pause: 'Pause', resume: 'Resume',
+      'kind.shader': 'Shader', 'kind.video': 'Video', 'kind.web': 'Web', 'kind.webpage': 'Web page', 'filter.all': 'All',
+      'lib.fit': 'Fit', 'fit.cover': 'Fill', 'fit.contain': 'Fit', 'fit.stretch': 'Stretch', 'fit.center': 'Original',
+      'fit.cover.hint': 'Fill the screen and crop what does not fit', 'fit.contain.hint': 'Show the whole video with black bars',
+      'fit.stretch.hint': 'Stretch to the whole screen', 'fit.center.hint': 'Native pixel size, centred',
+      'fit.cover.long': 'Fills the whole screen; edges that do not fit are cropped.', 'fit.contain.long': 'The whole video is visible; the rest of the screen gets black bars.',
+      'fit.stretch.long': 'Fills the screen by stretching the picture.', 'fit.center.long': 'Native pixel size in the middle of the screen.',
+      'lib.size': 'Size', 'lib.size.hint': 'Zoom in to crop the edges, zoom out to leave space around it.',
+      'lib.zoom': 'Page zoom', 'lib.zoom.hint': 'Makes the page content larger or smaller.',
+      'lib.panX': 'Horizontal position', 'lib.panY': 'Vertical position', 'pan.center': 'centre',
+      'pan.left': '{n}% left', 'pan.right': '{n}% right', 'pan.up': '{n}% up', 'pan.down': '{n}% down',
+      'lib.res': 'Render resolution', 'res.autoTier': 'Automatic (tier, {n}%)', 'res.native': 'Native ({w}×{h})', 'res.full': 'Full ({w}×{h})',
+      'res.shaderScaled': 'Rendered at {w}×{h} and scaled up: lighter, slightly less sharp.', 'res.shaderFull': 'Rendered at the full monitor resolution.',
+      'res.videoScaled': 'Still decoded from the source; frames are copied and shown at {w}×{h} ({n}% fewer pixels).', 'res.videoFull': 'Shown at the full monitor resolution.',
+      'lib.target': 'Target monitor', 'lib.allMonitors': 'All monitors', 'lib.monitorN': 'Monitor {n}',
+      'lib.unsaved': 'Not saved', 'lib.reset': 'Reset', 'lib.reset.hint': 'Back to the default fit', 'lib.save': 'Save', 'lib.apply': 'Apply',
+      'lib.search': 'Search wallpapers', 'lib.filter': 'Filter by type', 'lib.list': 'Wallpapers',
+      'lib.pick': 'Pick a wallpaper to preview it', 'lib.none': 'No wallpapers yet. Import a video, shader or HTML page.', 'lib.noMatch': 'No wallpapers match.',
+      'lib.live': 'Live preview', 'lib.render': 'Render {w}×{h}', 'lib.webZoom': '{w}×{h} · zoom {n}%',
+      'lib.activeOn': 'Active on {list}', 'lib.by': 'by {name}', 'lib.load': 'load {n}/5', 'lib.online': 'online', 'lib.delete': 'Remove from library',
+      'lib.noVideo': 'This codec cannot be previewed here. The wallpaper can still be applied.', 'lib.noPreview': 'Preview unavailable: {msg}',
+      'imp.button': 'Import', 'imp.file': 'File', 'imp.file.sub': 'Video, .glsl, .wgsl or .html', 'imp.folder': 'HTML folder', 'imp.folder.sub': 'A folder with index.html',
+      'imp.url': 'Web address', 'imp.url.sub': 'A page from the internet',
+      'mon.layout': 'Screen layout', 'mon.layout.sub': 'Monitor positions as set in Windows display settings', 'mon.none': 'No monitors detected.',
+      'mon.primary': 'Primary', 'mon.noRenderer': 'no renderer', 'mon.running': 'Running', 'mon.res': 'Resolution', 'mon.refresh': 'Refresh', 'mon.device': 'Device',
+      'mon.noWallpaper': 'No wallpaper', 'mon.pick': 'Choose wallpaper', 'mon.count': '{n} monitor(s)', 'mon.notAttached': 'Desktop not attached yet',
+      'pause.user': 'Paused manually', 'pause.locked': 'Screen locked', 'pause.display_off': 'Display off', 'pause.fullscreen': 'Full-screen app',
+      'pause.maximized': 'Maximized window', 'pause.battery': 'On battery',
+      'hw.tierChip': 'Hardware tier', 'hw.override': 'Tier in use', 'hw.auto': 'Automatic', 'hw.forceLow': 'Force Low', 'hw.forceMid': 'Force Mid', 'hw.forceHigh': 'Force High',
+      'hw.detected': 'Tier {t} detected', 'hw.forced': 'Tier {t} (forced)', 'hw.autoWas': 'Automatic detection: {t}', 'hw.limitsUsed': 'These limits drive the warnings and render quality',
+      'hw.maxVideo': 'Max video', 'hw.shader': 'Shader', 'hw.fpsCap': 'frame rate cap', 'hw.scale': 'Render scale', 'hw.scaleSub': 'shader resolution',
+      'hw.cost': 'Shader load', 'hw.costSub': 'recommended maximum',
+      'hw.device': 'Device', 'hw.device.sub': 'Scanned when nouwall started', 'hw.rescan': 'Scan again',
+      'hw.decoders': 'Hardware video decoders', 'hw.decoders.sub': 'Codecs without a hardware decoder are played by the CPU',
+      'hw.reasons': 'Why this tier', 'hw.noReasons': 'No notes.', 'hw.supported': 'Supported', 'hw.unsupported': 'Not supported',
+      'hw.upTo': 'up to {w}×{h}', 'hw.cpuDecode': 'CPU decode',
+      'hw.gpu': 'GPU', 'hw.kind': 'Type', 'hw.cpu': 'CPU', 'hw.ram': 'RAM', 'hw.power': 'Power', 'hw.windows': 'Windows', 'hw.monitors': 'Monitors',
+      'gpu.integrated': 'Integrated', 'gpu.discrete': 'Discrete', 'gpu.software': 'Software',
+      'hw.threads': '{n} threads', 'hw.build': 'build {n}', 'hw.battery': 'Battery{p}', 'hw.ac': 'Plugged in{p}', 'hw.batteryPct': ' · battery {n}%', 'hw.unknown': 'Unknown',
+      'set.power': 'Power saving', 'set.power.sub': 'When the wallpaper stops or slows down',
+      'set.fullscreen': 'Pause for full-screen apps', 'set.fullscreen.sub': 'A game, video or presentation covers the monitor',
+      'set.maximized': 'Pause for maximized windows', 'set.maximized.sub': 'A full-size window hides the wallpaper',
+      'set.battery': 'Pause on battery', 'set.battery.sub': 'Stop completely when the laptop is unplugged',
+      'set.saver': 'Battery saver', 'set.saver.sub': 'Halve the shader frame rate on battery',
+      'set.downgrade': 'Lower quality automatically', 'set.downgrade.sub': 'Reduce render resolution, then fps, when frames run late',
+      'set.fps': 'Shader frame rate cap', 'set.fps.sub': 'The device tier may lower it further',
+      'set.language': 'Language', 'set.language.sub': 'Bahasa antarmuka', 'set.language.auto': 'Same as Windows',
+      'set.audio': 'Audio', 'set.audio.sub': 'For videos and web pages', 'set.mute': 'Mute wallpapers', 'set.mute.sub': 'No sound from videos and web pages', 'set.volume': 'Volume',
+      'set.general': 'General', 'set.autostart': 'Start with Windows', 'set.autostart.sub': 'Run nouwall when you sign in to Windows',
+      'set.suppress': 'Skip hardware warnings', 'set.suppress.sub': 'Apply right away even beyond what the device handles well',
+      'about.lead': 'Open-source live wallpapers for Windows. Shaders, videos and web pages run behind your desktop icons, with automatic warnings based on what your hardware can handle.',
+      'about.quit': 'Quit', 'about.files': 'File locations', 'about.openLib': 'Library folder', 'about.copy': 'Copy', 'about.copyAria': 'Copy {k} location',
+      'about.make': 'Making wallpapers', 'about.make.sub': 'Each wallpaper is a folder with a wallpaper.toml',
+      'about.glsl': 'Shadertoy conventions with iTime, iResolution, iMouse, iFrame and iDate.',
+      'about.wgsl': 'Uniforms are available in <span class="mono">u</span>: resolution, time, mouse, frame, date.',
+      'about.web': 'Any page. While the wallpaper is paused the page receives these events.',
+      'about.license': 'Licensed under MIT or Apache-2.0.',
+      'dlg.cancel': 'Cancel', 'dlg.useAnyway': 'Use anyway',
+      'confirm.crit': 'This device does not handle this wallpaper well', 'confirm.warn': 'Your device may not run this smoothly',
+      'confirm.lead': '{title} is beyond what is recommended for this device (tier {tier}).',
+      'url.title': 'Add a web page', 'url.lead': 'The page is loaded from the internet every time the wallpaper starts.',
+      'url.address': 'Address', 'url.name': 'Name', 'url.optional': 'Optional', 'url.add': 'Add',
+      'del.title': 'Remove wallpaper?', 'del.lead': '"{title}" and its files will be removed from the library.', 'del.ok': 'Remove',
+      'toast.applied': '{title} applied', 'toast.saved': 'Display saved', 'toast.tier': 'Tier updated', 'toast.rescan': 'Hardware scanned again',
+      'toast.removed': 'Wallpaper removed', 'toast.imported': '{title} imported', 'toast.importedWarn': '{title} imported. {warn}',
+      'toast.copied': 'Location copied', 'toast.copyFail': 'Cannot copy to the clipboard', 'toast.shaderRead': 'Cannot read the shader file',
+    },
+    id: {
+      'brand.sub': 'Live wallpaper', 'nav.label': 'Navigasi', 'nav.menu': 'Menu', loading: 'Memuat...',
+      'tab.library': 'Library', 'tab.monitors': 'Monitor', 'tab.hardware': 'Hardware', 'tab.settings': 'Pengaturan', 'tab.about': 'Tentang',
+      'sub.library': 'Pratinjau, atur tampilan, lalu pasang wallpaper', 'sub.monitors': 'Susunan layar dan wallpaper tiap monitor',
+      'sub.hardware': 'Kemampuan perangkat dan batas yang dipakai nouwall', 'sub.settings': 'Hemat daya, audio, bahasa, dan perilaku aplikasi',
+      'sub.about': 'Versi, lokasi berkas, dan panduan membuat wallpaper',
+      pause: 'Jeda', resume: 'Lanjutkan',
+      'kind.shader': 'Shader', 'kind.video': 'Video', 'kind.web': 'Web', 'kind.webpage': 'Halaman web', 'filter.all': 'Semua',
+      'lib.fit': 'Tampilan', 'fit.cover': 'Isi', 'fit.contain': 'Pas', 'fit.stretch': 'Regang', 'fit.center': 'Asli',
+      'fit.cover.hint': 'Isi layar, potong bagian yang tidak muat', 'fit.contain.hint': 'Tampilkan utuh dengan bilah hitam',
+      'fit.stretch.hint': 'Regangkan ke seluruh layar', 'fit.center.hint': 'Ukuran piksel asli di tengah',
+      'fit.cover.long': 'Mengisi seluruh layar; tepi yang tidak muat dipotong.', 'fit.contain.long': 'Seluruh video terlihat; sisa layar diberi bilah hitam.',
+      'fit.stretch.long': 'Mengisi layar dengan merenggangkan gambar.', 'fit.center.long': 'Ukuran piksel asli, di tengah layar.',
+      'lib.size': 'Ukuran', 'lib.size.hint': 'Perbesar untuk memotong tepi, perkecil untuk menyisakan ruang.',
+      'lib.zoom': 'Zoom halaman', 'lib.zoom.hint': 'Memperbesar atau memperkecil isi halaman.',
+      'lib.panX': 'Posisi horizontal', 'lib.panY': 'Posisi vertikal', 'pan.center': 'tengah',
+      'pan.left': '{n}% kiri', 'pan.right': '{n}% kanan', 'pan.up': '{n}% atas', 'pan.down': '{n}% bawah',
+      'lib.res': 'Resolusi render', 'res.autoTier': 'Otomatis (tier, {n}%)', 'res.native': 'Asli ({w}×{h})', 'res.full': 'Penuh ({w}×{h})',
+      'res.shaderScaled': 'Dirender {w}×{h} lalu diperbesar: lebih ringan, sedikit kurang tajam.', 'res.shaderFull': 'Dirender penuh pada resolusi monitor.',
+      'res.videoScaled': 'Decode tetap dari sumber; frame disalin dan ditampilkan pada {w}×{h} ({n}% lebih sedikit piksel).', 'res.videoFull': 'Ditampilkan pada resolusi penuh monitor.',
+      'lib.target': 'Monitor tujuan', 'lib.allMonitors': 'Semua monitor', 'lib.monitorN': 'Monitor {n}',
+      'lib.unsaved': 'Belum disimpan', 'lib.reset': 'Reset', 'lib.reset.hint': 'Kembalikan tampilan bawaan', 'lib.save': 'Simpan', 'lib.apply': 'Pasang',
+      'lib.search': 'Cari wallpaper', 'lib.filter': 'Filter jenis', 'lib.list': 'Wallpaper',
+      'lib.pick': 'Pilih wallpaper untuk melihat pratinjau', 'lib.none': 'Belum ada wallpaper. Impor video, shader, atau halaman HTML.', 'lib.noMatch': 'Tidak ada wallpaper yang cocok.',
+      'lib.live': 'Pratinjau langsung', 'lib.render': 'Render {w}×{h}', 'lib.webZoom': '{w}×{h} · zoom {n}%',
+      'lib.activeOn': 'Aktif di {list}', 'lib.by': 'oleh {name}', 'lib.load': 'beban {n}/5', 'lib.online': 'online', 'lib.delete': 'Hapus dari library',
+      'lib.noVideo': 'Codec video ini tidak bisa dipratinjau di sini. Wallpaper tetap bisa dipasang.', 'lib.noPreview': 'Pratinjau tidak tersedia: {msg}',
+      'imp.button': 'Impor', 'imp.file': 'File', 'imp.file.sub': 'Video, .glsl, .wgsl, atau .html', 'imp.folder': 'Folder HTML', 'imp.folder.sub': 'Folder dengan index.html',
+      'imp.url': 'Alamat web', 'imp.url.sub': 'Halaman dari internet',
+      'mon.layout': 'Susunan layar', 'mon.layout.sub': 'Posisi monitor sesuai pengaturan tampilan Windows', 'mon.none': 'Tidak ada monitor terdeteksi.',
+      'mon.primary': 'Utama', 'mon.noRenderer': 'tidak ada renderer', 'mon.running': 'Berjalan', 'mon.res': 'Resolusi', 'mon.refresh': 'Refresh', 'mon.device': 'Perangkat',
+      'mon.noWallpaper': 'Tidak ada wallpaper', 'mon.pick': 'Pilih wallpaper', 'mon.count': '{n} monitor', 'mon.notAttached': 'Desktop belum terpasang',
+      'pause.user': 'Dijeda manual', 'pause.locked': 'Layar terkunci', 'pause.display_off': 'Layar mati', 'pause.fullscreen': 'Aplikasi layar penuh',
+      'pause.maximized': 'Jendela dimaksimalkan', 'pause.battery': 'Memakai baterai',
+      'hw.tierChip': 'Tier hardware', 'hw.override': 'Tier yang dipakai', 'hw.auto': 'Otomatis', 'hw.forceLow': 'Paksa Low', 'hw.forceMid': 'Paksa Mid', 'hw.forceHigh': 'Paksa High',
+      'hw.detected': 'Tier {t} terdeteksi', 'hw.forced': 'Tier {t} (dipaksa)', 'hw.autoWas': 'Deteksi otomatis: {t}', 'hw.limitsUsed': 'Batas di bawah dipakai untuk peringatan dan kualitas render',
+      'hw.maxVideo': 'Video maksimal', 'hw.shader': 'Shader', 'hw.fpsCap': 'batas frame rate', 'hw.scale': 'Skala render', 'hw.scaleSub': 'resolusi shader',
+      'hw.cost': 'Beban shader', 'hw.costSub': 'maksimal disarankan',
+      'hw.device': 'Perangkat', 'hw.device.sub': 'Hasil pemindaian saat nouwall dimulai', 'hw.rescan': 'Pindai ulang',
+      'hw.decoders': 'Decoder video hardware', 'hw.decoders.sub': 'Codec tanpa decoder hardware diputar oleh CPU',
+      'hw.reasons': 'Alasan penentuan tier', 'hw.noReasons': 'Tidak ada catatan.', 'hw.supported': 'Didukung', 'hw.unsupported': 'Tidak didukung',
+      'hw.upTo': 'hingga {w}×{h}', 'hw.cpuDecode': 'decode CPU',
+      'hw.gpu': 'GPU', 'hw.kind': 'Jenis', 'hw.cpu': 'CPU', 'hw.ram': 'RAM', 'hw.power': 'Daya', 'hw.windows': 'Windows', 'hw.monitors': 'Monitor',
+      'gpu.integrated': 'Terintegrasi', 'gpu.discrete': 'Diskrit', 'gpu.software': 'Software',
+      'hw.threads': '{n} thread', 'hw.build': 'build {n}', 'hw.battery': 'Baterai{p}', 'hw.ac': 'Listrik{p}', 'hw.batteryPct': ' · baterai {n}%', 'hw.unknown': 'Tidak diketahui',
+      'set.power': 'Hemat daya', 'set.power.sub': 'Kapan wallpaper berhenti atau melambat',
+      'set.fullscreen': 'Jeda saat aplikasi layar penuh', 'set.fullscreen.sub': 'Game, video, atau presentasi menutupi monitor',
+      'set.maximized': 'Jeda saat jendela dimaksimalkan', 'set.maximized.sub': 'Wallpaper tertutup jendela penuh',
+      'set.battery': 'Jeda saat memakai baterai', 'set.battery.sub': 'Berhenti total ketika laptop tidak dicolok',
+      'set.saver': 'Mode hemat baterai', 'set.saver.sub': 'Frame rate shader dibagi dua saat memakai baterai',
+      'set.downgrade': 'Turunkan kualitas otomatis', 'set.downgrade.sub': 'Kurangi resolusi render, lalu fps, bila frame terlambat',
+      'set.fps': 'Batas frame rate shader', 'set.fps.sub': 'Tier perangkat dapat menurunkannya lagi',
+      'set.language': 'Bahasa', 'set.language.sub': 'Interface language', 'set.language.auto': 'Ikuti Windows',
+      'set.audio': 'Audio', 'set.audio.sub': 'Untuk video dan halaman web', 'set.mute': 'Bisukan wallpaper', 'set.mute.sub': 'Tanpa suara dari video dan halaman web', 'set.volume': 'Volume',
+      'set.general': 'Umum', 'set.autostart': 'Mulai bersama Windows', 'set.autostart.sub': 'Jalankan nouwall saat masuk ke Windows',
+      'set.suppress': 'Lewati peringatan hardware', 'set.suppress.sub': 'Langsung pasang walau melebihi kemampuan perangkat',
+      'about.lead': 'Live wallpaper open source untuk Windows. Shader, video, dan halaman web berjalan di belakang ikon desktop, dengan peringatan otomatis sesuai kemampuan hardware.',
+      'about.quit': 'Keluar', 'about.files': 'Lokasi berkas', 'about.openLib': 'Folder library', 'about.copy': 'Salin', 'about.copyAria': 'Salin lokasi {k}',
+      'about.make': 'Membuat wallpaper', 'about.make.sub': 'Setiap wallpaper adalah folder dengan wallpaper.toml',
+      'about.glsl': 'Konvensi Shadertoy dengan iTime, iResolution, iMouse, iFrame, dan iDate.',
+      'about.wgsl': 'Uniform tersedia di <span class="mono">u</span>: resolution, time, mouse, frame, date.',
+      'about.web': 'Halaman biasa. Saat wallpaper dijeda, halaman menerima event berikut.',
+      'about.license': 'Dilisensikan MIT atau Apache-2.0.',
+      'dlg.cancel': 'Batal', 'dlg.useAnyway': 'Tetap pakai',
+      'confirm.crit': 'Perangkat tidak mendukung wallpaper ini dengan baik', 'confirm.warn': 'Perangkat Anda mungkin tidak mendukung ini dengan lancar',
+      'confirm.lead': '{title} melebihi kemampuan yang disarankan untuk perangkat ini (tier {tier}).',
+      'url.title': 'Tambah halaman web', 'url.lead': 'Halaman dimuat dari internet setiap kali wallpaper dimulai.',
+      'url.address': 'Alamat', 'url.name': 'Nama', 'url.optional': 'Opsional', 'url.add': 'Tambah',
+      'del.title': 'Hapus wallpaper?', 'del.lead': '"{title}" dan berkasnya akan dihapus dari library.', 'del.ok': 'Hapus',
+      'toast.applied': '{title} dipasang', 'toast.saved': 'Tampilan disimpan', 'toast.tier': 'Tier diperbarui', 'toast.rescan': 'Hardware dipindai ulang',
+      'toast.removed': 'Wallpaper dihapus', 'toast.imported': '{title} diimpor', 'toast.importedWarn': '{title} diimpor. {warn}',
+      'toast.copied': 'Lokasi disalin', 'toast.copyFail': 'Tidak bisa menyalin ke clipboard', 'toast.shaderRead': 'Berkas shader tidak terbaca',
+    },
+  };
+  // Built-in samples ship with English text; show them in the active language.
+  const BUILTIN = {
+    aurora: { id: { description: 'Pita aurora bergerak di atas langit berbintang (GLSL).' }, en: { description: 'Aurora ribbons drifting over a starry sky (GLSL).' } },
+    'glass-blobs': { id: { description: 'Gradasi kaca lembut yang mengikuti kursor (GLSL).' }, en: { description: 'Soft glass gradients that follow the cursor (GLSL).' } },
+    starfield: { id: { description: 'Bintang berlapis yang melaju ke arah layar (WGSL).' }, en: { description: 'Layers of stars rushing towards the screen (WGSL).' } },
+    'jam-kaca': { id: { title: 'Jam Kaca', description: 'Jam dan tanggal di kartu kaca dengan latar animasi (HTML).' }, en: { title: 'Glass Clock', description: 'Clock and date on a glass card over an animated background (HTML).' } },
+  };
+  let lang = 'en';
+  const t = (key, vars = {}) => {
+    const s = (STRINGS[lang] && STRINGS[lang][key]) ?? STRINGS.en[key] ?? key;
+    return s.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? vars[k] : m));
+  };
+  function applyStrings() {
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+    document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
+    document.querySelectorAll('[data-i18n-title]').forEach(el => { el.title = t(el.dataset.i18nTitle); });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { el.placeholder = t(el.dataset.i18nPlaceholder); });
+    document.querySelectorAll('[data-i18n-aria]').forEach(el => { el.setAttribute('aria-label', t(el.dataset.i18nAria)); });
+    document.querySelectorAll('.nav-btn').forEach(b => { b.title = t('tab.' + b.dataset.tab); });
+  }
+
   // ---------- IPC ----------
   const pending = new Map();
   const listeners = {};
@@ -642,21 +831,17 @@ addEventListener('nouwall:resume', start);</pre></div>
   const icon = (id, cls = 'i') => `<svg class="${cls}"><use href="#i-${id}"/></svg>`;
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
   const KIND_ICON = { shader: 'sparkles', video: 'film', web: 'globe' };
-  const KIND_NAME = { shader: 'Shader', video: 'Video', web: 'Web' };
+  const kindName = k => t('kind.' + k);
   const SEV_ICON = { critical: 'octagon', warn: 'alert', info: 'info' };
-  const PAUSE_TEXT = { user: 'Dijeda manual', locked: 'Layar terkunci', display_off: 'Layar mati', fullscreen: 'Aplikasi layar penuh', maximized: 'Jendela dimaksimalkan', battery: 'Memakai baterai' };
-  const TITLES = {
-    library: ['Library', 'Pratinjau, atur tampilan, lalu pasang wallpaper'],
-    monitors: ['Monitor', 'Susunan layar dan wallpaper tiap monitor'],
-    hardware: ['Hardware', 'Kemampuan perangkat dan batas yang dipakai nouwall'],
-    settings: ['Pengaturan', 'Hemat daya, audio, dan perilaku aplikasi'],
-    about: ['Tentang', 'Versi, lokasi berkas, dan panduan membuat wallpaper'],
-  };
+  const TABS = ['library', 'monitors', 'hardware', 'settings', 'about'];
   const DEFAULT_DISPLAY = { fit: 'cover', zoom: 1, pan_x: 0, pan_y: 0, resolution: null };
   const libUrl = (e, file) => '/lib/' + encodeURIComponent(e.id) + '/' + String(file || e.entry).split('/').map(encodeURIComponent).join('/');
   const resLabel = (w, h) => { const s = Math.min(w, h); return s >= 4320 ? '8K' : s >= 2160 ? '4K' : s >= 1440 ? '1440p' : s >= 1080 ? '1080p' : s >= 720 ? '720p' : `${w}×${h}`; };
   const setRangeFill = el => el.style.setProperty('--p', ((el.value - el.min) / (el.max - el.min) * 100) + '%');
   const store = { get(k) { try { return localStorage.getItem(k); } catch (_) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (_) {} } };
+  const builtinText = (e, field) => { const b = BUILTIN[e.id]; const known = b && [b.en[field], b.id[field]]; return known && known.includes(e[field]) ? (b[lang][field] ?? e[field]) : e[field]; };
+  const titleOf = e => (e ? builtinText(e, 'title') : '');
+  const descOf = e => builtinText(e, 'description');
 
   let state = null;
   let filter = 'all';
@@ -665,6 +850,7 @@ addEventListener('nouwall:resume', start);</pre></div>
   let draft = null;        // display settings being edited for the selected wallpaper
   let draftDirty = false;
   let selMonitor = null;   // monitor highlighted on the Monitor tab
+  let currentTab = 'library';
 
   function toast(text, err = false) {
     const el = document.createElement('div');
@@ -695,8 +881,6 @@ addEventListener('nouwall:resume', start);</pre></div>
 precision highp float; precision highp int;
 uniform vec3 iResolution; uniform float iTime; uniform float iTimeDelta; uniform int iFrame; uniform vec4 iMouse; uniform vec4 iDate;
 out vec4 nouwall_frag_color;
-#define iChannelTime float[4](iTime, iTime, iTime, iTime)
-#define iSampleRate 44100.0
 `;
   const GLSL_TAIL = `
 void main() { vec4 c = vec4(0.0, 0.0, 0.0, 1.0); mainImage(c, gl_FragCoord.xy); nouwall_frag_color = vec4(c.rgb, 1.0); }`;
@@ -718,7 +902,7 @@ struct NouwallUniforms { resolution: vec3<f32>, time: f32, mouse: vec4<f32>, tim
   async function shaderSource(e) {
     if (!srcCache.has(e.id)) {
       const r = await fetch(libUrl(e));
-      if (!r.ok) throw new Error('Berkas shader tidak terbaca');
+      if (!r.ok) throw new Error(t('toast.shaderRead'));
       srcCache.set(e.id, await r.text());
     }
     return srcCache.get(e.id);
@@ -739,10 +923,10 @@ struct NouwallUniforms { resolution: vec3<f32>, time: f32, mouse: vec4<f32>, tim
     const loc = n => gl.getUniformLocation(p, n);
     return { p, u: { res: loc('iResolution'), time: loc('iTime'), dt: loc('iTimeDelta'), frame: loc('iFrame'), mouse: loc('iMouse'), date: loc('iDate') } };
   }
-  function glDraw(gl, prog, w, h, t, frame) {
+  function glDraw(gl, prog, w, h, time, frame) {
     gl.viewport(0, 0, w, h);
     gl.useProgram(prog.p);
-    gl.uniform3f(prog.u.res, w, h, 1); gl.uniform1f(prog.u.time, t); gl.uniform1f(prog.u.dt, 1 / 60);
+    gl.uniform3f(prog.u.res, w, h, 1); gl.uniform1f(prog.u.time, time); gl.uniform1f(prog.u.dt, 1 / 60);
     gl.uniform1i(prog.u.frame, frame); gl.uniform4f(prog.u.mouse, 0, 0, 0, 0); gl.uniform4fv(prog.u.date, dateVec());
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }
@@ -750,9 +934,9 @@ struct NouwallUniforms { resolution: vec3<f32>, time: f32, mouse: vec4<f32>, tim
   let gpuDevice = null;
   async function webgpu() {
     if (gpuDevice) return gpuDevice;
-    if (!navigator.gpu) throw new Error('WebGPU tidak tersedia di WebView2 ini');
+    if (!navigator.gpu) throw new Error('WebGPU is not available in this WebView2');
     const adapter = await navigator.gpu.requestAdapter({ powerPreference: 'low-power' });
-    if (!adapter) throw new Error('Adapter WebGPU tidak tersedia');
+    if (!adapter) throw new Error('No WebGPU adapter');
     gpuDevice = await adapter.requestDevice();
     gpuDevice.lost.then(() => { gpuDevice = null; });
     return gpuDevice;
@@ -767,9 +951,9 @@ struct NouwallUniforms { resolution: vec3<f32>, time: f32, mouse: vec4<f32>, tim
     const group = device.createBindGroup({ layout: pipeline.getBindGroupLayout(0), entries: [{ binding: 0, resource: { buffer: buf } }] });
     return { pipeline, buf, group };
   }
-  function gpuUniforms(device, p, w, h, t, frame) {
+  function gpuUniforms(device, p, w, h, time, frame) {
     const data = new ArrayBuffer(64), f = new Float32Array(data), i = new Int32Array(data);
-    f[0] = w; f[1] = h; f[2] = 1; f[3] = t; f[8] = 1 / 60; i[9] = frame; f.set(dateVec(), 12);
+    f[0] = w; f[1] = h; f[2] = 1; f[3] = time; f[8] = 1 / 60; i[9] = frame; f.set(dateVec(), 12);
     device.queue.writeBuffer(p.buf, 0, data);
   }
   function gpuPass(device, p, view) {
@@ -805,7 +989,7 @@ struct NouwallUniforms { resolution: vec3<f32>, time: f32, mouse: vec4<f32>, tim
       loop();
     } else {
       const gl = canvas.getContext('webgl2', { antialias: false, powerPreference: 'low-power' });
-      if (!gl) throw new Error('WebGL2 tidak tersedia');
+      if (!gl) throw new Error('WebGL2 is not available');
       const prog = glProgram(gl, src);
       const loop = () => {
         if (stopped) return;
@@ -862,13 +1046,13 @@ struct NouwallUniforms { resolution: vec3<f32>, time: f32, mouse: vec4<f32>, tim
   }
   async function shaderThumb(e) {
     const src = await shaderSource(e);
-    const t = 6;
+    const time = 6;
     if (isWgsl(e)) {
       const device = await webgpu();
       const p = await gpuPipeline(device, src, 'rgba8unorm');
       const tex = device.createTexture({ size: [TW, TH], format: 'rgba8unorm', usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC });
       const out = device.createBuffer({ size: TW * TH * 4, usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ });
-      gpuUniforms(device, p, TW, TH, t, 0);
+      gpuUniforms(device, p, TW, TH, time, 0);
       const enc = gpuPass(device, p, tex.createView());
       enc.copyTextureToBuffer({ texture: tex }, { buffer: out, bytesPerRow: TW * 4 }, [TW, TH]);
       device.queue.submit([enc.finish()]);
@@ -882,7 +1066,7 @@ struct NouwallUniforms { resolution: vec3<f32>, time: f32, mouse: vec4<f32>, tim
     if (!thumbGl) { const c = document.createElement('canvas'); c.width = TW; c.height = TH; thumbGl = c.getContext('webgl2', { preserveDrawingBuffer: true }); }
     const gl = thumbGl;
     const prog = glProgram(gl, src);
-    glDraw(gl, prog, TW, TH, t, 0);
+    glDraw(gl, prog, TW, TH, time, 0);
     const url = gl.canvas.toDataURL('image/jpeg', 0.85);
     gl.deleteProgram(prog.p);
     return url;
@@ -890,7 +1074,7 @@ struct NouwallUniforms { resolution: vec3<f32>, time: f32, mouse: vec4<f32>, tim
   function thumbHtml(e, on) {
     const url = thumbs.get(e.id);
     if (!thumbs.has(e.id)) queueThumb(e);
-    const badge = on ? `<span class="on" title="Aktif">${icon('check')}</span>` : '';
+    const badge = on ? `<span class="on">${icon('check')}</span>` : '';
     return `<div class="thumb ${e.kind}" data-thumb="${esc(e.id)}"${on ? ' data-on="1"' : ''}>${url ? `<img alt="" src="${url}">` : icon(KIND_ICON[e.kind])}${badge}</div>`;
   }
 
@@ -906,29 +1090,28 @@ struct NouwallUniforms { resolution: vec3<f32>, time: f32, mouse: vec4<f32>, tim
   function renderList() {
     const active = activeIds();
     const q = query.toLowerCase();
-    const lib = state.library.filter(e => (filter === 'all' || e.kind === filter) && (!q || e.title.toLowerCase().includes(q)));
+    const lib = state.library.filter(e => (filter === 'all' || e.kind === filter) && (!q || titleOf(e).toLowerCase().includes(q)));
     if (!lib.length) {
-      $('#library').innerHTML = `<div class="empty">${icon('layers')}<div>${state.library.length ? 'Tidak ada wallpaper yang cocok.' : 'Belum ada wallpaper. Impor video, shader, atau halaman HTML.'}</div></div>`;
+      $('#library').innerHTML = `<div class="empty">${icon('layers')}<div>${esc(state.library.length ? t('lib.noMatch') : t('lib.none'))}</div></div>`;
       return;
     }
     $('#library').innerHTML = lib.map(e => {
-      const facts = [esc(KIND_NAME[e.kind])];
+      const facts = [esc(kindName(e.kind))];
       if (e.video) { facts.push(resLabel(e.video.width, e.video.height)); if (e.video.fps) facts.push(`${e.video.fps} fps`); }
-      else if (e.shader_cost) facts.push(`beban ${e.shader_cost}/5`);
-      else if (e.remote) facts.push('online');
+      else if (e.shader_cost) facts.push(esc(t('lib.load', { n: e.shader_cost })));
+      else if (e.remote) facts.push(esc(t('lib.online')));
       const w = e.warnings[0];
       const warn = w && w.severity !== 'info' ? `<span class="sep">·</span><span class="w-${w.severity}" title="${esc(w.title)}">${icon(SEV_ICON[w.severity])}</span>` : '';
       return `<button class="item" role="option" data-id="${esc(e.id)}" aria-selected="${e.id === selected}">
         ${thumbHtml(e, active.has(e.id))}
-        <div class="meta"><div class="name" title="${esc(e.title)}">${esc(e.title)}</div><div class="facts">${icon(KIND_ICON[e.kind])}${facts.join('<span class="sep">·</span>')}${warn}</div></div>
+        <div class="meta"><div class="name" title="${esc(titleOf(e))}">${esc(titleOf(e))}</div><div class="facts">${icon(KIND_ICON[e.kind])}${facts.join('<span class="sep">·</span>')}${warn}</div></div>
       </button>`;
     }).join('');
   }
 
-  function monitorOptions(sel) {
-    const ms = state.monitors;
-    let o = `<option value="all">Semua monitor</option>`;
-    if (ms.length > 1) ms.forEach(m => o += `<option value="${m.index}" ${sel === m.index ? 'selected' : ''}>Monitor ${m.index + 1} · ${m.width}×${m.height}</option>`);
+  function monitorOptions() {
+    let o = `<option value="all">${esc(t('lib.allMonitors'))}</option>`;
+    if (state.monitors.length > 1) state.monitors.forEach(m => o += `<option value="${m.index}">${esc(t('lib.monitorN', { n: m.index + 1 }))} · ${m.width}×${m.height}</option>`);
     return o;
   }
 
@@ -945,7 +1128,7 @@ struct NouwallUniforms { resolution: vec3<f32>, time: f32, mouse: vec4<f32>, tim
     if (!e) {
       stopLive();
       stageKey = '';
-      $('#viewport').innerHTML = `<div class="vp-msg">${icon('layers')}Pilih wallpaper untuk melihat pratinjau</div>`;
+      $('#viewport').innerHTML = vpMessage('layers', t('lib.pick'));
       $('#stageInfo').innerHTML = '';
       return;
     }
@@ -959,22 +1142,26 @@ struct NouwallUniforms { resolution: vec3<f32>, time: f32, mouse: vec4<f32>, tim
     syncControls();
   }
 
+  function warnLines(list) {
+    return list.map(w => `<div class="warn-line ${w.severity}">${icon(SEV_ICON[w.severity])}<div><b>${esc(w.title)}</b><span>${esc(w.message)}</span></div></div>`).join('');
+  }
+
   function renderInfo(e) {
-    const active = state.monitors.filter(m => m.wallpaper === e.id).map(m => `Monitor ${m.index + 1}`);
-    const chips = [`<span class="chip">${icon(KIND_ICON[e.kind])}${KIND_NAME[e.kind]}</span>`];
+    const active = state.monitors.filter(m => m.wallpaper === e.id).map(m => t('lib.monitorN', { n: m.index + 1 }));
+    const chips = [`<span class="chip">${icon(KIND_ICON[e.kind])}${esc(kindName(e.kind))}</span>`];
     if (e.video) {
       chips.push(`<span class="chip">${e.video.width}×${e.video.height}</span>`);
       if (e.video.fps) chips.push(`<span class="chip">${e.video.fps} fps</span>`);
       if (e.video.codec) chips.push(`<span class="chip">${esc(e.video.codec.toUpperCase())}</span>`);
     }
-    if (e.shader_cost) chips.push(`<span class="chip">beban ${e.shader_cost}/5</span>`);
-    if (e.remote) chips.push(`<span class="chip">${icon('globe')}online</span>`);
-    if (active.length) chips.unshift(`<span class="chip ok">${icon('check')}Aktif di ${esc(active.join(', '))}</span>`);
-    const warns = e.warnings.map(w => `<div class="warn-line ${w.severity}">${icon(SEV_ICON[w.severity])}<div><b>${esc(w.title)}</b><span>${esc(w.message)}</span></div></div>`).join('');
+    if (e.shader_cost) chips.push(`<span class="chip">${esc(t('lib.load', { n: e.shader_cost }))}</span>`);
+    if (e.remote) chips.push(`<span class="chip">${icon('globe')}${esc(t('lib.online'))}</span>`);
+    if (active.length) chips.unshift(`<span class="chip ok">${icon('check')}${esc(t('lib.activeOn', { list: active.join(', ') }))}</span>`);
+    const desc = descOf(e) || (e.author ? t('lib.by', { name: e.author }) : '');
     $('#stageInfo').innerHTML = `
-      <div class="stage-title"><div class="t"><h2>${esc(e.title)}</h2>${e.description || e.author ? `<p>${esc(e.description || 'oleh ' + e.author)}</p>` : ''}</div>
-        <button class="btn ghost sm icon danger" id="delBtn" title="Hapus dari library" aria-label="Hapus dari library">${icon('trash')}</button></div>
-      <div class="badges">${chips.join('')}</div>${warns}`;
+      <div class="stage-title"><div class="t"><h2>${esc(titleOf(e))}</h2>${desc ? `<p>${esc(desc)}</p>` : ''}</div>
+        <button class="btn ghost sm icon danger" id="delBtn" title="${esc(t('lib.delete'))}" aria-label="${esc(t('lib.delete'))}">${icon('trash')}</button></div>
+      <div class="badges">${chips.join('')}</div>${warnLines(e.warnings)}`;
     $('#delBtn').onclick = () => askDelete(e.id);
   }
 
@@ -983,16 +1170,16 @@ struct NouwallUniforms { resolution: vec3<f32>, time: f32, mouse: vec4<f32>, tim
   function vpMessage(ic, text) {
     return `<div class="vp-msg">${icon(ic)}<div>${esc(text)}</div></div>`;
   }
+  const vpBadges = () => `<div class="vp-badges"><span class="chip live">${esc(t('lib.live'))}</span><span class="chip" id="vpRes"></span></div>`;
 
   function buildPreview(e) {
     stopLive();
     const vp = $('#viewport');
     vp.innerHTML = '';
-    const badges = `<div class="vp-badges"><span class="chip live">Pratinjau langsung</span><span class="chip" id="vpRes"></span></div>`;
     if (e.kind === 'video') {
       const v = document.createElement('video');
       v.muted = true; v.loop = true; v.autoplay = true; v.playsInline = true; v.src = libUrl(e);
-      v.onerror = () => { vp.innerHTML = vpMessage('film', 'Codec video ini tidak bisa dipratinjau di sini. Wallpaper tetap bisa dipasang.') + badges; updatePreview(); };
+      v.onerror = () => { vp.innerHTML = vpMessage('film', t('lib.noVideo')) + vpBadges(); updatePreview(); };
       v.onloadedmetadata = updatePreview;
       vp.append(v);
     } else if (e.kind === 'shader') {
@@ -1000,7 +1187,7 @@ struct NouwallUniforms { resolution: vec3<f32>, time: f32, mouse: vec4<f32>, tim
       vp.append(c);
       liveShader(c, e, () => shaderScale()).then(stop => {
         if (stageKey.startsWith(e.id + '|')) stopPreview = stop; else stop();
-      }).catch(err => { vp.innerHTML = vpMessage('sparkles', 'Pratinjau tidak tersedia: ' + err.message) + badges; updatePreview(); });
+      }).catch(err => { vp.innerHTML = vpMessage('sparkles', t('lib.noPreview', { msg: err.message })) + vpBadges(); updatePreview(); });
     } else {
       const f = document.createElement('iframe');
       // Opaque origin: a wallpaper page must not reach window.ipc of the settings UI.
@@ -1009,24 +1196,23 @@ struct NouwallUniforms { resolution: vec3<f32>, time: f32, mouse: vec4<f32>, tim
       f.src = e.remote ? e.entry : libUrl(e);
       vp.append(f);
     }
-    vp.insertAdjacentHTML('beforeend', badges);
+    vp.insertAdjacentHTML('beforeend', vpBadges());
     updatePreview();
   }
 
   function shaderScale() {
-    const m = targetMonitor(), e = entry(selected);
-    if (!e) return 1;
-    if (draft.resolution) return clamp(draft.resolution / m.height, 0.25, 1);
+    const m = targetMonitor();
+    if (draft && draft.resolution) return clamp(draft.resolution / m.height, 0.25, 1);
     return state.tier.budget.render_scale;
   }
 
   function updatePreview() {
     const e = entry(selected);
-    if (!e) return;
+    if (!e || !draft) return;
     const m = targetMonitor();
     const vp = $('#viewport');
     vp.style.aspectRatio = `${m.width} / ${m.height}`;
-    const vw = vp.clientWidth || 1, vh = vp.clientHeight || 1, k = vw / m.width;
+    const vw = vp.clientWidth || 1, k = vw / m.width;
     const v = vp.querySelector('video');
     if (v && v.videoWidth) {
       const r = place(draft, v.videoWidth, v.videoHeight, m.width, m.height);
@@ -1040,64 +1226,64 @@ struct NouwallUniforms { resolution: vec3<f32>, time: f32, mouse: vec4<f32>, tim
     }
     const res = $('#vpRes');
     if (res) {
-      if (e.kind === 'shader') { const s = shaderScale(); res.textContent = `Render ${Math.round(m.width * s)}×${Math.round(m.height * s)}`; }
-      else if (e.kind === 'video') { const [w, h] = renderSize(draft, m.width, m.height); res.textContent = `Render ${w}×${h}`; }
-      else res.textContent = `${m.width}×${m.height} · zoom ${Math.round((+draft.zoom || 1) * 100)}%`;
+      if (e.kind === 'shader') { const s = shaderScale(); res.textContent = t('lib.render', { w: Math.round(m.width * s), h: Math.round(m.height * s) }); }
+      else if (e.kind === 'video') { const [w, h] = renderSize(draft, m.width, m.height); res.textContent = t('lib.render', { w, h }); }
+      else res.textContent = t('lib.webZoom', { w: m.width, h: m.height, n: Math.round((+draft.zoom || 1) * 100) });
     }
   }
   new ResizeObserver(() => updatePreview()).observe($('#viewport'));
 
-  const panText = (v, a, b) => v === 0 ? 'tengah' : `${Math.abs(v)}% ${v < 0 ? a : b}`;
+  const panText = (v, neg, pos) => v === 0 ? t('pan.center') : t(v < 0 ? neg : pos, { n: Math.abs(v) });
   function syncControls() {
     const e = entry(selected);
     if (!e || !draft) return;
     const m = targetMonitor();
-    const isVideo = e.kind === 'video', isWeb = e.kind === 'web', isShader = e.kind === 'shader';
+    const isWeb = e.kind === 'web', isShader = e.kind === 'shader', isVideo = e.kind === 'video';
     $('#ctlFit').hidden = !isVideo;
     $('#ctlPanX').hidden = $('#ctlPanY').hidden = !isVideo;
     $('#ctlZoom').hidden = isShader;
     $('#ctlRes').hidden = isWeb;
     $$('#fitSeg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.fit === draft.fit)));
-    $('#fitHint').textContent = { cover: 'Mengisi seluruh layar; tepi yang tidak muat dipotong.', contain: 'Seluruh video terlihat; sisa layar diberi bilah hitam.', stretch: 'Mengisi layar dengan merenggangkan gambar.', center: 'Ukuran piksel asli, di tengah layar.' }[draft.fit];
-    $('#zoomLabel').textContent = isWeb ? 'Zoom halaman' : 'Ukuran';
-    $('#zoomHint').textContent = isWeb ? 'Memperbesar atau memperkecil isi halaman.' : 'Perbesar untuk memotong tepi, perkecil untuk menyisakan ruang.';
+    $('#fitHint').textContent = t(`fit.${draft.fit}.long`);
+    $('#zoomLabel').textContent = t(isWeb ? 'lib.zoom' : 'lib.size');
+    $('#zoomHint').textContent = t(isWeb ? 'lib.zoom.hint' : 'lib.size.hint');
     const z = Math.round((+draft.zoom || 1) * 100);
     $('#zoom').value = z; $('#zoomVal').textContent = z + '%';
     const px = Math.round((+draft.pan_x || 0) * 100), py = Math.round((+draft.pan_y || 0) * 100);
-    $('#panX').value = px; $('#panXVal').textContent = panText(px, 'kiri', 'kanan');
-    $('#panY').value = py; $('#panYVal').textContent = panText(py, 'atas', 'bawah');
+    $('#panX').value = px; $('#panXVal').textContent = panText(px, 'pan.left', 'pan.right');
+    $('#panY').value = py; $('#panYVal').textContent = panText(py, 'pan.up', 'pan.down');
     $$('#controls input[type=range]').forEach(setRangeFill);
     // Resolution choices up to the monitor height.
     const steps = [2160, 1440, 1080, 900, 720, 540].filter(h => h < m.height);
     const tierPct = Math.round(state.tier.budget.render_scale * 100);
-    let opts = `<option value="">${isShader ? `Otomatis (tier, ${tierPct}%)` : `Asli (${m.width}×${m.height})`}</option>`;
-    if (isShader && tierPct < 100) opts += `<option value="${m.height}">Penuh (${m.width}×${m.height})</option>`;
+    let opts = `<option value="">${esc(isShader ? t('res.autoTier', { n: tierPct }) : t('res.native', { w: m.width, h: m.height }))}</option>`;
+    if (isShader && tierPct < 100) opts += `<option value="${m.height}">${esc(t('res.full', { w: m.width, h: m.height }))}</option>`;
     steps.forEach(h => opts += `<option value="${h}">${h}p · ${Math.round(m.width * h / m.height)}×${h}</option>`);
     $('#resSel').innerHTML = opts;
     const rv = draft.resolution ? String(draft.resolution) : '';
     $('#resSel').value = [...$('#resSel').options].some(o => o.value === rv) ? rv : '';
     if (isShader) {
-      const s = shaderScale();
+      const s = shaderScale(), w = Math.round(m.width * s), h = Math.round(m.height * s);
       $('#resVal').textContent = Math.round(s * 100) + '%';
-      $('#resHint').textContent = s < 1 ? `Dirender ${Math.round(m.width * s)}×${Math.round(m.height * s)} lalu diperbesar: lebih ringan, sedikit kurang tajam.` : 'Dirender penuh pada resolusi monitor.';
+      $('#resHint').textContent = s < 1 ? t('res.shaderScaled', { w, h }) : t('res.shaderFull');
     } else {
       const [w, h] = renderSize(draft, m.width, m.height);
       const saved = Math.round((1 - (w * h) / (m.width * m.height)) * 100);
       $('#resVal').textContent = `${w}×${h}`;
-      $('#resHint').textContent = saved > 0 ? `Decode tetap dari sumber; frame disalin dan ditampilkan pada ${w}×${h} (${saved}% lebih sedikit piksel).` : 'Ditampilkan pada resolusi penuh monitor.';
+      $('#resHint').textContent = saved > 0 ? t('res.videoScaled', { w, h, n: saved }) : t('res.videoFull');
     }
     $('#dirty').hidden = !draftDirty;
     $('#saveDisp').disabled = !draftDirty;
     updatePreview();
   }
 
+  const norm = d => ({ fit: d.fit, zoom: +(+d.zoom).toFixed(2), pan_x: +(+d.pan_x).toFixed(2), pan_y: +(+d.pan_y).toFixed(2), resolution: d.resolution || null });
   function editDraft(patch) {
     draft = { ...draft, ...patch };
     const e = entry(selected);
     draftDirty = JSON.stringify(norm(draft)) !== JSON.stringify(norm({ ...DEFAULT_DISPLAY, ...(e.display || {}) }));
     syncControls();
   }
-  const norm = d => ({ fit: d.fit, zoom: +(+d.zoom).toFixed(2), pan_x: +(+d.pan_x).toFixed(2), pan_y: +(+d.pan_y).toFixed(2), resolution: d.resolution || null });
 
   $$('#fitSeg button').forEach(b => b.onclick = () => editDraft({ fit: b.dataset.fit }));
   $('#zoom').oninput = ev => editDraft({ zoom: ev.target.value / 100 });
@@ -1114,7 +1300,7 @@ struct NouwallUniforms { resolution: vec3<f32>, time: f32, mouse: vec4<f32>, tim
     draftDirty = false;
     syncControls();
   }
-  $('#saveDisp').onclick = async () => { try { await saveDisplay(); toast('Tampilan disimpan'); } catch (err) { toast(err.message, true); } };
+  $('#saveDisp').onclick = async () => { try { await saveDisplay(); toast(t('toast.saved')); } catch (err) { toast(err.message, true); } };
   $('#applyBtn').onclick = async () => {
     const e = entry(selected);
     if (!e) return;
@@ -1124,8 +1310,7 @@ struct NouwallUniforms { resolution: vec3<f32>, time: f32, mouse: vec4<f32>, tim
 
   $('#library').addEventListener('click', ev => {
     const item = ev.target.closest('.item');
-    if (!item) return;
-    select(item.dataset.id);
+    if (item) select(item.dataset.id);
   });
   $('#library').addEventListener('dblclick', ev => {
     const item = ev.target.closest('.item');
@@ -1148,12 +1333,12 @@ struct NouwallUniforms { resolution: vec3<f32>, time: f32, mouse: vec4<f32>, tim
 
   // ---------- monitors ----------
   function wallpaperOptions(current) {
-    return `<option value="">Pilih wallpaper</option>` + state.library.map(e => `<option value="${esc(e.id)}" ${e.id === current ? 'selected' : ''}>${esc(e.title)}</option>`).join('');
+    return `<option value="">${esc(t('mon.pick'))}</option>` + state.library.map(e => `<option value="${esc(e.id)}" ${e.id === current ? 'selected' : ''}>${esc(titleOf(e))}</option>`).join('');
   }
   function renderMonitors() {
     const ms = state.monitors;
     const map = $('#layoutMap');
-    if (!ms.length) { map.innerHTML = ''; $('#monitors').innerHTML = `<div class="empty">${icon('monitor')}Tidak ada monitor terdeteksi.</div>`; return; }
+    if (!ms.length) { map.innerHTML = ''; $('#monitors').innerHTML = `<div class="empty">${icon('monitor')}${esc(t('mon.none'))}</div>`; return; }
     // Diagram drawn to scale inside the map box.
     const minX = Math.min(...ms.map(m => m.x)), minY = Math.min(...ms.map(m => m.y));
     const maxX = Math.max(...ms.map(m => m.x + m.width)), maxY = Math.max(...ms.map(m => m.y + m.height));
@@ -1161,24 +1346,25 @@ struct NouwallUniforms { resolution: vec3<f32>, time: f32, mouse: vec4<f32>, tim
     const k = Math.min((W - pad * 2) / (maxX - minX), (H - pad * 2) / (maxY - minY));
     const ox = (W - (maxX - minX) * k) / 2, oy = (H - (maxY - minY) * k) / 2;
     map.innerHTML = ms.map(m => {
-      const e = entry(m.wallpaper), t = e && thumbs.get(e.id);
-      return `<div class="mon-box${selMonitor === m.index ? ' sel' : ''}" data-mon="${m.index}" title="Monitor ${m.index + 1}" style="left:${ox + (m.x - minX) * k + 2}px;top:${oy + (m.y - minY) * k + 2}px;width:${m.width * k - 4}px;height:${m.height * k - 4}px;${t ? `background-image:url(${t})` : ''}">
-        <span class="num">${m.index + 1}</span><span class="cap">${m.width}×${m.height}${e ? ' · ' + esc(e.title) : ''}</span></div>`;
+      const e = entry(m.wallpaper), th = e && thumbs.get(e.id);
+      return `<div class="mon-box${selMonitor === m.index ? ' sel' : ''}" data-mon="${m.index}" title="${esc(t('lib.monitorN', { n: m.index + 1 }))}" style="left:${ox + (m.x - minX) * k + 2}px;top:${oy + (m.y - minY) * k + 2}px;width:${m.width * k - 4}px;height:${m.height * k - 4}px;${th ? `background-image:url(${th})` : ''}">
+        <span class="num">${m.index + 1}</span><span class="cap">${m.width}×${m.height}${e ? ' · ' + esc(titleOf(e)) : ''}</span></div>`;
     }).join('');
     $('#monitors').innerHTML = ms.map(m => {
       const e = entry(m.wallpaper);
-      const status = m.paused ? `<span class="chip warn">${icon('pause')}${esc(PAUSE_TEXT[m.paused] || m.paused)}</span>` : `<span class="chip ok">${icon('play')}Berjalan</span>`;
+      const status = m.paused ? `<span class="chip warn">${icon('pause')}${esc(t('pause.' + m.paused))}</span>` : `<span class="chip ok">${icon('play')}${esc(t('mon.running'))}</span>`;
+      const name = t('lib.monitorN', { n: m.index + 1 }) + (m.primary ? ' · ' + t('mon.primary') : '');
       return `<div class="panel mon-card${selMonitor === m.index ? ' sel' : ''}" data-mon="${m.index}">
-        <div class="mon-head"><div class="num">${m.index + 1}</div><div class="t"><h3>Monitor ${m.index + 1}${m.primary ? ' · Utama' : ''}</h3><span title="${esc(m.status || '')}">${esc(m.status || 'tidak ada renderer')}</span></div>${status}</div>
+        <div class="mon-head"><div class="num">${m.index + 1}</div><div class="t"><h3>${esc(name)}</h3><span title="${esc(m.status || '')}">${esc(m.status || t('mon.noRenderer'))}</span></div>${status}</div>
         <div class="specs">
-          <div class="spec"><div class="k">Resolusi</div><div class="v">${m.width}×${m.height}</div></div>
-          <div class="spec"><div class="k">Refresh</div><div class="v">${m.refresh_hz} Hz</div></div>
-          <div class="spec wide"><div class="k">Perangkat</div><div class="v mono" title="${esc(m.device)}">${esc(m.device || '-')}</div></div>
+          <div class="spec"><div class="k">${esc(t('mon.res'))}</div><div class="v">${m.width}×${m.height}</div></div>
+          <div class="spec"><div class="k">${esc(t('mon.refresh'))}</div><div class="v">${m.refresh_hz} Hz</div></div>
+          <div class="spec wide"><div class="k">${esc(t('mon.device'))}</div><div class="v mono" title="${esc(m.device)}">${esc(m.device || '-')}</div></div>
         </div>
         <div class="mon-wp">
           ${e ? thumbHtml(e, false) : `<div class="thumb">${icon('monitor')}</div>`}
-          <div class="t"><b title="${esc(e ? e.title : '')}">${e ? esc(e.title) : '<span class="muted">Tidak ada wallpaper</span>'}</b>
-            <select data-assign="${m.index}" aria-label="Wallpaper monitor ${m.index + 1}">${wallpaperOptions(m.wallpaper)}</select></div>
+          <div class="t"><b title="${esc(titleOf(e))}">${e ? esc(titleOf(e)) : `<span class="muted">${esc(t('mon.noWallpaper'))}</span>`}</b>
+            <select data-assign="${m.index}" aria-label="${esc(name)}">${wallpaperOptions(m.wallpaper)}</select></div>
         </div>
       </div>`;
     }).join('');
@@ -1195,36 +1381,42 @@ struct NouwallUniforms { resolution: vec3<f32>, time: f32, mouse: vec4<f32>, tim
   };
   $('#layoutMap').addEventListener('click', pickMonitor);
   $('#monitors').addEventListener('click', pickMonitor);
-  new ResizeObserver(() => { if (state && !$('#tab-monitors').hidden) renderMonitors(); }).observe($('#layoutMap'));
+  new ResizeObserver(() => { if (state && currentTab === 'monitors') renderMonitors(); }).observe($('#layoutMap'));
 
   // ---------- hardware ----------
   function renderHardware() {
-    const hw = state.hardware, t = state.tier, b = t.budget;
-    $('#tierBig').textContent = t.tier.toUpperCase();
-    $('#medal').style.setProperty('--deg', { low: '120deg', mid: '240deg', high: '360deg' }[t.tier] || '120deg');
-    $('#tierTitle').textContent = t.overridden ? `Tier ${t.tier.toUpperCase()} (dipaksa)` : `Tier ${t.tier.toUpperCase()} terdeteksi`;
-    $('#tierSub').textContent = t.overridden ? `Deteksi otomatis: ${t.detected.toUpperCase()}` : 'Batas di bawah dipakai untuk peringatan dan kualitas render';
+    const hw = state.hardware, tr = state.tier, b = tr.budget, T = tr.tier.toUpperCase();
+    $('#tierBig').textContent = T;
+    $('#medal').style.setProperty('--deg', { low: '120deg', mid: '240deg', high: '360deg' }[tr.tier] || '120deg');
+    $('#tierTitle').textContent = t(tr.overridden ? 'hw.forced' : 'hw.detected', { t: T });
+    $('#tierSub').textContent = tr.overridden ? t('hw.autoWas', { t: tr.detected.toUpperCase() }) : t('hw.limitsUsed');
     $('#tierOverride').value = state.config.general.tier_override || '';
     $('#tiles').innerHTML = [
-      ['Video maksimal', resLabel(b.max_video_width, b.max_video_height), `${b.max_video_width}×${b.max_video_height} · ${b.max_video_fps} fps`],
-      ['Shader', `${b.shader_fps} fps`, 'batas frame rate'],
-      ['Skala render', `${Math.round(b.render_scale * 100)}%`, 'resolusi shader'],
-      ['Beban shader', `${b.max_shader_cost}/5`, 'maksimal disarankan'],
-    ].map(([k, v, s]) => `<div class="tile"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join('');
-    $('#tierReasons').innerHTML = t.reasons.map(r => `<li>${icon('check')}<span>${esc(r)}</span></li>`).join('') || '<li class="muted">Tidak ada catatan.</li>';
-    const kind = { integrated: 'Terintegrasi', discrete: 'Diskrit', software: 'Software' }[hw.gpu.kind] || hw.gpu.kind;
-    const power = hw.power === 'battery' ? `Baterai${hw.battery_percent != null ? ' ' + hw.battery_percent + '%' : ''}` : hw.power === 'ac' ? `Listrik${hw.battery_percent != null ? ' · baterai ' + hw.battery_percent + '%' : ''}` : 'Tidak diketahui';
-    const kv = [['GPU', esc(hw.gpu.name)], ['Jenis', `${kind} · VRAM ${hw.gpu.dedicated_vram_mb} MB`], ['CPU', `${hw.logical_cpus} thread`], ['RAM', `${(hw.ram_mb / 1024).toFixed(1)} GB`], ['Daya', power], ['Windows', `build ${hw.os_build}`], ['Monitor', hw.monitors.map(m => `${m.width}×${m.height} @ ${m.refresh_hz} Hz`).join(', ')]];
-    $('#hwKv').innerHTML = kv.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('');
+      [t('hw.maxVideo'), resLabel(b.max_video_width, b.max_video_height), `${b.max_video_width}×${b.max_video_height} · ${b.max_video_fps} fps`],
+      [t('hw.shader'), `${b.shader_fps} fps`, t('hw.fpsCap')],
+      [t('hw.scale'), `${Math.round(b.render_scale * 100)}%`, t('hw.scaleSub')],
+      [t('hw.cost'), `${b.max_shader_cost}/5`, t('hw.costSub')],
+    ].map(([k, v, s]) => `<div class="tile"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div><div class="s">${esc(s)}</div></div>`).join('');
+    $('#tierReasons').innerHTML = tr.reasons.map(r => `<li>${icon('check')}<span>${esc(r)}</span></li>`).join('') || `<li class="muted">${esc(t('hw.noReasons'))}</li>`;
+    const kind = t('gpu.' + hw.gpu.kind);
+    const pct = hw.battery_percent != null ? t('hw.batteryPct', { n: hw.battery_percent }) : '';
+    const power = hw.power === 'battery' ? t('hw.battery', { p: hw.battery_percent != null ? ' ' + hw.battery_percent + '%' : '' })
+      : hw.power === 'ac' ? t('hw.ac', { p: pct }) : t('hw.unknown');
+    const kv = [
+      [t('hw.gpu'), hw.gpu.name], [t('hw.kind'), `${kind} · VRAM ${hw.gpu.dedicated_vram_mb} MB`], [t('hw.cpu'), t('hw.threads', { n: hw.logical_cpus })],
+      [t('hw.ram'), `${(hw.ram_mb / 1024).toFixed(1)} GB`], [t('hw.power'), power], [t('hw.windows'), t('hw.build', { n: hw.os_build })],
+      [t('hw.monitors'), hw.monitors.map(m => `${m.width}×${m.height} @ ${m.refresh_hz} Hz`).join(', ')],
+    ];
+    $('#hwKv').innerHTML = kv.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('');
     const names = { h264: 'H.264', hevc: 'HEVC', vp9: 'VP9', av1: 'AV1' };
     const sizes = [[1920, 1080], [2560, 1440], [3840, 2160], [7680, 4320]];
     $('#decode').innerHTML = Object.keys(names).map(c => {
       const d = hw.decode.find(x => x.codec === c);
       const cells = sizes.map(([w, h]) => {
         const ok = d && Math.max(d.max_width, d.max_height) >= w && Math.min(d.max_width, d.max_height) >= h;
-        return `<td class="${ok ? 'yes' : 'no'}" title="${ok ? 'Didukung' : 'Tidak didukung'}">${icon(ok ? 'check' : 'x')}</td>`;
+        return `<td class="${ok ? 'yes' : 'no'}" title="${esc(t(ok ? 'hw.supported' : 'hw.unsupported'))}">${icon(ok ? 'check' : 'x')}</td>`;
       }).join('');
-      return `<tr><td><b>${names[c]}</b><small>${d ? `hingga ${d.max_width}×${d.max_height}` : 'decode CPU'}</small></td>${cells}</tr>`;
+      return `<tr><td><b>${names[c]}</b><small>${esc(d ? t('hw.upTo', { w: d.max_width, h: d.max_height }) : t('hw.cpuDecode'))}</small></td>${cells}</tr>`;
     }).join('');
   }
 
@@ -1236,47 +1428,56 @@ struct NouwallUniforms { resolution: vec3<f32>, time: f32, mouse: vec4<f32>, tim
       if (el.type === 'checkbox') el.checked = !!v; else el.value = String(v);
     });
     $$('#fpsSeg button').forEach(b => b.setAttribute('aria-pressed', String(Number(b.dataset.fps) === g.fps_cap)));
+    $$('#langSeg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === (g.language || 'auto'))));
     $('#volLabel').textContent = Math.round(g.volume * 100) + '%';
     $$('#tab-settings input[type=range]').forEach(setRangeFill);
   }
   async function saveSettings(patch = {}) {
-    const g = { ...state.config.general, ...patch };
+    const g = { ...state.config.general };
     $$('[data-key]').forEach(el => {
       const k = el.dataset.key;
       g[k] = el.type === 'checkbox' ? el.checked : el.dataset.type === 'number' ? Number(el.value) : el.value;
     });
     g.tier_override = $('#tierOverride').value || null;
+    Object.assign(g, patch);
     try { await call('settings', { general: g }); } catch (err) { toast(err.message, true); refresh(); }
   }
   $$('[data-key]').forEach(el => el.addEventListener('change', () => saveSettings()));
   $('[data-key="volume"]').addEventListener('input', e => { $('#volLabel').textContent = Math.round(e.target.value * 100) + '%'; setRangeFill(e.target); });
   $$('#fpsSeg button').forEach(b => b.onclick = () => saveSettings({ fps_cap: Number(b.dataset.fps) }));
-  $('#tierOverride').addEventListener('change', async () => { await saveSettings(); toast('Tier diperbarui'); });
+  $$('#langSeg button').forEach(b => b.onclick = () => saveSettings({ language: b.dataset.lang }));
+  $('#tierOverride').addEventListener('change', async () => { await saveSettings(); toast(t('toast.tier')); });
 
   // ---------- about ----------
   function renderAbout() {
     $('#ver').textContent = 'v' + state.version;
     $('#paths').innerHTML = [['Library', state.paths.library], ['Config', state.paths.config], ['Log', state.paths.log]]
-      .map(([k, p]) => `<div class="path"><span class="k">${k}</span><code>${esc(p)}</code><button class="btn ghost sm icon" data-copy="${esc(p)}" title="Salin" aria-label="Salin lokasi ${k}">${icon('copy')}</button></div>`).join('');
+      .map(([k, p]) => `<div class="path"><span class="k">${k}</span><code>${esc(p)}</code><button class="btn ghost sm icon" data-copy="${esc(p)}" title="${esc(t('about.copy'))}" aria-label="${esc(t('about.copyAria', { k }))}">${icon('copy')}</button></div>`).join('');
   }
   $('#paths').addEventListener('click', async ev => {
     const b = ev.target.closest('[data-copy]');
     if (!b) return;
-    try { await navigator.clipboard.writeText(b.dataset.copy); toast('Lokasi disalin'); } catch (_) { toast('Tidak bisa menyalin ke clipboard', true); }
+    try { await navigator.clipboard.writeText(b.dataset.copy); toast(t('toast.copied')); } catch (_) { toast(t('toast.copyFail'), true); }
   });
 
   // ---------- render ----------
+  function setHeader() {
+    $('#title').textContent = t('tab.' + currentTab);
+    $('#subtitle').textContent = t('sub.' + currentTab);
+  }
   function render() {
     if (!state) return;
+    if (state.lang && state.lang !== lang) { lang = state.lang; applyStrings(); }
+    setHeader();
     if (!entry(selected)) {
       const p = primary();
       selected = (p && p.wallpaper && entry(p.wallpaper)) ? p.wallpaper : (state.library[0] || {}).id || null;
     }
     $('#tierChip').innerHTML = `${icon('cpu')}Tier ${state.tier.tier.toUpperCase()}`;
-    $('#pauseBtn').innerHTML = state.paused ? `${icon('play')}<span>Lanjutkan</span>` : `${icon('pause')}<span>Jeda</span>`;
+    $('#pauseBtn').innerHTML = state.paused ? `${icon('play')}<span>${esc(t('resume'))}</span>` : `${icon('pause')}<span>${esc(t('pause'))}</span>`;
     $('#navFoot').innerHTML = `<div class="gpu" title="${esc(state.hardware.gpu.name)}">${esc(state.hardware.gpu.name)}</div>
-      <div class="sub"><span>${state.monitors.length} monitor</span><span class="chip accent" style="height:20px">${state.tier.tier.toUpperCase()}</span></div>
-      ${state.attached ? '' : '<div class="sub" style="color:var(--warn)">Desktop belum terpasang</div>'}`;
+      <div class="sub"><span>${esc(t('mon.count', { n: state.monitors.length }))}</span><span class="chip accent" style="height:20px">${state.tier.tier.toUpperCase()}</span></div>
+      ${state.attached ? '' : `<div class="sub" style="color:var(--warn)">${esc(t('mon.notAttached'))}</div>`}`;
     renderList(); renderStage(); renderMonitors(); renderHardware(); renderSettings(); renderAbout();
   }
 
@@ -1296,9 +1497,9 @@ struct NouwallUniforms { resolution: vec3<f32>, time: f32, mouse: vec4<f32>, tim
     const e = entry(id);
     pendingApply = { id, monitor };
     const crit = warnings.some(w => w.severity === 'critical');
-    $('#confirmTitle span').textContent = crit ? 'Perangkat tidak mendukung wallpaper ini dengan baik' : 'Perangkat Anda mungkin tidak mendukung ini dengan lancar';
-    $('#confirmLead').textContent = `${e ? e.title : id} melebihi kemampuan yang disarankan untuk perangkat ini (tier ${state ? state.tier.tier.toUpperCase() : ''}).`;
-    $('#confirmList').innerHTML = warnings.map(w => `<div class="warn-line ${w.severity}">${icon(SEV_ICON[w.severity])}<div><b>${esc(w.title)}</b><span>${esc(w.message)}</span></div></div>`).join('');
+    $('#confirmTitle span').textContent = t(crit ? 'confirm.crit' : 'confirm.warn');
+    $('#confirmLead').textContent = t('confirm.lead', { title: e ? titleOf(e) : id, tier: state ? state.tier.tier.toUpperCase() : '' });
+    $('#confirmList').innerHTML = warnLines(warnings);
     $('#confirm').hidden = false;
     $('#confirmOk').focus();
   }
@@ -1315,7 +1516,7 @@ struct NouwallUniforms { resolution: vec3<f32>, time: f32, mouse: vec4<f32>, tim
       const r = await call('apply', { id, monitor: monitor === 'all' || monitor === '' || monitor == null ? 'all' : Number(monitor), force });
       if (!r.applied) return showConfirm(id, monitor, r.warnings);
       const e = entry(id);
-      toast(`${e ? e.title : id} dipasang`);
+      toast(t('toast.applied', { title: e ? titleOf(e) : id }));
     } catch (err) { toast(err.message, true); }
   }
 
@@ -1323,13 +1524,13 @@ struct NouwallUniforms { resolution: vec3<f32>, time: f32, mouse: vec4<f32>, tim
   function askDelete(id) {
     const e = entry(id);
     pendingDelete = id;
-    $('#delLead').textContent = `"${e ? e.title : id}" dan berkasnya akan dihapus dari library.`;
+    $('#delLead').textContent = t('del.lead', { title: e ? titleOf(e) : id });
     $('#delDlg').hidden = false;
   }
   $('#delCancel').onclick = () => { $('#delDlg').hidden = true; pendingDelete = null; };
   $('#delOk').onclick = async () => {
     $('#delDlg').hidden = true;
-    try { await call('remove', { id: pendingDelete }); thumbs.delete(pendingDelete); srcCache.delete(pendingDelete); toast('Wallpaper dihapus'); } catch (err) { toast(err.message, true); }
+    try { await call('remove', { id: pendingDelete }); thumbs.delete(pendingDelete); srcCache.delete(pendingDelete); toast(t('toast.removed')); } catch (err) { toast(err.message, true); }
     pendingDelete = null;
   };
 
@@ -1337,7 +1538,7 @@ struct NouwallUniforms { resolution: vec3<f32>, time: f32, mouse: vec4<f32>, tim
     if (!r) return;
     const w = r.warnings && r.warnings[0];
     selected = r.id; store.set('nouwall.sel', r.id);
-    toast(w ? `${r.title} diimpor. ${w.title}` : `${r.title} diimpor`);
+    toast(w ? t('toast.importedWarn', { title: r.title, warn: w.title }) : t('toast.imported', { title: r.title }));
   }
   const closeMenu = () => { $('#importMenu').hidden = true; $('#importBtn').setAttribute('aria-expanded', 'false'); };
   $('#importBtn').onclick = ev => { ev.stopPropagation(); const m = $('#importMenu'); m.hidden = !m.hidden; $('#importBtn').setAttribute('aria-expanded', String(!m.hidden)); };
@@ -1353,10 +1554,10 @@ struct NouwallUniforms { resolution: vec3<f32>, time: f32, mouse: vec4<f32>, tim
 
   // ---------- navigation ----------
   function showTab(tab) {
+    currentTab = tab;
     $$('.nav-btn').forEach(b => b.setAttribute('aria-current', String(b.dataset.tab === tab)));
     $$('.content > section').forEach(s => s.hidden = s.id !== 'tab-' + tab);
-    $('#title').textContent = TITLES[tab][0];
-    $('#subtitle').textContent = TITLES[tab][1];
+    setHeader();
     $('#content').scrollTop = 0;
     store.set('nouwall.tab', tab);
     // Only the Library preview animates; stop it elsewhere to save GPU time.
@@ -1365,21 +1566,22 @@ struct NouwallUniforms { resolution: vec3<f32>, time: f32, mouse: vec4<f32>, tim
     if (tab === 'monitors' && state) { renderMonitors(); refresh().catch(() => {}); }
   }
   $$('.nav-btn').forEach(b => b.onclick = () => showTab(b.dataset.tab));
-  { const t = store.get('nouwall.tab'); if (t && TITLES[t]) showTab(t); }
 
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) { stopLive(); stageKey = ''; }
-    else if (state && !$('#tab-library').hidden) renderStage(true);
+    else if (state && currentTab === 'library') renderStage(true);
   });
 
   $('#pauseBtn').onclick = () => call('pause', { paused: !state.paused });
-  $('#rescan').onclick = async () => { state = await call('rescan'); render(); toast('Hardware dipindai ulang'); };
+  $('#rescan').onclick = async () => { state = await call('rescan'); render(); toast(t('toast.rescan')); };
   $('#openLib').onclick = () => call('open_library');
   $('#openLog').onclick = () => call('open_log');
   $('#openRepo').onclick = () => call('open_url', { url: 'https://github.com/BBguss/Nouwall' });
   $('#quit').onclick = () => call('quit');
   document.addEventListener('keydown', e => { if (e.key === 'Escape') { $$('.overlay').forEach(o => o.hidden = true); closeMenu(); } });
 
+  applyStrings();
+  { const tab = store.get('nouwall.tab'); showTab(TABS.includes(tab) ? tab : 'library'); }
   refresh();
 })();
 </script>

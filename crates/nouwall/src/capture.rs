@@ -68,7 +68,7 @@ fn capture_one(hwnd: HWND, path: &Path) -> Result<(u32, u32), String> {
         let _ = DeleteDC(mem);
         ReleaseDC(None, screen);
         if !ok {
-            return Err("PrintWindow gagal".into());
+            return Err("PrintWindow failed".into());
         }
         // BMP file: 14-byte file header + 40-byte info header + bottom-up BGRA rows.
         let mut file = Vec::with_capacity(54 + pixels.len());

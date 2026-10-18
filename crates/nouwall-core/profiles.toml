@@ -6,13 +6,15 @@
 # VRAM is High, other discrete GPUs are Mid, unknown integrated GPUs are Low.
 #
 # Contributions welcome: run `nouwall probe`, test a few wallpapers, and add an
-# entry with a short note about what ran smoothly.
+# entry with a short note about what ran smoothly. `note_id` is the optional
+# Indonesian translation of `note`.
 
 # --- Low: older or entry-level integrated graphics -------------------------
 [[gpu]]
 match = ["HD Graphics", "UHD Graphics 6", "UHD Graphics 7", "UHD Graphics 600", "Iris Plus Graphics 6", "Iris(R) Plus Graphics 6"]
 tier = "low"
-note = "Intel Gen9 / Gen9.5 iGPU: hardware decode 4K ada, tetapi render 4K boros daya"
+note = "Intel Gen9 / Gen9.5 iGPU: decodes 4K in hardware, but rendering at 4K costs a lot of power"
+note_id = "Intel Gen9 / Gen9.5 iGPU: hardware decode 4K ada, tetapi render 4K boros daya"
 
 [[gpu]]
 match = ["Radeon R5", "Radeon R7", "Radeon(TM) Vega 3", "Radeon Vega 3", "Radeon(TM) Vega 6", "Radeon Vega 6"]
@@ -21,7 +23,8 @@ tier = "low"
 [[gpu]]
 match = ["Microsoft Basic Render", "Basic Display"]
 tier = "low"
-note = "Driver GPU belum terpasang"
+note = "No GPU driver installed"
+note_id = "Driver GPU belum terpasang"
 
 # --- Mid: modern integrated graphics and entry discrete GPUs ----------------
 [[gpu]]
@@ -37,7 +40,8 @@ note = "AMD APU"
 [[gpu]]
 match = ["GeForce MX", "GeForce GT ", "GeForce GTX 9", "GeForce GTX 10", "Radeon RX 5", "Radeon RX 4"]
 tier = "mid"
-note = "GPU diskrit lama atau entry-level"
+note = "Older or entry-level discrete GPU"
+note_id = "GPU diskrit lama atau entry-level"
 
 [[gpu]]
 match = ["Snapdragon", "Adreno"]

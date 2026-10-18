@@ -10,7 +10,7 @@ use std::time::{Duration, Instant};
 
 use bytemuck::{Pod, Zeroable};
 use nouwall_core::governor::Change;
-use nouwall_core::{Governor, Kind};
+use nouwall_core::{tr, Governor, Kind};
 use windows::Win32::Foundation::POINT;
 use windows::Win32::UI::WindowsAndMessaging::GetCursorPos;
 
@@ -568,7 +568,7 @@ impl Renderer for ShaderRenderer {
             }
         }
         let q = self.governor.quality();
-        self.last_status = format!("{} fps, skala {:.0}%", q.fps, q.render_scale * 100.0);
+        self.last_status = tr!("{} fps, scale {:.0}%", "{} fps, skala {:.0}%", q.fps, q.render_scale * 100.0);
         // Schedule from the previous deadline to keep a steady cadence.
         let budget = self.governor.frame_budget();
         self.next = (self.next + budget).max(now + budget / 4);
@@ -577,7 +577,7 @@ impl Renderer for ShaderRenderer {
 
     fn status(&self) -> String {
         if self.paused_at.is_some() {
-            "dijeda".into()
+            tr!("paused", "dijeda")
         } else {
             self.last_status.clone()
         }

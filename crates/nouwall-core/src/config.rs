@@ -2,6 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
+use crate::i18n::Language;
 use crate::tier::Tier;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -22,6 +23,8 @@ pub struct GeneralSettings {
     /// Skip warnings for this hardware and always apply.
     pub suppress_warnings: bool,
     pub tier_override: Option<Tier>,
+    /// Interface language; `auto` follows Windows.
+    pub language: Language,
 }
 
 impl Default for GeneralSettings {
@@ -38,6 +41,7 @@ impl Default for GeneralSettings {
             auto_downgrade: true,
             suppress_warnings: false,
             tier_override: None,
+            language: Language::Auto,
         }
     }
 }

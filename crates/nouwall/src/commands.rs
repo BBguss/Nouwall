@@ -7,6 +7,8 @@ use nouwall_core::policy::{self, Warning};
 use nouwall_core::tier::{classify, TierReport};
 use nouwall_core::{Config, Entry, HardwareInfo, Kind, Library, Manifest, MonitorInfo, MonitorTarget, Profiles};
 
+use nouwall_core::{i18n, tr, Lang};
+
 use crate::{media_info, paths};
 
 pub fn library() -> Library {
@@ -18,7 +20,7 @@ pub fn load_config() -> Config {
     let path = paths::config_file();
     match fs::read_to_string(&path) {
         Ok(text) => Config::parse(&text).unwrap_or_else(|e| {
-            log::error!("config.toml rusak ({e}), memakai default; salinan di config.toml.bak");
+            log::error!("config.toml is invalid ({e}), using defaults; copy kept as config.toml.bak");
             let _ = fs::copy(&path, path.with_extension("toml.bak"));
             Config::default()
         }),
@@ -37,11 +39,29 @@ pub fn save_config(config: &Config) -> std::io::Result<()> {
 pub fn load_profiles() -> Profiles {
     match fs::read_to_string(paths::profiles_file()) {
         Ok(text) => Profiles::with_override(&text).unwrap_or_else(|e| {
-            log::error!("profiles.toml tidak valid: {e}");
+            log::error!("profiles.toml is invalid: {e}");
             Profiles::builtin()
         }),
         Err(_) => Profiles::builtin(),
     }
+}
+
+/// Windows display language as a tag ("id", "en", ...).
+fn system_language() -> &'static str {
+    use windows::Win32::Globalization::GetUserDefaultUILanguage;
+    // Primary language id 0x21 is Indonesian.
+    if unsafe { GetUserDefaultUILanguage() } & 0x3ff == 0x21 {
+        "id"
+    } else {
+        "en"
+    }
+}
+
+/// Make the configured language active for every string built from now on.
+pub fn apply_language(config: &Config) -> Lang {
+    let lang = config.general.language.resolve(system_language());
+    i18n::set(lang);
+    lang
 }
 
 pub fn tier_report(hw: &HardwareInfo, profiles: &Profiles, config: &Config) -> TierReport {
@@ -82,7 +102,7 @@ fn title_from(path: &Path) -> String {
 /// Import a file (shader / video / html) or a folder containing `index.html`.
 pub fn import_path(lib: &Library, path: &Path) -> Result<Entry, String> {
     if path.is_dir() {
-        let index = ["index.html", "index.htm"].iter().find(|n| path.join(n).exists()).ok_or("folder tidak berisi index.html")?;
+        let index = ["index.html", "index.htm"].iter().find(|n| path.join(n).exists()).ok_or_else(|| tr!("the folder has no index.html", "folder tidak berisi index.html"))?;
         let manifest = Manifest {
             title: title_from(path),
             kind: Kind::Web,
@@ -96,12 +116,12 @@ pub fn import_path(lib: &Library, path: &Path) -> Result<Entry, String> {
         return lib.import_dir(path, manifest).map_err(|e| e.to_string());
     }
     let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("");
-    let kind = Kind::from_extension(ext).ok_or_else(|| format!("format .{ext} tidak didukung"))?;
+    let kind = Kind::from_extension(ext).ok_or_else(|| tr!(".{ext} files are not supported", "format .{ext} tidak didukung"))?;
     let video = if kind == Kind::Video {
         match media_info::read(path) {
             Ok(v) => Some(v),
             Err(e) => {
-                log::warn!("gagal membaca info video {}: {e}", path.display());
+                log::warn!("cannot read video info for {}: {e}", path.display());
                 None
             }
         }
@@ -123,7 +143,7 @@ pub fn import_path(lib: &Library, path: &Path) -> Result<Entry, String> {
 
 pub fn import_url(lib: &Library, url: &str, title: &str) -> Result<Entry, String> {
     if !(url.starts_with("https://") || url.starts_with("http://")) {
-        return Err("URL harus diawali http:// atau https://".into());
+        return Err(tr!("The URL must start with http:// or https://", "URL harus diawali http:// atau https://"));
     }
     let title = if title.trim().is_empty() { url.to_string() } else { title.trim().to_string() };
     let manifest = Manifest {

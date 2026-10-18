@@ -26,7 +26,7 @@ const SAMPLES: &[Sample] = &[
         kind: Kind::Shader,
         file: "aurora.glsl",
         bytes: include_bytes!("../assets/shaders/aurora.glsl"),
-        description: "Pita aurora bergerak di atas langit berbintang (GLSL).",
+        description: "Aurora ribbons drifting over a starry sky (GLSL).",
         cost: Some(2),
     },
     Sample {
@@ -35,7 +35,7 @@ const SAMPLES: &[Sample] = &[
         kind: Kind::Shader,
         file: "glass-blobs.glsl",
         bytes: include_bytes!("../assets/shaders/glass-blobs.glsl"),
-        description: "Gradasi kaca lembut yang mengikuti kursor (GLSL).",
+        description: "Soft glass gradients that follow the cursor (GLSL).",
         cost: Some(1),
     },
     Sample {
@@ -44,7 +44,7 @@ const SAMPLES: &[Sample] = &[
         kind: Kind::Shader,
         file: "starfield.wgsl",
         bytes: include_bytes!("../assets/shaders/starfield.wgsl"),
-        description: "Bintang berlapis yang melaju ke arah layar (WGSL).",
+        description: "Layers of stars rushing towards the screen (WGSL).",
         cost: Some(1),
     },
     Sample {
@@ -53,7 +53,7 @@ const SAMPLES: &[Sample] = &[
         kind: Kind::Web,
         file: "index.html",
         bytes: include_bytes!("../assets/web/clock.html"),
-        description: "Jam dan tanggal di kartu kaca dengan latar animasi (HTML).",
+        description: "Clock and date on a glass card over an animated background (HTML).",
         cost: None,
     },
 ];
@@ -88,8 +88,8 @@ pub fn install(lib: &Library, config: &mut Config) -> bool {
             display: Default::default(),
         };
         match lib.create(s.id, &manifest, &[(s.file, s.bytes)]) {
-            Ok(_) => log::info!("sampel {} dipasang", s.id),
-            Err(e) => log::warn!("sampel {}: {e}", s.id),
+            Ok(_) => log::info!("sample {} installed", s.id),
+            Err(e) => log::warn!("sample {}: {e}", s.id),
         }
         seen.insert(s.id.into());
         changed = true;
@@ -104,8 +104,8 @@ pub fn install(lib: &Library, config: &mut Config) -> bool {
                     continue;
                 }
                 match commands::import_path(lib, &f.path()) {
-                    Ok(e) => log::info!("sampel {} diimpor dari {}", e.id, dir.display()),
-                    Err(e) => log::warn!("sampel {}: {e}", f.path().display()),
+                    Ok(e) => log::info!("sample {} imported from {}", e.id, dir.display()),
+                    Err(e) => log::warn!("sample {}: {e}", f.path().display()),
                 }
                 seen.insert(key);
                 changed = true;

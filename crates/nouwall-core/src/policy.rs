@@ -3,6 +3,8 @@
 
 use serde::{Deserialize, Serialize};
 
+use crate::tr;
+
 use crate::hardware::{GpuKind, HardwareInfo, MonitorInfo};
 use crate::manifest::{Kind, Manifest};
 use crate::tier::TierReport;
@@ -65,8 +67,11 @@ pub fn evaluate(manifest: &Manifest, hw: &HardwareInfo, report: &TierReport, mon
         out.push(Warning::new(
             WarningCode::SoftwareGpu,
             Severity::Critical,
-            "GPU tidak terdeteksi",
-            "Windows memakai render software. Pasang driver GPU agar wallpaper animasi tidak membebani CPU.",
+            tr!("No GPU detected", "GPU tidak terdeteksi"),
+            tr!(
+                "Windows is rendering in software. Install a GPU driver so animated wallpapers do not load the CPU.",
+                "Windows memakai render software. Pasang driver GPU agar wallpaper animasi tidak membebani CPU."
+            ),
         ));
     }
 
@@ -78,8 +83,9 @@ pub fn evaluate(manifest: &Manifest, hw: &HardwareInfo, report: &TierReport, mon
                     Some(codec) if !hw.can_hw_decode(codec, v.width, v.height) => out.push(Warning::new(
                         WarningCode::NoHardwareDecode,
                         Severity::Critical,
-                        format!("{} {label} tidak didukung decoder hardware", codec.label()),
-                        format!(
+                        tr!("{} {label} has no hardware decoder", "{} {label} tidak didukung decoder hardware", codec.label()),
+                        tr!(
+                            "GPU \"{}\" cannot decode {} {}x{} video in hardware. The CPU will decode it, so the laptop runs hot and the battery drains fast. Use H.264 or a lower resolution.",
                             "GPU \"{}\" tidak bisa men-decode video {} {}x{} secara hardware. Video akan di-decode CPU sehingga laptop panas dan baterai cepat habis. Gunakan H.264 atau resolusi lebih kecil.",
                             hw.gpu.name, codec.label(), v.width, v.height
                         ),
@@ -87,8 +93,11 @@ pub fn evaluate(manifest: &Manifest, hw: &HardwareInfo, report: &TierReport, mon
                     None => out.push(Warning::new(
                         WarningCode::UnknownCodec,
                         Severity::Info,
-                        "Codec video tidak diketahui",
-                        "nouwall tidak bisa memastikan video ini didukung decoder hardware.",
+                        tr!("Unknown video codec", "Codec video tidak diketahui"),
+                        tr!(
+                            "nouwall cannot confirm that this video has a hardware decoder.",
+                            "nouwall tidak bisa memastikan video ini didukung decoder hardware."
+                        ),
                     )),
                     _ => {}
                 }
@@ -99,8 +108,9 @@ pub fn evaluate(manifest: &Manifest, hw: &HardwareInfo, report: &TierReport, mon
                     out.push(Warning::new(
                         WarningCode::ExceedsTier,
                         Severity::Warn,
-                        format!("Perangkat Anda mungkin tidak mendukung {label} dengan lancar"),
-                        format!(
+                        tr!("Your device may not play {label} smoothly", "Perangkat Anda mungkin tidak mendukung {label} dengan lancar"),
+                        tr!(
+                            "This device is tier {tier} (recommended up to {}). {label} video may stutter or use a lot of power. Pick a {} version if there is one.",
                             "Perangkat ini masuk tier {tier} (maksimal disarankan {}). Video {label} bisa tersendat atau boros daya. Pilih versi {} bila tersedia.",
                             res_label(blong, bshort),
                             res_label(blong, bshort)
@@ -111,8 +121,8 @@ pub fn evaluate(manifest: &Manifest, hw: &HardwareInfo, report: &TierReport, mon
                     out.push(Warning::new(
                         WarningCode::HighFrameRate,
                         Severity::Warn,
-                        format!("Video {} fps melebihi tier {tier}", v.fps),
-                        format!("Tier {tier} disarankan maksimal {} fps.", budget.max_video_fps),
+                        tr!("{} fps video is above tier {tier}", "Video {} fps melebihi tier {tier}", v.fps),
+                        tr!("Tier {tier} is recommended up to {} fps.", "Tier {tier} disarankan maksimal {} fps.", budget.max_video_fps),
                     ));
                 }
                 let (mlong, mshort) = (monitor.width.max(monitor.height), monitor.width.min(monitor.height));
@@ -120,8 +130,9 @@ pub fn evaluate(manifest: &Manifest, hw: &HardwareInfo, report: &TierReport, mon
                     out.push(Warning::new(
                         WarningCode::Downscaled,
                         Severity::Info,
-                        format!("Video {label} lebih besar dari layar"),
-                        format!(
+                        tr!("{label} video is larger than the screen", "Video {label} lebih besar dari layar"),
+                        tr!(
+                            "A {}x{} monitor shows only part of the detail. A video at the screen's resolution uses less power.",
                             "Monitor {}x{} hanya menampilkan sebagian detail. Video yang sesuai resolusi layar lebih hemat daya.",
                             monitor.width, monitor.height
                         ),
@@ -131,8 +142,11 @@ pub fn evaluate(manifest: &Manifest, hw: &HardwareInfo, report: &TierReport, mon
                 out.push(Warning::new(
                     WarningCode::UnknownCodec,
                     Severity::Info,
-                    "Info video belum dibaca",
-                    "Resolusi dan codec video belum diketahui; impor ulang agar nouwall bisa memeriksanya.",
+                    tr!("Video info not read yet", "Info video belum dibaca"),
+                    tr!(
+                        "The video's resolution and codec are unknown; import it again so nouwall can check it.",
+                        "Resolusi dan codec video belum diketahui; impor ulang agar nouwall bisa memeriksanya."
+                    ),
                 ));
             }
         }
@@ -142,8 +156,9 @@ pub fn evaluate(manifest: &Manifest, hw: &HardwareInfo, report: &TierReport, mon
                 out.push(Warning::new(
                     WarningCode::HeavyShader,
                     Severity::Warn,
-                    format!("Shader berat untuk tier {tier}"),
-                    format!(
+                    tr!("Heavy shader for tier {tier}", "Shader berat untuk tier {tier}"),
+                    tr!(
+                        "This shader (load {cost}/5) can keep the GPU busy. nouwall renders it at {:.0}% resolution and lowers the frame rate when needed.",
                         "Shader ini (beban {cost}/5) bisa membuat GPU bekerja keras. nouwall akan merender di {:.0}% resolusi dan menurunkan fps otomatis bila perlu.",
                         budget.render_scale * 100.0
                     ),
@@ -155,8 +170,11 @@ pub fn evaluate(manifest: &Manifest, hw: &HardwareInfo, report: &TierReport, mon
                 out.push(Warning::new(
                     WarningCode::RemoteContent,
                     Severity::Info,
-                    "Wallpaper memuat halaman online",
-                    "Halaman ini diambil dari internet setiap kali wallpaper dimulai dan bisa memakai kuota data.",
+                    tr!("Wallpaper loads an online page", "Wallpaper memuat halaman online"),
+                    tr!(
+                        "This page is downloaded every time the wallpaper starts and may use mobile data.",
+                        "Halaman ini diambil dari internet setiap kali wallpaper dimulai dan bisa memakai kuota data."
+                    ),
                 ));
             }
         }

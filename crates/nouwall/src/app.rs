@@ -12,6 +12,7 @@ use nouwall_core::{
     Config, Display, Entry, GeneralSettings, HardwareInfo, Kind, Library, MonitorInfo, MonitorTarget, PauseReason,
     PowerSource, Profiles, Severity, TierReport,
 };
+use nouwall_core::{i18n, tr};
 use serde::Deserialize;
 use serde_json::{json, Value};
 use windows::core::w;
@@ -229,6 +230,7 @@ impl App {
         let hw = probe::probe();
         let profiles = commands::load_profiles();
         let mut config = commands::load_config();
+        commands::apply_language(&config);
         let library = commands::library();
         if builtin::install(&library, &mut config) {
             let _ = commands::save_config(&config);
@@ -309,7 +311,7 @@ impl App {
         self.hosts.clear();
         self.desktop = desktop::find();
         let Some(desk) = self.desktop else {
-            log::warn!("desktop (Progman/WorkerW) belum ditemukan, mencoba lagi");
+            log::warn!("desktop (Progman/WorkerW) not found yet, retrying");
             return;
         };
         log::info!("desktop layout {:?}", desk.layout);
@@ -348,7 +350,7 @@ impl App {
         let opts = self.options(&self.hosts[idx].monitor);
         let entry = match self.library.get(id) {
             Ok(e) => e,
-            Err(e) => return Box::new(Solid::new(hwnd, format!("error: {e}"))),
+            Err(e) => return Box::new(Solid::new(hwnd, tr!("error: {e}", "galat: {e}"))),
         };
         let path = entry.entry_path();
         let display = entry.manifest.display.sanitized();
@@ -371,7 +373,7 @@ impl App {
                         ShaderRenderer::new(gpu.clone(), Hwnd(hwnd), size, Language::from_path(&path), &src, opts)
                             .map(|r| Box::new(r) as Box<dyn Renderer>)
                     }
-                    (None, _) => Err("GPU tidak tersedia untuk shader".into()),
+                    (None, _) => Err(tr!("no GPU available for shaders", "GPU tidak tersedia untuk shader")),
                     (_, Err(e)) => Err(format!("{}: {e}", path.display())),
                 }
             }
@@ -393,8 +395,8 @@ impl App {
                 r
             }
             Err(e) => {
-                log::error!("monitor {}: gagal memuat {}: {e}", idx, entry.id);
-                Box::new(Solid::new(hwnd, format!("error: {e}")))
+                log::error!("monitor {}: cannot load {}: {e}", idx, entry.id);
+                Box::new(Solid::new(hwnd, tr!("error: {e}", "galat: {e}")))
             }
         }
     }
@@ -426,7 +428,7 @@ impl App {
             }
             let renderer = match &want {
                 Some(id) => self.make_renderer(i, id),
-                None => Box::new(Solid::new(self.hosts[i].hwnd, "tidak ada wallpaper")),
+                None => Box::new(Solid::new(self.hosts[i].hwnd, tr!("no wallpaper", "tidak ada wallpaper"))),
             };
             let host = &mut self.hosts[i];
             host.renderer = Some(renderer);
@@ -486,7 +488,7 @@ impl App {
                 self.attach();
             }
         } else if self.desktop.is_some_and(|d| unsafe { !IsWindow(Some(d.parent)).as_bool() }) {
-            log::warn!("desktop window hilang, memasang ulang");
+            log::warn!("desktop window gone, attaching again");
             self.attach();
         }
         // Config edited by hand or by `nouwallctl`.
@@ -502,6 +504,7 @@ impl App {
 
     fn reload_config(&mut self) {
         self.config = commands::load_config();
+        commands::apply_language(&self.config);
         self.report = commands::tier_report(&self.hw, &self.profiles, &self.config);
         self.rescan_library();
         self.load_wallpapers(false);
@@ -516,7 +519,7 @@ impl App {
 
     fn save_config(&mut self) {
         if let Err(e) = commands::save_config(&self.config) {
-            log::error!("simpan config: {e}");
+            log::error!("save config: {e}");
         }
         self.config_mtime = mtime(&paths::config_file());
     }
@@ -604,6 +607,7 @@ impl App {
             .collect();
         json!({
             "version": env!("CARGO_PKG_VERSION"),
+            "lang": i18n::current(),
             "hardware": self.hw,
             "tier": self.report,
             "monitors": monitors,
@@ -664,11 +668,11 @@ impl App {
             }
             "import" => {
                 let mut dialog = rfd::FileDialog::new()
-                    .set_title("Impor wallpaper")
+                    .set_title(tr!("Import wallpaper", "Impor wallpaper"))
                     .add_filter("Wallpaper", &["mp4", "m4v", "mov", "webm", "mkv", "wmv", "glsl", "frag", "wgsl", "html", "htm"])
                     .add_filter("Video", &["mp4", "m4v", "mov", "webm", "mkv", "wmv"])
                     .add_filter("Shader", &["glsl", "frag", "wgsl"])
-                    .add_filter("Halaman web", &["html", "htm"]);
+                    .add_filter(tr!("Web page", "Halaman web"), &["html", "htm"]);
                 if let Some(p) = self.parent_hwnd() {
                     dialog = dialog.set_parent(&p);
                 }
@@ -676,7 +680,7 @@ impl App {
                 self.import(&path)
             }
             "import_folder" => {
-                let mut dialog = rfd::FileDialog::new().set_title("Pilih folder berisi index.html");
+                let mut dialog = rfd::FileDialog::new().set_title(tr!("Choose a folder with index.html", "Pilih folder berisi index.html"));
                 if let Some(p) = self.parent_hwnd() {
                     dialog = dialog.set_parent(&p);
                 }
@@ -701,12 +705,19 @@ impl App {
                 let general: GeneralSettings =
                     serde_json::from_value(args.get("general").cloned().unwrap_or_default()).map_err(|e| e.to_string())?;
                 let audio_changed = general.mute != self.config.general.mute || general.volume != self.config.general.volume;
+                // A language switch alone must not restart the wallpapers.
+                let only_language = GeneralSettings { language: self.config.general.language, ..general.clone() } == self.config.general;
                 if general.autostart != autostart::is_enabled() {
                     autostart::set(general.autostart)?;
                 }
                 self.config.general = general;
+                commands::apply_language(&self.config);
                 self.report = commands::tier_report(&self.hw, &self.profiles, &self.config);
                 self.save_config();
+                if only_language {
+                    self.refresh_tray();
+                    return Ok(Value::Null);
+                }
                 if audio_changed {
                     for h in self.hosts.iter_mut() {
                         if let Some(r) = h.renderer.as_mut() {
@@ -768,7 +779,7 @@ impl App {
                 self.quit = true;
                 Ok(Value::Null)
             }
-            other => Err(format!("perintah tidak dikenal: {other}")),
+            other => Err(tr!("unknown command: {other}", "perintah tidak dikenal: {other}")),
         }
     }
 
@@ -778,7 +789,7 @@ impl App {
     }
 
     fn after_import(&mut self, entry: Entry) -> Result<Value, String> {
-        log::info!("impor {} ({})", entry.id, entry.manifest.kind.label());
+        log::info!("import {} ({})", entry.id, entry.manifest.kind.label());
         let warnings = commands::warnings(&entry, &self.hw, &self.report, &MonitorTarget::ALL);
         self.rescan_library();
         self.refresh_tray();
@@ -786,7 +797,7 @@ impl App {
     }
 
     fn handle_command(&mut self, cmd: &str) {
-        log::info!("perintah: {cmd}");
+        log::info!("command: {cmd}");
         let mut parts = cmd.split_whitespace();
         match parts.next().unwrap_or("") {
             "settings" => self.open_settings(),
@@ -795,7 +806,7 @@ impl App {
             "toggle" => self.set_user_paused(!self.user_paused),
             "reload" => self.reload_config(),
             "quit" => self.quit = true,
-            other => log::warn!("perintah tidak dikenal: {other}"),
+            other => log::warn!("unknown command: {other}"),
         }
     }
 
@@ -833,13 +844,13 @@ impl App {
             match ev {
                 ControllerEvent::Command(c) => self.handle_command(&c),
                 ControllerEvent::DisplayChanged => {
-                    log::info!("tampilan berubah, memasang ulang");
+                    log::info!("display changed, attaching again");
                     self.reprobe(false);
                     self.attach();
                     self.push_state();
                 }
                 ControllerEvent::ExplorerRestarted => {
-                    log::info!("Explorer dimulai ulang, memasang ulang");
+                    log::info!("Explorer restarted, attaching again");
                     self.attach();
                 }
                 ControllerEvent::Locked(l) => {
@@ -932,7 +943,7 @@ impl App {
             }
             self.render_due(Instant::now());
         }
-        log::info!("keluar");
+        log::info!("exit");
         if let Some(s) = self.settings.take() {
             s.close();
         }

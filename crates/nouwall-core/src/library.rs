@@ -31,9 +31,9 @@ pub enum LibraryError {
     Io(#[from] io::Error),
     #[error("{path}: {source}")]
     Manifest { path: PathBuf, source: toml::de::Error },
-    #[error("wallpaper \"{0}\" tidak ditemukan")]
+    #[error("wallpaper \"{0}\" not found")]
     NotFound(String),
-    #[error("id \"{0}\" tidak valid")]
+    #[error("invalid id \"{0}\"")]
     InvalidId(String),
 }
 
