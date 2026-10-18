@@ -80,7 +80,7 @@ pub fn app_icon() -> HICON {
     let size = 32;
     let rgba = icon_rgba(size);
     let mut bgra = rgba.clone();
-    for px in bgra.chunks_exact_mut(4) {
+    for px in bgra.as_chunks_mut::<4>().0 {
         px.swap(0, 2);
     }
     let and_mask = vec![0u8; (size * size / 8) as usize];

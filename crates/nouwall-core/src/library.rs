@@ -71,7 +71,7 @@ impl Library {
                 Err(e) => errors.push(e),
             }
         }
-        entries.sort_by(|a, b| a.manifest.title.to_lowercase().cmp(&b.manifest.title.to_lowercase()));
+        entries.sort_by_key(|e| e.manifest.title.to_lowercase());
         (entries, errors)
     }
 

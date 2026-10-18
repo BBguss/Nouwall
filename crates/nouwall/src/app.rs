@@ -474,7 +474,7 @@ impl App {
             }
         }
         if self.desktop.is_none() || self.hosts.is_empty() {
-            if self.ticks % 4 == 0 {
+            if self.ticks.is_multiple_of(4) {
                 self.attach();
             }
         } else if self.desktop.is_some_and(|d| unsafe { !IsWindow(Some(d.parent)).as_bool() }) {
@@ -482,7 +482,7 @@ impl App {
             self.attach();
         }
         // Config edited by hand or by `nouwallctl`.
-        if self.ticks % 4 == 0 {
+        if self.ticks.is_multiple_of(4) {
             let m = mtime(&paths::config_file());
             if m != self.config_mtime {
                 self.config_mtime = m;

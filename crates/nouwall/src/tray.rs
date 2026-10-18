@@ -39,7 +39,7 @@ pub fn icon_rgba(size: u32) -> Vec<u8> {
                 80.0 + (200.0 - 80.0) * t,
                 240.0 + (190.0 - 240.0) * t,
             );
-            let wave = s * (0.55 + 0.12 * (fx / s * 6.283).sin());
+            let wave = s * (0.55 + 0.12 * (fx / s * std::f32::consts::TAU).sin());
             let line = 1.0 - ((fy - wave).abs() - s * 0.05).clamp(0.0, 1.0);
             r += (255.0 - r) * line;
             g += (255.0 - g) * line;

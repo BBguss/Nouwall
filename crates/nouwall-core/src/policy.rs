@@ -162,7 +162,7 @@ pub fn evaluate(manifest: &Manifest, hw: &HardwareInfo, report: &TierReport, mon
         }
     }
 
-    out.sort_by(|a, b| b.severity.cmp(&a.severity));
+    out.sort_by_key(|w| std::cmp::Reverse(w.severity));
     out
 }
 
