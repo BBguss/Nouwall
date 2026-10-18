@@ -5,142 +5,329 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>nouwall</title>
 <style>
+/* Layout: sidebar rail + one scrolling workspace; Library is a two-pane editor (live stage | wallpaper list). */
 :root {
-  --bg: hsl(228 30% 7%);
-  --bg-2: hsl(228 28% 10%);
-  --glass: hsl(228 30% 16% / .55);
-  --glass-2: hsl(228 30% 22% / .5);
-  --line: hsl(225 40% 80% / .10);
-  --line-2: hsl(225 40% 80% / .18);
-  --text: hsl(225 30% 95%);
-  --muted: hsl(225 14% 66%);
-  --faint: hsl(225 12% 48%);
-  --accent: hsl(258 90% 72%);
-  --accent-2: hsl(172 70% 52%);
-  --accent-ink: hsl(258 60% 12%);
-  --info: hsl(205 85% 62%);
-  --warn: hsl(38 95% 60%);
-  --crit: hsl(354 85% 64%);
-  --ok: hsl(150 60% 52%);
-  --radius: 16px;
-  --radius-sm: 10px;
-  --shadow: 0 20px 60px hsl(230 60% 2% / .5);
+  --bg: hsl(226 18% 5.5%);
+  --bg-raised: hsl(226 16% 7.5%);
+  --surface: hsl(226 14% 9.5%);
+  --surface-2: hsl(226 13% 12.5%);
+  --surface-3: hsl(226 12% 16%);
+  --line: hsl(220 30% 92% / .07);
+  --line-2: hsl(220 30% 92% / .13);
+  --line-3: hsl(220 30% 92% / .2);
+  --text: hsl(220 30% 96%);
+  --text-2: hsl(222 14% 74%);
+  --text-3: hsl(224 10% 54%);
+  --accent: hsl(196 92% 66%);
+  --accent-2: hsl(258 82% 74%);
+  --accent-soft: hsl(196 92% 66% / .12);
+  --accent-line: hsl(196 92% 66% / .38);
+  --accent-ink: hsl(205 80% 9%);
+  --ok: hsl(152 56% 56%);
+  --warn: hsl(38 92% 62%);
+  --crit: hsl(356 80% 66%);
+  --r-lg: 18px;
+  --r: 13px;
+  --r-sm: 9px;
+  --shadow: 0 1px 0 hsl(0 0% 100% / .03) inset, 0 18px 50px hsl(228 50% 2% / .45);
+  --font: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  --font-display: "Segoe UI Variable Display", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  --mono: "Cascadia Mono", "Cascadia Code", Consolas, monospace;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
-html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font: 14px/1.5 "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font: 14px/1.5 var(--font); -webkit-font-smoothing: antialiased; }
 body { overflow: hidden; }
-body::before { content: ""; position: fixed; inset: -20%; z-index: -1; background:
-  radial-gradient(40% 40% at 15% 10%, hsl(258 80% 50% / .22), transparent 70%),
-  radial-gradient(35% 35% at 90% 85%, hsl(172 80% 40% / .16), transparent 70%),
-  radial-gradient(30% 30% at 70% 15%, hsl(320 70% 50% / .10), transparent 70%); }
+body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; background:
+  radial-gradient(60vw 40vh at 0% 0%, hsl(258 70% 45% / .10), transparent 70%),
+  radial-gradient(50vw 50vh at 100% 100%, hsl(196 80% 45% / .08), transparent 70%); }
 button, input, select { font: inherit; color: inherit; }
-svg.i { width: 18px; height: 18px; flex: none; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.app { display: grid; grid-template-columns: 228px 1fr; height: 100vh; }
-nav { padding: 22px 14px; border-right: 1px solid var(--line); background: hsl(228 30% 8% / .7); backdrop-filter: blur(20px); display: flex; flex-direction: column; gap: 4px; }
-.brand { display: flex; align-items: center; gap: 10px; padding: 4px 10px 22px; font-weight: 650; font-size: 17px; letter-spacing: -.01em; }
-.logo { width: 30px; height: 30px; border-radius: 9px; background: linear-gradient(135deg, hsl(258 85% 66%), hsl(172 70% 46%)); display: grid; place-items: center; box-shadow: 0 6px 20px hsl(258 80% 50% / .35); }
-.logo svg { width: 18px; height: 18px; stroke: #fff; }
-.nav-btn { display: flex; align-items: center; gap: 12px; padding: 9px 12px; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--muted); cursor: pointer; text-align: left; transition: background .15s, color .15s; }
-.nav-btn:hover { background: var(--glass); color: var(--text); }
-.nav-btn[aria-current="true"] { background: var(--glass-2); color: var(--text); box-shadow: inset 0 0 0 1px var(--line); }
-.nav-foot { margin-top: auto; padding: 12px; border-radius: var(--radius); background: var(--glass); border: 1px solid var(--line); font-size: 12.5px; color: var(--muted); }
-.nav-foot b { color: var(--text); font-weight: 600; }
-main { overflow-y: auto; padding: 26px 32px 40px; }
-header.top { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
-header.top h1 { font-size: 22px; font-weight: 650; letter-spacing: -.02em; margin: 0; }
-header.top .sub { color: var(--muted); font-size: 13px; }
+button { -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+svg.i { width: 18px; height: 18px; flex: none; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+[hidden] { display: none !important; }
+
+/* Shell */
+.app { display: grid; grid-template-columns: 236px minmax(0, 1fr); height: 100vh; }
+nav { display: flex; flex-direction: column; gap: 2px; padding: 18px 12px 14px; background: hsl(226 18% 6.5% / .85); border-right: 1px solid var(--line); backdrop-filter: blur(24px); min-width: 0; }
+.brand { display: flex; align-items: center; gap: 11px; padding: 4px 10px 20px; }
+.brand b { font: 650 17px/1 var(--font-display); letter-spacing: -.01em; }
+.brand small { display: block; color: var(--text-3); font-size: 11.5px; margin-top: 3px; }
+.logo { width: 32px; height: 32px; border-radius: 10px; flex: none; display: grid; place-items: center; background: linear-gradient(140deg, var(--accent-2), var(--accent)); box-shadow: 0 8px 22px hsl(220 80% 50% / .28), inset 0 1px 0 hsl(0 0% 100% / .35); }
+.logo svg { width: 19px; height: 19px; stroke: hsl(226 40% 8%); stroke-width: 2.2; }
+.nav-label { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); padding: 0 12px 6px; }
+.nav-btn { position: relative; display: flex; align-items: center; gap: 12px; padding: 9px 12px; border: 0; border-radius: var(--r-sm); background: transparent; color: var(--text-2); cursor: pointer; text-align: left; transition: background .15s, color .15s; min-width: 0; }
+.nav-btn span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nav-btn:hover { background: hsl(220 30% 92% / .045); color: var(--text); }
+.nav-btn[aria-current="true"] { background: hsl(220 30% 92% / .07); color: var(--text); }
+.nav-btn[aria-current="true"]::before { content: ""; position: absolute; left: -12px; top: 9px; bottom: 9px; width: 3px; border-radius: 0 3px 3px 0; background: var(--accent); }
+.nav-foot { margin-top: auto; padding: 12px; border-radius: var(--r); background: var(--surface); border: 1px solid var(--line); display: grid; gap: 4px; min-width: 0; }
+.nav-foot .gpu { font-weight: 600; font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nav-foot .sub { color: var(--text-3); font-size: 12px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+main { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+header.top { display: flex; align-items: center; gap: 14px; padding: 20px 28px 16px; border-bottom: 1px solid var(--line); min-width: 0; }
+header.top .ttl { min-width: 0; }
+header.top h1 { font: 650 22px/1.2 var(--font-display); letter-spacing: -.02em; margin: 0; }
+header.top .sub { color: var(--text-3); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .spacer { flex: 1; }
-.btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: var(--radius-sm); border: 1px solid var(--line-2); background: var(--glass); cursor: pointer; transition: background .15s, border-color .15s, transform .05s; white-space: nowrap; }
-.btn:hover { background: var(--glass-2); border-color: hsl(225 40% 80% / .28); }
+.content { flex: 1; overflow-y: auto; padding: 22px 28px 40px; min-height: 0; scrollbar-gutter: stable; }
+.content::-webkit-scrollbar, .list::-webkit-scrollbar { width: 10px; }
+.content::-webkit-scrollbar-thumb, .list::-webkit-scrollbar-thumb { background: hsl(220 20% 90% / .1); border-radius: 10px; border: 3px solid transparent; background-clip: padding-box; }
+
+/* Controls */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 36px; padding: 0 14px; border-radius: var(--r-sm); border: 1px solid var(--line-2); background: var(--surface-2); cursor: pointer; transition: background .15s, border-color .15s, color .15s, transform .06s; white-space: nowrap; font-weight: 500; }
+.btn:hover { background: var(--surface-3); border-color: var(--line-3); }
 .btn:active { transform: translateY(1px); }
-.btn.primary { background: linear-gradient(135deg, hsl(258 85% 68%), hsl(250 80% 62%)); border-color: transparent; color: #fff; font-weight: 600; }
-.btn.primary:hover { filter: brightness(1.08); }
-.btn.ghost { background: transparent; border-color: transparent; color: var(--muted); }
-.btn.ghost:hover { color: var(--text); background: var(--glass); }
-.btn.danger:hover { color: var(--crit); border-color: hsl(354 85% 64% / .4); }
-.btn.sm { padding: 5px 10px; font-size: 13px; }
-.btn:disabled { opacity: .5; cursor: default; }
-.chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; border-radius: 999px; font-size: 12px; background: var(--glass-2); border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
-.chip.accent { color: hsl(258 90% 82%); border-color: hsl(258 90% 72% / .35); background: hsl(258 90% 60% / .14); }
-.chip.ok { color: var(--ok); border-color: hsl(150 60% 52% / .35); background: hsl(150 60% 40% / .12); }
-.chip.info { color: var(--info); border-color: hsl(205 85% 62% / .35); background: hsl(205 85% 50% / .12); }
-.chip.warn { color: var(--warn); border-color: hsl(38 95% 60% / .35); background: hsl(38 95% 50% / .12); }
-.chip.critical { color: var(--crit); border-color: hsl(354 85% 64% / .4); background: hsl(354 85% 50% / .12); }
+.btn.primary { background: linear-gradient(180deg, hsl(196 92% 70%), hsl(198 86% 58%)); border-color: transparent; color: var(--accent-ink); font-weight: 650; box-shadow: 0 6px 18px hsl(198 90% 50% / .25), inset 0 1px 0 hsl(0 0% 100% / .35); }
+.btn.primary:hover { filter: brightness(1.06); }
+.btn.ghost { background: transparent; border-color: transparent; color: var(--text-2); }
+.btn.ghost:hover { background: hsl(220 30% 92% / .06); color: var(--text); }
+.btn.danger:hover { color: var(--crit); border-color: hsl(356 80% 66% / .4); background: hsl(356 80% 50% / .08); }
+.btn.sm { height: 30px; padding: 0 11px; font-size: 13px; }
+.btn.icon { width: 36px; padding: 0; }
+.btn.sm.icon { width: 30px; }
+.btn:disabled { opacity: .45; cursor: default; transform: none; }
+.chip { display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 9px; border-radius: 999px; font-size: 12px; background: hsl(220 30% 92% / .05); border: 1px solid var(--line); color: var(--text-2); white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
 .chip svg.i { width: 13px; height: 13px; }
-.toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 18px; }
-.seg { display: inline-flex; padding: 3px; border-radius: 12px; background: var(--glass); border: 1px solid var(--line); }
-.seg button { border: 0; background: transparent; padding: 5px 12px; border-radius: 9px; color: var(--muted); cursor: pointer; }
-.seg button[aria-pressed="true"] { background: var(--glass-2); color: var(--text); box-shadow: inset 0 0 0 1px var(--line-2); }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
-.card { position: relative; border-radius: var(--radius); background: var(--glass); border: 1px solid var(--line); backdrop-filter: blur(18px) saturate(130%); box-shadow: var(--shadow); overflow: hidden; }
-.card.active { border-color: hsl(258 90% 72% / .55); box-shadow: 0 0 0 1px hsl(258 90% 72% / .35), var(--shadow); }
-.thumb { height: 110px; display: grid; place-items: center; position: relative; }
-.thumb > svg.i { width: 34px; height: 34px; stroke: hsl(0 0% 100% / .85); stroke-width: 1.6; }
-.thumb.shader { background: radial-gradient(70% 90% at 20% 20%, hsl(258 80% 55% / .7), transparent), radial-gradient(70% 90% at 90% 90%, hsl(172 70% 45% / .6), transparent), hsl(240 40% 14%); }
-.thumb.video { background: radial-gradient(70% 90% at 80% 20%, hsl(205 85% 50% / .65), transparent), radial-gradient(70% 90% at 10% 100%, hsl(320 70% 50% / .45), transparent), hsl(230 40% 14%); }
-.thumb.web { background: radial-gradient(70% 90% at 15% 85%, hsl(38 90% 55% / .5), transparent), radial-gradient(70% 90% at 90% 15%, hsl(172 70% 45% / .5), transparent), hsl(228 35% 14%); }
-.thumb .now { position: absolute; top: 10px; left: 10px; }
-.card .body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 8px; }
-.card h3 { margin: 0; font-size: 15px; font-weight: 620; letter-spacing: -.01em; }
-.card p { margin: 0; color: var(--muted); font-size: 13px; min-height: 19px; }
-.badges { display: flex; flex-wrap: wrap; gap: 6px; }
-.actions { display: flex; gap: 8px; margin-top: 4px; align-items: center; }
-.actions select { flex: 1; min-width: 0; }
-select, input[type=text], input[type=url] { padding: 7px 10px; border-radius: var(--radius-sm); border: 1px solid var(--line-2); background: hsl(228 30% 12% / .8); outline: none; }
-select:focus, input:focus { border-color: hsl(258 90% 72% / .6); box-shadow: 0 0 0 3px hsl(258 90% 72% / .18); }
-.empty { padding: 50px 20px; text-align: center; color: var(--muted); border: 1px dashed var(--line-2); border-radius: var(--radius); }
-section[hidden] { display: none !important; }
-.panel { border-radius: var(--radius); background: var(--glass); border: 1px solid var(--line); backdrop-filter: blur(18px); padding: 18px 20px; margin-bottom: 16px; }
-.panel h2 { font-size: 15px; margin: 0 0 12px; font-weight: 620; display: flex; align-items: center; gap: 10px; }
-.kv { display: grid; grid-template-columns: 170px 1fr; gap: 8px 16px; font-size: 13.5px; }
-.kv dt { color: var(--muted); }
-.kv dd { margin: 0; }
-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); }
-th { color: var(--muted); font-weight: 500; }
-tr:last-child td { border-bottom: 0; }
-.tier-hero { display: flex; align-items: center; gap: 18px; }
-.tier-big { font-size: 34px; font-weight: 700; letter-spacing: -.03em; padding: 6px 18px; border-radius: 14px; background: linear-gradient(135deg, hsl(258 85% 66% / .3), hsl(172 70% 46% / .25)); border: 1px solid var(--line-2); }
-ul.reasons { margin: 10px 0 0; padding-left: 18px; color: var(--muted); font-size: 13px; }
-.row { display: flex; align-items: center; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); }
-.row:last-child { border-bottom: 0; }
-.row .t { flex: 1; }
-.row .t b { display: block; font-weight: 560; }
-.row .t span { color: var(--muted); font-size: 13px; }
-.switch { position: relative; width: 42px; height: 24px; flex: none; }
+.chip.accent { color: var(--accent); border-color: var(--accent-line); background: var(--accent-soft); }
+.chip.ok { color: var(--ok); border-color: hsl(152 56% 56% / .35); background: hsl(152 56% 40% / .1); }
+.chip.warn { color: var(--warn); border-color: hsl(38 92% 62% / .35); background: hsl(38 92% 50% / .1); }
+.chip.critical { color: var(--crit); border-color: hsl(356 80% 66% / .4); background: hsl(356 80% 50% / .1); }
+.chip.info { color: var(--accent); border-color: var(--accent-line); background: var(--accent-soft); }
+.seg { display: inline-flex; padding: 3px; gap: 2px; border-radius: 11px; background: var(--bg-raised); border: 1px solid var(--line); max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+.seg button { border: 0; background: transparent; height: 28px; padding: 0 12px; border-radius: 8px; color: var(--text-3); cursor: pointer; white-space: nowrap; font-size: 13px; font-weight: 500; transition: color .15s, background .15s; }
+.seg button:hover { color: var(--text); }
+.seg button[aria-pressed="true"] { background: var(--surface-3); color: var(--text); box-shadow: 0 1px 0 hsl(0 0% 100% / .05) inset, 0 2px 8px hsl(228 50% 2% / .35); }
+.seg.full { display: flex; width: 100%; }
+.seg.full button { flex: 1; }
+select, input[type=text], input[type=url], input[type=search] { height: 36px; padding: 0 12px; border-radius: var(--r-sm); border: 1px solid var(--line-2); background: var(--bg-raised); outline: none; min-width: 0; transition: border-color .15s, box-shadow .15s; }
+select { padding-right: 30px; appearance: none; cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239aa3b5' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 11px center; text-overflow: ellipsis; }
+select option { background: var(--surface-2); }
+select:focus, input:focus { border-color: var(--accent-line); box-shadow: 0 0 0 3px var(--accent-soft); }
+input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 22px; background: transparent; cursor: pointer; }
+input[type=range]::-webkit-slider-runnable-track { height: 4px; border-radius: 4px; background: linear-gradient(90deg, var(--accent) var(--p, 50%), hsl(220 20% 90% / .12) var(--p, 50%)); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; margin-top: -6px; border-radius: 50%; background: hsl(220 30% 97%); border: 0; box-shadow: 0 0 0 4px hsl(196 92% 66% / .22), 0 2px 6px hsl(228 50% 2% / .5); }
+input[type=range]:focus-visible { outline: none; }
+input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 5px hsl(196 92% 66% / .4); }
+.switch { position: relative; width: 40px; height: 23px; flex: none; }
 .switch input { opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; position: absolute; z-index: 1; }
-.switch span { position: absolute; inset: 0; border-radius: 999px; background: hsl(228 20% 30%); transition: background .15s; }
-.switch span::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform .15s; }
-.switch input:checked + span { background: linear-gradient(135deg, hsl(258 85% 66%), hsl(250 80% 60%)); }
-.switch input:checked + span::after { transform: translateX(18px); }
-.switch input:focus-visible + span { box-shadow: 0 0 0 3px hsl(258 90% 72% / .3); }
-input[type=range] { accent-color: hsl(258 85% 66%); width: 160px; }
-.mon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
-.screen { aspect-ratio: 16 / 9; border-radius: 10px; border: 1px solid var(--line-2); display: grid; place-items: center; color: var(--muted); font-size: 13px; margin-bottom: 12px; background: hsl(228 30% 10%); }
-.overlay { position: fixed; inset: 0; background: hsl(230 40% 3% / .6); backdrop-filter: blur(6px); display: grid; place-items: center; z-index: 50; padding: 20px; }
-.overlay[hidden] { display: none; }
-.modal { width: min(560px, 100%); border-radius: 20px; background: hsl(228 30% 13% / .92); border: 1px solid var(--line-2); box-shadow: var(--shadow); padding: 22px 24px; }
-.modal h2 { margin: 0 0 6px; font-size: 18px; display: flex; gap: 10px; align-items: center; }
-.modal .lead { color: var(--muted); margin: 0 0 16px; }
-.warn-item { display: flex; gap: 12px; padding: 12px 14px; border-radius: 12px; background: hsl(228 30% 18% / .6); border: 1px solid var(--line); margin-bottom: 10px; }
-.warn-item .ico { margin-top: 2px; }
-.warn-item.critical .ico { color: var(--crit); }
-.warn-item.warn .ico { color: var(--warn); }
-.warn-item.info .ico { color: var(--info); }
-.warn-item b { display: block; margin-bottom: 2px; }
-.warn-item span { color: var(--muted); font-size: 13px; }
-.modal .foot { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
-.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
-.field label { color: var(--muted); font-size: 13px; }
-.toasts { position: fixed; right: 20px; bottom: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 60; }
-.toast { min-width: 260px; max-width: 380px; padding: 12px 14px; border-radius: 12px; background: hsl(228 30% 16% / .95); border: 1px solid var(--line-2); box-shadow: var(--shadow); display: flex; gap: 10px; align-items: flex-start; animation: in .2s ease-out; }
-.toast.err { border-color: hsl(354 85% 64% / .45); }
+.switch span { position: absolute; inset: 0; border-radius: 999px; background: hsl(222 14% 24%); transition: background .18s; }
+.switch span::after { content: ""; position: absolute; top: 3px; left: 3px; width: 17px; height: 17px; border-radius: 50%; background: hsl(220 30% 96%); box-shadow: 0 1px 3px hsl(228 50% 2% / .5); transition: transform .18s; }
+.switch input:checked + span { background: hsl(198 86% 56%); }
+.switch input:checked + span::after { transform: translateX(17px); }
+.switch input:focus-visible + span { box-shadow: 0 0 0 3px hsl(196 92% 66% / .35); }
+
+.panel { border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow); padding: 18px 20px; min-width: 0; }
+.panel-h { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; min-width: 0; }
+.panel-h h2 { font: 620 15px/1.3 var(--font-display); margin: 0; letter-spacing: -.005em; }
+.panel-h p { margin: 2px 0 0; color: var(--text-3); font-size: 12.5px; }
+.panel-h .ico { width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center; background: hsl(220 30% 92% / .05); border: 1px solid var(--line); color: var(--text-2); flex: none; }
+.eyebrow { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); font-weight: 600; }
+.muted { color: var(--text-3); }
+.mono { font-family: var(--mono); font-size: 12.5px; }
+.stack { display: grid; gap: 16px; min-width: 0; }
+.empty { padding: 44px 20px; text-align: center; color: var(--text-3); border: 1px dashed var(--line-2); border-radius: var(--r-lg); display: grid; gap: 8px; justify-items: center; }
+.empty svg.i { width: 28px; height: 28px; color: var(--text-3); }
+
+/* Library */
+.lib { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 360px); gap: 18px; align-items: start; }
+.stage-col { display: grid; gap: 16px; min-width: 0; position: sticky; top: 0; }
+.stage { padding: 0; overflow: hidden; }
+.viewport { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #000; overflow: hidden; isolation: isolate; }
+.viewport > video, .viewport > canvas, .viewport > iframe, .viewport > img { position: absolute; display: block; border: 0; }
+.viewport > canvas { inset: 0; width: 100%; height: 100%; }
+.viewport > iframe { transform-origin: 0 0; background: #fff; pointer-events: none; }
+.viewport .vp-msg { position: absolute; inset: 0; display: grid; place-items: center; align-content: center; gap: 8px; text-align: center; padding: 20px; color: var(--text-2); font-size: 13px; background: radial-gradient(60% 60% at 50% 50%, hsl(226 20% 12%), hsl(226 20% 6%)); }
+.viewport .vp-msg svg.i { width: 26px; height: 26px; color: var(--text-3); }
+.vp-badges { position: absolute; left: 12px; right: 12px; top: 12px; display: flex; gap: 6px; flex-wrap: wrap; pointer-events: none; z-index: 2; }
+.vp-badges .chip { background: hsl(226 30% 6% / .62); border-color: hsl(0 0% 100% / .12); color: hsl(220 30% 94%); backdrop-filter: blur(10px); }
+.vp-badges .live::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 3px hsl(152 56% 56% / .22); }
+.stage-info { padding: 16px 20px 18px; display: grid; gap: 10px; border-top: 1px solid var(--line); }
+.stage-title { display: flex; align-items: flex-start; gap: 12px; min-width: 0; }
+.stage-title .t { min-width: 0; flex: 1; }
+.stage-title h2 { margin: 0; font: 650 19px/1.25 var(--font-display); letter-spacing: -.015em; overflow-wrap: anywhere; }
+.stage-title p { margin: 4px 0 0; color: var(--text-2); font-size: 13px; overflow-wrap: anywhere; }
+.badges { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
+.warn-line { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: var(--r); font-size: 13px; border: 1px solid var(--line); background: hsl(220 30% 92% / .03); }
+.warn-line b { display: block; font-weight: 600; }
+.warn-line span { color: var(--text-2); }
+.warn-line.warn { border-color: hsl(38 92% 62% / .28); background: hsl(38 92% 50% / .06); }
+.warn-line.warn > svg { color: var(--warn); }
+.warn-line.critical { border-color: hsl(356 80% 66% / .32); background: hsl(356 80% 50% / .07); }
+.warn-line.critical > svg { color: var(--crit); }
+.warn-line.info > svg { color: var(--accent); }
+.warn-line > div { min-width: 0; }
+.controls { display: grid; gap: 18px; }
+.ctl-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px 22px; }
+.ctl { display: grid; gap: 8px; min-width: 0; }
+.ctl-h { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.ctl-h label, .ctl-h .lbl { font-size: 13px; font-weight: 600; color: var(--text); }
+.ctl-h .val { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--accent); font-variant-numeric: tabular-nums; }
+.ctl .hint { font-size: 12px; color: var(--text-3); overflow-wrap: anywhere; }
+.ctl.off { opacity: .45; pointer-events: none; }
+.actionbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding-top: 16px; border-top: 1px solid var(--line); }
+.actionbar select { flex: 1 1 180px; }
+.dirty-dot { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--warn); }
+.dirty-dot::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--warn); }
+.list-col { display: grid; gap: 12px; min-width: 0; position: sticky; top: 0; }
+.list-tools { display: grid; gap: 10px; }
+.list-tools .row1 { display: flex; gap: 8px; min-width: 0; }
+.list-tools input { flex: 1; }
+.menu-wrap { position: relative; }
+.menu { position: absolute; right: 0; top: calc(100% + 6px); z-index: 30; min-width: 220px; padding: 6px; border-radius: var(--r); background: hsl(226 16% 12% / .97); border: 1px solid var(--line-2); box-shadow: 0 20px 50px hsl(228 50% 2% / .6); backdrop-filter: blur(20px); display: grid; gap: 2px; }
+.menu button { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border: 0; border-radius: 8px; background: transparent; cursor: pointer; text-align: left; color: var(--text-2); }
+.menu button:hover { background: hsl(220 30% 92% / .07); color: var(--text); }
+.menu button small { display: block; color: var(--text-3); font-size: 11.5px; }
+.list { display: grid; gap: 8px; container-type: inline-size; max-height: calc(100vh - 230px); overflow-y: auto; padding-right: 4px; margin-right: -4px; }
+.item { display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 12px; align-items: center; padding: 8px; border-radius: var(--r); border: 1px solid transparent; background: transparent; cursor: pointer; text-align: left; transition: background .15s, border-color .15s; min-width: 0; }
+.item:hover { background: hsl(220 30% 92% / .04); border-color: var(--line); }
+.item[aria-selected="true"] { background: var(--surface-2); border-color: var(--accent-line); box-shadow: 0 0 0 3px hsl(196 92% 66% / .07); }
+.thumb { position: relative; aspect-ratio: 16 / 9; border-radius: 9px; overflow: hidden; display: grid; place-items: center; background: var(--surface-2); border: 1px solid var(--line); }
+.thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.thumb > svg.i { width: 22px; height: 22px; color: hsl(0 0% 100% / .8); position: relative; }
+.thumb.shader { background: radial-gradient(80% 100% at 15% 15%, hsl(258 70% 50% / .55), transparent), radial-gradient(80% 100% at 95% 95%, hsl(178 70% 42% / .45), transparent), hsl(232 32% 12%); }
+.thumb.video { background: radial-gradient(80% 100% at 85% 15%, hsl(205 80% 48% / .5), transparent), radial-gradient(80% 100% at 10% 100%, hsl(320 60% 48% / .35), transparent), hsl(230 32% 12%); }
+.thumb.web { background: radial-gradient(80% 100% at 15% 85%, hsl(38 85% 52% / .4), transparent), radial-gradient(80% 100% at 90% 15%, hsl(178 70% 42% / .4), transparent), hsl(228 28% 12%); }
+.thumb .on { position: absolute; right: 5px; top: 5px; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; background: var(--ok); color: hsl(152 60% 10%); box-shadow: 0 2px 6px hsl(228 50% 2% / .5); }
+.thumb .on svg.i { width: 11px; height: 11px; stroke-width: 3; }
+.item .meta { display: grid; gap: 4px; min-width: 0; }
+.item .name { font-weight: 600; font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.item .facts { display: flex; gap: 6px; align-items: center; color: var(--text-3); font-size: 12px; min-width: 0; overflow: hidden; white-space: nowrap; }
+.item .facts .sep { opacity: .5; }
+.item .facts svg.i { width: 13px; height: 13px; }
+.item .facts .w-warn { color: var(--warn); } .item .facts .w-critical { color: var(--crit); }
+@container (min-width: 520px) {
+  .list { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+  .item { grid-template-columns: 1fr; align-items: start; padding: 8px 8px 10px; }
+}
+
+/* Monitors */
+.layout-map { position: relative; height: 220px; border-radius: var(--r); background: repeating-linear-gradient(0deg, transparent 0 23px, hsl(220 30% 92% / .03) 23px 24px), repeating-linear-gradient(90deg, transparent 0 23px, hsl(220 30% 92% / .03) 23px 24px), var(--bg-raised); border: 1px solid var(--line); overflow: hidden; }
+.mon-box { position: absolute; border-radius: 6px; border: 1.5px solid var(--line-3); overflow: hidden; background: var(--surface-2) center / cover no-repeat; display: grid; place-items: center; cursor: pointer; transition: border-color .15s, box-shadow .15s; }
+.mon-box:hover, .mon-box.sel { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.mon-box .num { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font: 650 14px/1 var(--font-display); background: hsl(226 30% 6% / .7); border: 1px solid hsl(0 0% 100% / .18); backdrop-filter: blur(8px); }
+.mon-box .cap { position: absolute; left: 6px; bottom: 5px; right: 6px; font-size: 11px; color: hsl(220 30% 94%); text-shadow: 0 1px 3px #000; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 16px; }
+.mon-card { display: grid; gap: 14px; min-width: 0; }
+.mon-card.sel { border-color: var(--accent-line); }
+.mon-head { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.mon-head .num { width: 34px; height: 34px; border-radius: 10px; flex: none; display: grid; place-items: center; font: 650 15px/1 var(--font-display); background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent-line); }
+.mon-head .t { min-width: 0; flex: 1; }
+.mon-head h3 { margin: 0; font: 620 15px/1.3 var(--font-display); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mon-head .t span { color: var(--text-3); font-size: 12.5px; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.specs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.spec { padding: 10px 12px; border-radius: var(--r-sm); background: var(--bg-raised); border: 1px solid var(--line); min-width: 0; }
+.spec .k { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--text-3); font-weight: 600; }
+.spec .v { font-weight: 600; font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.spec.wide { grid-column: 1 / -1; }
+.spec .v.mono { font-weight: 500; }
+.mon-wp { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 12px; align-items: center; padding: 10px; border-radius: var(--r); background: var(--bg-raised); border: 1px solid var(--line); }
+.mon-wp .t { min-width: 0; display: grid; gap: 6px; }
+.mon-wp .t b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.mon-wp select { width: 100%; }
+
+/* Hardware */
+.hw-hero { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 22px; align-items: center; }
+.medal { width: 132px; height: 132px; border-radius: 50%; display: grid; place-items: center; align-content: center; text-align: center; position: relative; background: radial-gradient(circle at 50% 35%, hsl(226 16% 16%), hsl(226 18% 9%)); border: 1px solid var(--line-2); }
+.medal::before { content: ""; position: absolute; inset: -4px; border-radius: 50%; padding: 3px; background: conic-gradient(var(--accent) var(--deg, 120deg), hsl(220 20% 90% / .08) 0); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+.medal b { font: 700 30px/1 var(--font-display); letter-spacing: .02em; }
+.medal span { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-3); margin-top: 6px; }
+.hw-hero .t { display: grid; gap: 12px; min-width: 0; }
+.hw-hero h2 { margin: 0; font: 650 18px/1.3 var(--font-display); }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+.tile { padding: 12px 14px; border-radius: var(--r); background: var(--bg-raised); border: 1px solid var(--line); min-width: 0; }
+.tile .k { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--text-3); font-weight: 600; }
+.tile .v { font: 650 18px/1.3 var(--font-display); font-variant-numeric: tabular-nums; margin-top: 2px; overflow-wrap: anywhere; }
+.tile .s { font-size: 12px; color: var(--text-3); }
+.reasons { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.reasons li { display: flex; gap: 10px; color: var(--text-2); font-size: 13px; min-width: 0; }
+.reasons li svg { color: var(--text-3); margin-top: 1px; }
+.reasons li span { min-width: 0; overflow-wrap: anywhere; }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 16px; }
+.kv { display: grid; gap: 0; margin: 0; }
+.kv > div { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.kv > div:last-child { border-bottom: 0; }
+.kv dt { color: var(--text-3); font-size: 13px; }
+.kv dd { margin: 0; overflow-wrap: anywhere; font-weight: 500; }
+.matrix { width: 100%; border-collapse: collapse; font-size: 13px; }
+.matrix th, .matrix td { padding: 10px 8px; text-align: center; border-bottom: 1px solid var(--line); }
+.matrix th:first-child, .matrix td:first-child { text-align: left; }
+.matrix th { color: var(--text-3); font-weight: 600; font-size: 11.5px; letter-spacing: .05em; text-transform: uppercase; }
+.matrix tr:last-child td { border-bottom: 0; }
+.matrix .yes { color: var(--ok); } .matrix .no { color: hsl(222 10% 34%); }
+.matrix td small { display: block; color: var(--text-3); font-family: var(--mono); font-size: 11px; }
+.tbl-wrap { overflow-x: auto; }
+
+/* Settings rows */
+.rows { display: grid; }
+.srow { display: flex; align-items: center; gap: 16px; padding: 13px 0; border-bottom: 1px solid var(--line); min-width: 0; }
+.srow:last-child { border-bottom: 0; padding-bottom: 2px; }
+.srow:first-child { padding-top: 2px; }
+.srow .t { flex: 1; min-width: 0; }
+.srow .t b { display: block; font-weight: 560; }
+.srow .t span { color: var(--text-3); font-size: 12.5px; }
+.srow .ctrl { flex: none; display: flex; align-items: center; gap: 10px; max-width: 60%; }
+.srow input[type=range] { width: 180px; }
+.settings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 16px; align-items: start; }
+
+/* About */
+.about-hero { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+.about-hero .logo { width: 64px; height: 64px; border-radius: 18px; }
+.about-hero .logo svg { width: 36px; height: 36px; }
+.about-hero h2 { margin: 0; font: 700 26px/1.1 var(--font-display); letter-spacing: -.02em; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.about-hero p { margin: 6px 0 0; color: var(--text-2); max-width: 62ch; }
+.about-hero .t { flex: 1 1 280px; min-width: 0; }
+.btns { display: flex; gap: 10px; flex-wrap: wrap; }
+.path { display: grid; grid-template-columns: 90px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.path:last-child { border-bottom: 0; }
+.path .k { color: var(--text-3); font-size: 13px; }
+.path code { font-family: var(--mono); font-size: 12.5px; overflow-wrap: anywhere; color: var(--text-2); }
+pre.code { margin: 0; padding: 12px 14px; border-radius: var(--r-sm); background: var(--bg-raised); border: 1px solid var(--line); font: 12.5px/1.6 var(--mono); color: var(--text-2); overflow-x: auto; }
+.guide { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 14px; }
+.guide h3 { margin: 0 0 6px; font: 600 13.5px/1.3 var(--font-display); display: flex; gap: 8px; align-items: center; }
+.guide p { margin: 0 0 8px; color: var(--text-3); font-size: 12.5px; }
+
+/* Dialogs & toasts */
+.overlay { position: fixed; inset: 0; background: hsl(228 40% 3% / .62); backdrop-filter: blur(6px); display: grid; place-items: center; z-index: 50; padding: 20px; }
+.modal { width: min(540px, 100%); border-radius: 20px; background: hsl(226 16% 10% / .97); border: 1px solid var(--line-2); box-shadow: 0 30px 80px hsl(228 50% 2% / .7); padding: 22px 24px; display: grid; gap: 14px; animation: pop .16s ease-out; }
+.modal h2 { margin: 0; font: 650 18px/1.3 var(--font-display); display: flex; gap: 10px; align-items: center; }
+.modal .lead { color: var(--text-2); margin: 0; }
+.modal .foot { display: flex; justify-content: flex-end; gap: 10px; margin-top: 4px; }
+.field { display: grid; gap: 6px; }
+.field label { color: var(--text-2); font-size: 13px; }
+.toasts { position: fixed; right: 20px; bottom: 20px; display: grid; gap: 10px; z-index: 60; }
+.toast { min-width: 260px; max-width: 380px; padding: 12px 14px; border-radius: var(--r); background: hsl(226 16% 13% / .97); border: 1px solid var(--line-2); box-shadow: 0 16px 40px hsl(228 50% 2% / .6); display: flex; gap: 10px; align-items: flex-start; animation: in .2s ease-out; }
+.toast > svg { color: var(--ok); }
+.toast.err > svg { color: var(--crit); }
+.toast div { min-width: 0; overflow-wrap: anywhere; }
 @keyframes in { from { opacity: 0; transform: translateY(8px); } }
-.muted { color: var(--muted); }
-.mono { font-family: "Cascadia Code", Consolas, monospace; font-size: 12.5px; }
-a { color: hsl(258 90% 80%); }
-@media (max-width: 820px) { .app { grid-template-columns: 1fr; } nav { display: none; } main { padding: 20px 16px; } .kv { grid-template-columns: 1fr; } }
+@keyframes pop { from { opacity: 0; transform: scale(.97); } }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+/* Responsive */
+@media (max-width: 1080px) {
+  .lib { grid-template-columns: minmax(0, 1fr); }
+  .stage-col, .list-col { position: static; }
+  .list { max-height: none; overflow: visible; }
+}
+@media (max-width: 860px) {
+  .app { grid-template-columns: 64px minmax(0, 1fr); }
+  nav { padding: 16px 8px; align-items: center; }
+  .brand { padding: 4px 0 18px; }
+  .brand > div:last-child, .nav-label, .nav-btn span, .nav-foot { display: none; }
+  .nav-btn { justify-content: center; padding: 10px; }
+  .nav-btn[aria-current="true"]::before { left: -8px; }
+  header.top, .content { padding-left: 18px; padding-right: 18px; }
+  .hw-hero { grid-template-columns: 1fr; justify-items: start; }
+  .srow { flex-wrap: wrap; }
+  .srow .ctrl { max-width: 100%; }
+}
+@media (max-width: 520px) {
+  header.top { flex-wrap: wrap; }
+  .specs { grid-template-columns: 1fr; }
+  .kv > div, .path { grid-template-columns: 1fr; gap: 2px; }
+}
 </style>
 </head>
 <body>
@@ -166,119 +353,246 @@ a { color: hsl(258 90% 80%); }
   <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"/></symbol>
   <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Z"/><path d="M14 2v6h6"/></symbol>
   <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></symbol>
+  <symbol id="i-rotate" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></symbol>
+  <symbol id="i-save" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+  <symbol id="i-zap" viewBox="0 0 24 24"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/></symbol>
+  <symbol id="i-volume" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4V5Z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></symbol>
+  <symbol id="i-cog" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
 </svg>
 
 <div class="app">
   <nav aria-label="Navigasi">
-    <div class="brand"><div class="logo"><svg class="i"><use href="#i-wave"/></svg></div>nouwall</div>
-    <button class="nav-btn" data-tab="library" aria-current="true"><svg class="i"><use href="#i-layers"/></svg>Library</button>
-    <button class="nav-btn" data-tab="monitors"><svg class="i"><use href="#i-monitor"/></svg>Monitor</button>
-    <button class="nav-btn" data-tab="hardware"><svg class="i"><use href="#i-cpu"/></svg>Hardware</button>
-    <button class="nav-btn" data-tab="settings"><svg class="i"><use href="#i-sliders"/></svg>Pengaturan</button>
-    <button class="nav-btn" data-tab="about"><svg class="i"><use href="#i-info"/></svg>Tentang</button>
-    <div class="nav-foot" id="navFoot">Memuat...</div>
+    <div class="brand"><div class="logo"><svg class="i"><use href="#i-wave"/></svg></div><div><b>nouwall</b><small>Live wallpaper</small></div></div>
+    <div class="nav-label">Menu</div>
+    <button class="nav-btn" data-tab="library" aria-current="true" title="Library"><svg class="i"><use href="#i-layers"/></svg><span>Library</span></button>
+    <button class="nav-btn" data-tab="monitors" title="Monitor"><svg class="i"><use href="#i-monitor"/></svg><span>Monitor</span></button>
+    <button class="nav-btn" data-tab="hardware" title="Hardware"><svg class="i"><use href="#i-cpu"/></svg><span>Hardware</span></button>
+    <button class="nav-btn" data-tab="settings" title="Pengaturan"><svg class="i"><use href="#i-sliders"/></svg><span>Pengaturan</span></button>
+    <button class="nav-btn" data-tab="about" title="Tentang"><svg class="i"><use href="#i-info"/></svg><span>Tentang</span></button>
+    <div class="nav-foot" id="navFoot"><div class="gpu">Memuat...</div></div>
   </nav>
 
   <main>
     <header class="top">
-      <div>
+      <div class="ttl">
         <h1 id="title">Library</h1>
-        <div class="sub" id="subtitle">Wallpaper yang terpasang di perangkat ini</div>
+        <div class="sub" id="subtitle">Pratinjau, atur tampilan, lalu pasang wallpaper</div>
       </div>
       <div class="spacer"></div>
       <span class="chip accent" id="tierChip" title="Tier hardware">Tier -</span>
       <button class="btn" id="pauseBtn"><svg class="i"><use href="#i-pause"/></svg><span>Jeda</span></button>
     </header>
 
-    <section id="tab-library">
-      <div class="toolbar">
-        <button class="btn primary" id="importFile"><svg class="i"><use href="#i-plus"/></svg>Impor file</button>
-        <button class="btn" id="importFolder"><svg class="i"><use href="#i-folder"/></svg>Impor folder HTML</button>
-        <button class="btn" id="importUrl"><svg class="i"><use href="#i-link"/></svg>Tambah URL</button>
-        <div class="spacer"></div>
-        <div class="seg" role="group" aria-label="Filter jenis">
-          <button data-filter="all" aria-pressed="true">Semua</button>
-          <button data-filter="shader" aria-pressed="false">Shader</button>
-          <button data-filter="video" aria-pressed="false">Video</button>
-          <button data-filter="web" aria-pressed="false">Web</button>
-        </div>
-      </div>
-      <div class="grid" id="library"></div>
-    </section>
-
-    <section id="tab-monitors" hidden><div class="mon-grid" id="monitors"></div></section>
-
-    <section id="tab-hardware" hidden>
-      <div class="panel">
-        <div class="tier-hero">
-          <div class="tier-big" id="tierBig">-</div>
-          <div style="flex:1">
-            <div><b id="tierTitle">Tier</b></div>
-            <div class="muted" id="tierBudget"></div>
+    <div class="content" id="content">
+      <!-- Library -->
+      <section id="tab-library">
+        <div class="lib">
+          <div class="stage-col">
+            <div class="panel stage">
+              <div class="viewport" id="viewport"><div class="vp-msg"><svg class="i"><use href="#i-layers"/></svg>Pilih wallpaper untuk melihat pratinjau</div></div>
+              <div class="stage-info" id="stageInfo"></div>
+            </div>
+            <div class="panel controls" id="controls">
+              <div class="ctl-grid">
+                <div class="ctl" id="ctlFit">
+                  <div class="ctl-h"><span class="lbl">Tampilan</span></div>
+                  <div class="seg full" role="group" aria-label="Mode tampilan" id="fitSeg">
+                    <button data-fit="cover" aria-pressed="true" title="Isi layar, potong bagian yang tidak muat">Isi</button>
+                    <button data-fit="contain" aria-pressed="false" title="Tampilkan utuh dengan bilah hitam">Pas</button>
+                    <button data-fit="stretch" aria-pressed="false" title="Regangkan ke seluruh layar">Regang</button>
+                    <button data-fit="center" aria-pressed="false" title="Ukuran piksel asli di tengah">Asli</button>
+                  </div>
+                  <div class="hint" id="fitHint"></div>
+                </div>
+                <div class="ctl" id="ctlZoom">
+                  <div class="ctl-h"><label for="zoom" id="zoomLabel">Ukuran</label><span class="val" id="zoomVal">100%</span></div>
+                  <input type="range" id="zoom" min="50" max="200" step="5" value="100">
+                  <div class="hint" id="zoomHint">Perbesar untuk memotong tepi, perkecil untuk menyisakan ruang.</div>
+                </div>
+                <div class="ctl" id="ctlPanX">
+                  <div class="ctl-h"><label for="panX">Posisi horizontal</label><span class="val" id="panXVal">tengah</span></div>
+                  <input type="range" id="panX" min="-100" max="100" step="5" value="0">
+                </div>
+                <div class="ctl" id="ctlPanY">
+                  <div class="ctl-h"><label for="panY">Posisi vertikal</label><span class="val" id="panYVal">tengah</span></div>
+                  <input type="range" id="panY" min="-100" max="100" step="5" value="0">
+                </div>
+                <div class="ctl" id="ctlRes">
+                  <div class="ctl-h"><label for="resSel">Resolusi render</label><span class="val" id="resVal"></span></div>
+                  <select id="resSel"></select>
+                  <div class="hint" id="resHint"></div>
+                </div>
+              </div>
+              <div class="actionbar">
+                <select id="targetSel" aria-label="Monitor tujuan"></select>
+                <span class="dirty-dot" id="dirty" hidden>Belum disimpan</span>
+                <button class="btn ghost sm" id="resetDisp" title="Kembalikan tampilan bawaan"><svg class="i"><use href="#i-rotate"/></svg>Reset</button>
+                <button class="btn" id="saveDisp"><svg class="i"><use href="#i-save"/></svg>Simpan</button>
+                <button class="btn primary" id="applyBtn"><svg class="i"><use href="#i-check"/></svg>Pasang</button>
+              </div>
+            </div>
           </div>
-          <div class="field" style="margin:0">
-            <label for="tierOverride">Tier yang dipakai</label>
-            <select id="tierOverride">
-              <option value="">Otomatis</option>
-              <option value="low">Low</option>
-              <option value="mid">Mid</option>
-              <option value="high">High</option>
-            </select>
+
+          <div class="list-col">
+            <div class="panel" style="padding:14px">
+              <div class="list-tools">
+                <div class="row1">
+                  <input type="search" id="search" placeholder="Cari wallpaper" aria-label="Cari wallpaper">
+                  <div class="menu-wrap">
+                    <button class="btn primary" id="importBtn" aria-haspopup="menu" aria-expanded="false"><svg class="i"><use href="#i-plus"/></svg>Impor</button>
+                    <div class="menu" id="importMenu" role="menu" hidden>
+                      <button role="menuitem" id="importFile"><svg class="i"><use href="#i-file"/></svg><span>File<small>Video, .glsl, .wgsl, atau .html</small></span></button>
+                      <button role="menuitem" id="importFolder"><svg class="i"><use href="#i-folder"/></svg><span>Folder HTML<small>Folder dengan index.html</small></span></button>
+                      <button role="menuitem" id="importUrl"><svg class="i"><use href="#i-link"/></svg><span>Alamat web<small>Halaman dari internet</small></span></button>
+                    </div>
+                  </div>
+                </div>
+                <div class="seg full" role="group" aria-label="Filter jenis" id="filterSeg">
+                  <button data-filter="all" aria-pressed="true">Semua</button>
+                  <button data-filter="shader" aria-pressed="false">Shader</button>
+                  <button data-filter="video" aria-pressed="false">Video</button>
+                  <button data-filter="web" aria-pressed="false">Web</button>
+                </div>
+              </div>
+            </div>
+            <div class="list" id="library" role="listbox" aria-label="Wallpaper"></div>
           </div>
         </div>
-        <ul class="reasons" id="tierReasons"></ul>
-      </div>
-      <div class="panel">
-        <h2><svg class="i"><use href="#i-cpu"/></svg>Perangkat<div class="spacer"></div><button class="btn sm" id="rescan"><svg class="i"><use href="#i-refresh"/></svg>Pindai ulang</button></h2>
-        <dl class="kv" id="hwKv"></dl>
-      </div>
-      <div class="panel">
-        <h2><svg class="i"><use href="#i-film"/></svg>Decoder video hardware</h2>
-        <table><thead><tr><th>Codec</th><th>Resolusi maksimal</th><th>4K</th></tr></thead><tbody id="decode"></tbody></table>
-      </div>
-    </section>
+      </section>
 
-    <section id="tab-settings" hidden>
-      <div class="panel">
-        <h2>Hemat daya</h2>
-        <div class="row"><div class="t"><b>Jeda saat aplikasi layar penuh</b><span>Game, video, atau presentasi menutupi monitor</span></div><label class="switch"><input type="checkbox" data-key="pause_on_fullscreen"><span></span></label></div>
-        <div class="row"><div class="t"><b>Jeda saat jendela dimaksimalkan</b><span>Wallpaper tidak terlihat di belakang jendela penuh</span></div><label class="switch"><input type="checkbox" data-key="pause_on_maximized"><span></span></label></div>
-        <div class="row"><div class="t"><b>Jeda saat memakai baterai</b><span>Berhenti total ketika laptop tidak dicolok</span></div><label class="switch"><input type="checkbox" data-key="pause_on_battery"><span></span></label></div>
-        <div class="row"><div class="t"><b>Mode hemat baterai</b><span>Frame rate shader dibagi dua saat memakai baterai</span></div><label class="switch"><input type="checkbox" data-key="battery_saver"><span></span></label></div>
-        <div class="row"><div class="t"><b>Turunkan kualitas otomatis</b><span>Kurangi resolusi render lalu fps bila frame terlambat</span></div><label class="switch"><input type="checkbox" data-key="auto_downgrade"><span></span></label></div>
-        <div class="row"><div class="t"><b>Batas frame rate shader</b><span>Tier perangkat dapat menurunkannya lagi</span></div>
-          <select data-key="fps_cap" data-type="number"><option>15</option><option>24</option><option>30</option><option>60</option><option>120</option><option>144</option></select></div>
-      </div>
-      <div class="panel">
-        <h2>Audio</h2>
-        <div class="row"><div class="t"><b>Bisukan wallpaper</b><span>Video dan halaman web tanpa suara</span></div><label class="switch"><input type="checkbox" data-key="mute"><span></span></label></div>
-        <div class="row"><div class="t"><b>Volume</b><span id="volLabel">50%</span></div><input type="range" min="0" max="1" step="0.05" data-key="volume" data-type="number"></div>
-      </div>
-      <div class="panel">
-        <h2>Umum</h2>
-        <div class="row"><div class="t"><b>Mulai bersama Windows</b><span>Jalankan nouwall saat masuk ke Windows</span></div><label class="switch"><input type="checkbox" data-key="autostart"><span></span></label></div>
-        <div class="row"><div class="t"><b>Jangan tampilkan peringatan hardware</b><span>Langsung pasang wallpaper walau melebihi tier perangkat</span></div><label class="switch"><input type="checkbox" data-key="suppress_warnings"><span></span></label></div>
-      </div>
-    </section>
-
-    <section id="tab-about" hidden>
-      <div class="panel">
-        <h2><div class="logo"><svg class="i"><use href="#i-wave"/></svg></div>nouwall <span class="chip" id="ver"></span></h2>
-        <p class="muted" style="margin-top:0">Live wallpaper open source untuk Windows: shader, video, dan halaman web di belakang ikon desktop, dengan peringatan otomatis sesuai kemampuan hardware.</p>
-        <dl class="kv" id="paths"></dl>
-        <div class="toolbar" style="margin:16px 0 0">
-          <button class="btn" id="openLib"><svg class="i"><use href="#i-folder"/></svg>Folder library</button>
-          <button class="btn" id="openLog"><svg class="i"><use href="#i-file"/></svg>Buka log</button>
-          <button class="btn" id="openRepo"><svg class="i"><use href="#i-link"/></svg>GitHub</button>
-          <div class="spacer"></div>
-          <button class="btn danger" id="quit"><svg class="i"><use href="#i-x"/></svg>Keluar dari nouwall</button>
+      <!-- Monitors -->
+      <section id="tab-monitors" hidden>
+        <div class="stack">
+          <div class="panel">
+            <div class="panel-h"><div class="ico"><svg class="i"><use href="#i-monitor"/></svg></div><div><h2>Susunan layar</h2><p>Posisi monitor sesuai pengaturan tampilan Windows</p></div></div>
+            <div class="layout-map" id="layoutMap"></div>
+          </div>
+          <div class="mon-grid" id="monitors"></div>
         </div>
-      </div>
-      <div class="panel">
-        <h2>Membuat wallpaper</h2>
-        <p class="muted" style="margin:0">Shader GLSL memakai konvensi Shadertoy: <span class="mono">void mainImage(out vec4 fragColor, in vec2 fragCoord)</span> dengan <span class="mono">iTime</span>, <span class="mono">iResolution</span>, <span class="mono">iMouse</span>. Shader WGSL mendefinisikan <span class="mono">fn main_image(frag_coord: vec2&lt;f32&gt;) -&gt; vec4&lt;f32&gt;</span>. Halaman web menerima event <span class="mono">nouwall:pause</span> dan <span class="mono">nouwall:resume</span>.</p>
-      </div>
-    </section>
+      </section>
+
+      <!-- Hardware -->
+      <section id="tab-hardware" hidden>
+        <div class="stack">
+          <div class="panel">
+            <div class="hw-hero">
+              <div class="medal" id="medal"><b id="tierBig">-</b><span>tier</span></div>
+              <div class="t">
+                <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+                  <div style="min-width:0;flex:1 1 220px"><h2 id="tierTitle">Tier</h2><div class="muted" id="tierSub" style="font-size:13px"></div></div>
+                  <div class="field" style="flex:0 0 auto">
+                    <label for="tierOverride" class="sr">Tier yang dipakai</label>
+                    <select id="tierOverride"><option value="">Otomatis</option><option value="low">Paksa Low</option><option value="mid">Paksa Mid</option><option value="high">Paksa High</option></select>
+                  </div>
+                </div>
+                <div class="tiles" id="tiles"></div>
+              </div>
+            </div>
+          </div>
+          <div class="two">
+            <div class="panel">
+              <div class="panel-h"><div class="ico"><svg class="i"><use href="#i-cpu"/></svg></div><div style="flex:1;min-width:0"><h2>Perangkat</h2><p>Hasil pemindaian saat nouwall dimulai</p></div><button class="btn sm" id="rescan"><svg class="i"><use href="#i-refresh"/></svg>Pindai ulang</button></div>
+              <dl class="kv" id="hwKv"></dl>
+            </div>
+            <div class="panel">
+              <div class="panel-h"><div class="ico"><svg class="i"><use href="#i-film"/></svg></div><div><h2>Decoder video hardware</h2><p>Codec tanpa decoder hardware diputar oleh CPU</p></div></div>
+              <div class="tbl-wrap"><table class="matrix"><thead><tr><th>Codec</th><th>1080p</th><th>1440p</th><th>4K</th><th>8K</th></tr></thead><tbody id="decode"></tbody></table></div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-h"><div class="ico"><svg class="i"><use href="#i-info"/></svg></div><div><h2>Alasan penentuan tier</h2></div></div>
+            <ul class="reasons" id="tierReasons"></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Settings -->
+      <section id="tab-settings" hidden>
+        <div class="settings-grid">
+          <div class="panel">
+            <div class="panel-h"><div class="ico"><svg class="i"><use href="#i-zap"/></svg></div><div><h2>Hemat daya</h2><p>Kapan wallpaper berhenti atau melambat</p></div></div>
+            <div class="rows">
+              <div class="srow"><div class="t"><b>Jeda saat aplikasi layar penuh</b><span>Game, video, atau presentasi menutupi monitor</span></div><div class="ctrl"><label class="switch"><input type="checkbox" data-key="pause_on_fullscreen" aria-label="Jeda saat aplikasi layar penuh"><span></span></label></div></div>
+              <div class="srow"><div class="t"><b>Jeda saat jendela dimaksimalkan</b><span>Wallpaper tertutup jendela penuh</span></div><div class="ctrl"><label class="switch"><input type="checkbox" data-key="pause_on_maximized" aria-label="Jeda saat jendela dimaksimalkan"><span></span></label></div></div>
+              <div class="srow"><div class="t"><b>Jeda saat memakai baterai</b><span>Berhenti total ketika laptop tidak dicolok</span></div><div class="ctrl"><label class="switch"><input type="checkbox" data-key="pause_on_battery" aria-label="Jeda saat memakai baterai"><span></span></label></div></div>
+              <div class="srow"><div class="t"><b>Mode hemat baterai</b><span>Frame rate shader dibagi dua saat memakai baterai</span></div><div class="ctrl"><label class="switch"><input type="checkbox" data-key="battery_saver" aria-label="Mode hemat baterai"><span></span></label></div></div>
+              <div class="srow"><div class="t"><b>Turunkan kualitas otomatis</b><span>Kurangi resolusi render, lalu fps, bila frame terlambat</span></div><div class="ctrl"><label class="switch"><input type="checkbox" data-key="auto_downgrade" aria-label="Turunkan kualitas otomatis"><span></span></label></div></div>
+            </div>
+          </div>
+          <div class="stack">
+            <div class="panel">
+              <div class="panel-h"><div class="ico"><svg class="i"><use href="#i-sparkles"/></svg></div><div><h2>Batas frame rate shader</h2><p>Tier perangkat dapat menurunkannya lagi</p></div></div>
+              <div class="seg full" role="group" aria-label="Batas frame rate" id="fpsSeg">
+                <button data-fps="15">15</button><button data-fps="24">24</button><button data-fps="30">30</button><button data-fps="60">60</button><button data-fps="120">120</button><button data-fps="144">144</button>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-h"><div class="ico"><svg class="i"><use href="#i-volume"/></svg></div><div><h2>Audio</h2><p>Untuk video dan halaman web</p></div></div>
+              <div class="rows">
+                <div class="srow"><div class="t"><b>Bisukan wallpaper</b><span>Tanpa suara dari video dan halaman web</span></div><div class="ctrl"><label class="switch"><input type="checkbox" data-key="mute" aria-label="Bisukan wallpaper"><span></span></label></div></div>
+                <div class="srow"><div class="t"><b>Volume</b><span id="volLabel">50%</span></div><div class="ctrl"><input type="range" min="0" max="1" step="0.05" data-key="volume" data-type="number" aria-label="Volume"></div></div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-h"><div class="ico"><svg class="i"><use href="#i-cog"/></svg></div><div><h2>Umum</h2></div></div>
+              <div class="rows">
+                <div class="srow"><div class="t"><b>Mulai bersama Windows</b><span>Jalankan nouwall saat masuk ke Windows</span></div><div class="ctrl"><label class="switch"><input type="checkbox" data-key="autostart" aria-label="Mulai bersama Windows"><span></span></label></div></div>
+                <div class="srow"><div class="t"><b>Lewati peringatan hardware</b><span>Langsung pasang walau melebihi kemampuan perangkat</span></div><div class="ctrl"><label class="switch"><input type="checkbox" data-key="suppress_warnings" aria-label="Lewati peringatan hardware"><span></span></label></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- About -->
+      <section id="tab-about" hidden>
+        <div class="stack">
+          <div class="panel">
+            <div class="about-hero">
+              <div class="logo"><svg class="i"><use href="#i-wave"/></svg></div>
+              <div class="t">
+                <h2>nouwall <span class="chip accent" id="ver"></span></h2>
+                <p>Live wallpaper open source untuk Windows. Shader, video, dan halaman web berjalan di belakang ikon desktop, dengan peringatan otomatis sesuai kemampuan hardware.</p>
+              </div>
+              <div class="btns">
+                <button class="btn" id="openRepo"><svg class="i"><use href="#i-code"/></svg>GitHub</button>
+                <button class="btn danger" id="quit"><svg class="i"><use href="#i-x"/></svg>Keluar</button>
+              </div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-h"><div class="ico"><svg class="i"><use href="#i-folder"/></svg></div><div style="flex:1;min-width:0"><h2>Lokasi berkas</h2></div>
+              <button class="btn sm" id="openLib"><svg class="i"><use href="#i-folder"/></svg>Folder library</button>
+              <button class="btn sm" id="openLog"><svg class="i"><use href="#i-file"/></svg>Log</button></div>
+            <div id="paths"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-h"><div class="ico"><svg class="i"><use href="#i-code"/></svg></div><div><h2>Membuat wallpaper</h2><p>Setiap wallpaper adalah folder dengan wallpaper.toml</p></div></div>
+            <div class="guide">
+              <div><h3><svg class="i"><use href="#i-sparkles"/></svg>Shader GLSL</h3><p>Konvensi Shadertoy dengan iTime, iResolution, iMouse, iFrame, dan iDate.</p>
+<pre class="code">void mainImage(out vec4 fragColor,
+               in vec2 fragCoord) {
+  vec2 uv = fragCoord / iResolution.xy;
+  fragColor = vec4(uv, 0.5 + 0.5 * sin(iTime), 1.0);
+}</pre></div>
+              <div><h3><svg class="i"><use href="#i-sparkles"/></svg>Shader WGSL</h3><p>Uniform tersedia di <span class="mono">u</span>: resolution, time, mouse, frame, date.</p>
+<pre class="code">fn main_image(frag_coord: vec2&lt;f32&gt;) -&gt; vec4&lt;f32&gt; {
+  let uv = frag_coord / u.resolution.xy;
+  return vec4&lt;f32&gt;(uv, 0.5, 1.0);
+}</pre></div>
+              <div><h3><svg class="i"><use href="#i-globe"/></svg>Halaman web</h3><p>Halaman biasa. Saat wallpaper dijeda, halaman menerima event berikut.</p>
+<pre class="code">addEventListener('nouwall:pause', stop);
+addEventListener('nouwall:resume', start);</pre></div>
+            </div>
+            <p class="muted" style="margin:14px 0 0;font-size:12.5px">Dilisensikan MIT atau Apache-2.0.</p>
+          </div>
+        </div>
+      </section>
+    </div>
   </main>
 </div>
 
@@ -286,24 +600,19 @@ a { color: hsl(258 90% 80%); }
   <div class="modal">
     <h2 id="confirmTitle"><svg class="i" style="color:var(--warn)"><use href="#i-alert"/></svg><span>Perangkat mungkin tidak mendukung</span></h2>
     <p class="lead" id="confirmLead"></p>
-    <div id="confirmList"></div>
-    <div class="foot">
-      <button class="btn" id="confirmCancel">Batal</button>
-      <button class="btn primary" id="confirmOk">Tetap pakai</button>
-    </div>
+    <div id="confirmList" style="display:grid;gap:8px"></div>
+    <div class="foot"><button class="btn" id="confirmCancel">Batal</button><button class="btn primary" id="confirmOk">Tetap pakai</button></div>
   </div>
 </div>
-
 <div class="overlay" id="urlDlg" hidden role="dialog" aria-modal="true" aria-labelledby="urlTitle">
   <div class="modal">
     <h2 id="urlTitle"><svg class="i"><use href="#i-globe"/></svg>Tambah halaman web</h2>
-    <p class="lead">Halaman akan dimuat dari internet setiap kali wallpaper dimulai.</p>
-    <div class="field"><label for="urlInput">URL</label><input type="url" id="urlInput" placeholder="https://"></div>
+    <p class="lead">Halaman dimuat dari internet setiap kali wallpaper dimulai.</p>
+    <div class="field"><label for="urlInput">Alamat</label><input type="url" id="urlInput" placeholder="https://"></div>
     <div class="field"><label for="urlName">Nama</label><input type="text" id="urlName" placeholder="Opsional"></div>
     <div class="foot"><button class="btn" id="urlCancel">Batal</button><button class="btn primary" id="urlOk">Tambah</button></div>
   </div>
 </div>
-
 <div class="overlay" id="delDlg" hidden role="dialog" aria-modal="true" aria-labelledby="delTitle">
   <div class="modal">
     <h2 id="delTitle"><svg class="i" style="color:var(--crit)"><use href="#i-trash"/></svg>Hapus wallpaper?</h2>
@@ -311,11 +620,11 @@ a { color: hsl(258 90% 80%); }
     <div class="foot"><button class="btn" id="delCancel">Batal</button><button class="btn primary" id="delOk">Hapus</button></div>
   </div>
 </div>
-
 <div class="toasts" id="toasts" aria-live="polite"></div>
 
 <script>
 (() => {
+  // ---------- IPC ----------
   const pending = new Map();
   const listeners = {};
   let seq = 0;
@@ -326,23 +635,36 @@ a { color: hsl(258 90% 80%); }
   const call = (cmd, args = {}) => new Promise((res, rej) => { const id = ++seq; pending.set(id, { res, rej }); window.ipc.postMessage(JSON.stringify({ id, cmd, args })); });
   const on = (name, f) => (listeners[name] ||= []).push(f);
 
+  // ---------- helpers ----------
   const $ = s => document.querySelector(s);
   const $$ = s => [...document.querySelectorAll(s)];
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const icon = (id, cls = 'i') => `<svg class="${cls}"><use href="#i-${id}"/></svg>`;
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
   const KIND_ICON = { shader: 'sparkles', video: 'film', web: 'globe' };
+  const KIND_NAME = { shader: 'Shader', video: 'Video', web: 'Web' };
   const SEV_ICON = { critical: 'octagon', warn: 'alert', info: 'info' };
-  const PAUSE_TEXT = { user: 'dijeda manual', locked: 'layar terkunci', display_off: 'layar mati', fullscreen: 'aplikasi layar penuh', maximized: 'jendela dimaksimalkan', battery: 'memakai baterai' };
+  const PAUSE_TEXT = { user: 'Dijeda manual', locked: 'Layar terkunci', display_off: 'Layar mati', fullscreen: 'Aplikasi layar penuh', maximized: 'Jendela dimaksimalkan', battery: 'Memakai baterai' };
   const TITLES = {
-    library: ['Library', 'Wallpaper yang terpasang di perangkat ini'],
-    monitors: ['Monitor', 'Wallpaper dan status tiap layar'],
+    library: ['Library', 'Pratinjau, atur tampilan, lalu pasang wallpaper'],
+    monitors: ['Monitor', 'Susunan layar dan wallpaper tiap monitor'],
     hardware: ['Hardware', 'Kemampuan perangkat dan batas yang dipakai nouwall'],
     settings: ['Pengaturan', 'Hemat daya, audio, dan perilaku aplikasi'],
-    about: ['Tentang', 'Versi, lokasi berkas, dan panduan singkat'],
+    about: ['Tentang', 'Versi, lokasi berkas, dan panduan membuat wallpaper'],
   };
+  const DEFAULT_DISPLAY = { fit: 'cover', zoom: 1, pan_x: 0, pan_y: 0, resolution: null };
+  const libUrl = (e, file) => '/lib/' + encodeURIComponent(e.id) + '/' + String(file || e.entry).split('/').map(encodeURIComponent).join('/');
+  const resLabel = (w, h) => { const s = Math.min(w, h); return s >= 4320 ? '8K' : s >= 2160 ? '4K' : s >= 1440 ? '1440p' : s >= 1080 ? '1080p' : s >= 720 ? '720p' : `${w}×${h}`; };
+  const setRangeFill = el => el.style.setProperty('--p', ((el.value - el.min) / (el.max - el.min) * 100) + '%');
+  const store = { get(k) { try { return localStorage.getItem(k); } catch (_) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (_) {} } };
 
   let state = null;
   let filter = 'all';
+  let query = '';
+  let selected = store.get('nouwall.sel');
+  let draft = null;        // display settings being edited for the selected wallpaper
+  let draftDirty = false;
+  let selMonitor = null;   // monitor highlighted on the Monitor tab
 
   function toast(text, err = false) {
     const el = document.createElement('div');
@@ -352,125 +674,631 @@ a { color: hsl(258 90% 80%); }
     setTimeout(() => el.remove(), 4200);
   }
 
-  function res(v) { return v ? `${v.width}x${v.height}` : ''; }
-  function resLabel(w, h) { const s = Math.min(w, h); return s >= 4320 ? '8K' : s >= 2160 ? '4K' : s >= 1440 ? '1440p' : s >= 1080 ? '1080p' : s >= 720 ? '720p' : `${w}x${h}`; }
-
-  function monitorOptions(selected) {
-    const ms = state.monitors;
-    let o = `<option value="all">Semua monitor</option>`;
-    if (ms.length > 1) ms.forEach(m => o += `<option value="${m.index}" ${selected === m.index ? 'selected' : ''}>Monitor ${m.index + 1} (${m.width}x${m.height})</option>`);
-    return o;
+  /** Same math as nouwall_core::Display::place: where a source image lands on a target. */
+  function place(d, sw, sh, tw, th) {
+    const zoom = clamp(+d.zoom || 1, 0.5, 2), px = clamp(+d.pan_x || 0, -1, 1), py = clamp(+d.pan_y || 0, -1, 1);
+    let sx, sy;
+    if (d.fit === 'contain') sx = sy = Math.min(tw / sw, th / sh);
+    else if (d.fit === 'stretch') { sx = tw / sw; sy = th / sh; }
+    else if (d.fit === 'center') sx = sy = 1;
+    else sx = sy = Math.max(tw / sw, th / sh);
+    const w = sw * sx * zoom, h = sh * sy * zoom;
+    return { x: (tw - w) / 2 * (1 + px), y: (th - h) / 2 * (1 + py), w, h };
+  }
+  function renderSize(d, mw, mh) {
+    if (d.resolution && d.resolution < mh) { const h = Math.max(360, d.resolution); return [Math.round(mw * h / mh), h]; }
+    return [mw, mh];
   }
 
-  function renderLibrary() {
-    const lib = state.library.filter(e => filter === 'all' || e.kind === filter);
-    const active = new Set(state.monitors.map(m => m.wallpaper));
+  // ---------- shader preview (WebGL2 for GLSL, WebGPU for WGSL) ----------
+  const GLSL_HEAD = `#version 300 es
+precision highp float; precision highp int;
+uniform vec3 iResolution; uniform float iTime; uniform float iTimeDelta; uniform int iFrame; uniform vec4 iMouse; uniform vec4 iDate;
+out vec4 nouwall_frag_color;
+#define iChannelTime float[4](iTime, iTime, iTime, iTime)
+#define iSampleRate 44100.0
+`;
+  const GLSL_TAIL = `
+void main() { vec4 c = vec4(0.0, 0.0, 0.0, 1.0); mainImage(c, gl_FragCoord.xy); nouwall_frag_color = vec4(c.rgb, 1.0); }`;
+  const WGSL_HEAD = `
+struct NouwallUniforms { resolution: vec3<f32>, time: f32, mouse: vec4<f32>, time_delta: f32, frame: i32, _pad: vec2<f32>, date: vec4<f32>, };
+@group(0) @binding(0) var<uniform> u: NouwallUniforms;
+@vertex fn nouwall_vs(@builtin(vertex_index) i: u32) -> @builtin(position) vec4<f32> {
+  let p = vec2<f32>(f32((i << 1u) & 2u), f32(i & 2u));
+  return vec4<f32>(p * 2.0 - 1.0, 0.0, 1.0);
+}
+`;
+  const WGSL_TAIL = `
+@fragment fn nouwall_fs(@builtin(position) pos: vec4<f32>) -> @location(0) vec4<f32> {
+  let c = main_image(vec2<f32>(pos.x, u.resolution.y - pos.y));
+  return vec4<f32>(c.rgb, 1.0);
+}`;
+  const isWgsl = e => /\.wgsl$/i.test(e.entry);
+  const srcCache = new Map();
+  async function shaderSource(e) {
+    if (!srcCache.has(e.id)) {
+      const r = await fetch(libUrl(e));
+      if (!r.ok) throw new Error('Berkas shader tidak terbaca');
+      srcCache.set(e.id, await r.text());
+    }
+    return srcCache.get(e.id);
+  }
+  function dateVec() { const d = new Date(); return [d.getFullYear(), d.getMonth(), d.getDate(), d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds() + d.getMilliseconds() / 1000]; }
+
+  function glProgram(gl, src) {
+    const vs = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(vs, '#version 300 es\nvoid main(){vec2 p=vec2(float((gl_VertexID<<1)&2),float(gl_VertexID&2));gl_Position=vec4(p*2.0-1.0,0.0,1.0);}');
+    gl.compileShader(vs);
+    const fs = gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(fs, GLSL_HEAD + src.replace(/^\s*#version.*$/m, '') + GLSL_TAIL);
+    gl.compileShader(fs);
+    if (!gl.getShaderParameter(fs, gl.COMPILE_STATUS)) throw new Error((gl.getShaderInfoLog(fs) || 'GLSL error').split('\n')[0]);
+    const p = gl.createProgram();
+    gl.attachShader(p, vs); gl.attachShader(p, fs); gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p) || 'link error');
+    const loc = n => gl.getUniformLocation(p, n);
+    return { p, u: { res: loc('iResolution'), time: loc('iTime'), dt: loc('iTimeDelta'), frame: loc('iFrame'), mouse: loc('iMouse'), date: loc('iDate') } };
+  }
+  function glDraw(gl, prog, w, h, t, frame) {
+    gl.viewport(0, 0, w, h);
+    gl.useProgram(prog.p);
+    gl.uniform3f(prog.u.res, w, h, 1); gl.uniform1f(prog.u.time, t); gl.uniform1f(prog.u.dt, 1 / 60);
+    gl.uniform1i(prog.u.frame, frame); gl.uniform4f(prog.u.mouse, 0, 0, 0, 0); gl.uniform4fv(prog.u.date, dateVec());
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+
+  let gpuDevice = null;
+  async function webgpu() {
+    if (gpuDevice) return gpuDevice;
+    if (!navigator.gpu) throw new Error('WebGPU tidak tersedia di WebView2 ini');
+    const adapter = await navigator.gpu.requestAdapter({ powerPreference: 'low-power' });
+    if (!adapter) throw new Error('Adapter WebGPU tidak tersedia');
+    gpuDevice = await adapter.requestDevice();
+    gpuDevice.lost.then(() => { gpuDevice = null; });
+    return gpuDevice;
+  }
+  async function gpuPipeline(device, src, format) {
+    const module = device.createShaderModule({ code: WGSL_HEAD + src + WGSL_TAIL });
+    const info = await module.getCompilationInfo();
+    const err = info.messages.find(m => m.type === 'error');
+    if (err) throw new Error(err.message);
+    const pipeline = device.createRenderPipeline({ layout: 'auto', vertex: { module, entryPoint: 'nouwall_vs' }, fragment: { module, entryPoint: 'nouwall_fs', targets: [{ format }] }, primitive: { topology: 'triangle-list' } });
+    const buf = device.createBuffer({ size: 64, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST });
+    const group = device.createBindGroup({ layout: pipeline.getBindGroupLayout(0), entries: [{ binding: 0, resource: { buffer: buf } }] });
+    return { pipeline, buf, group };
+  }
+  function gpuUniforms(device, p, w, h, t, frame) {
+    const data = new ArrayBuffer(64), f = new Float32Array(data), i = new Int32Array(data);
+    f[0] = w; f[1] = h; f[2] = 1; f[3] = t; f[8] = 1 / 60; i[9] = frame; f.set(dateVec(), 12);
+    device.queue.writeBuffer(p.buf, 0, data);
+  }
+  function gpuPass(device, p, view) {
+    const enc = device.createCommandEncoder();
+    const pass = enc.beginRenderPass({ colorAttachments: [{ view, loadOp: 'clear', storeOp: 'store', clearValue: { r: 0, g: 0, b: 0, a: 1 } }] });
+    pass.setPipeline(p.pipeline); pass.setBindGroup(0, p.group); pass.draw(3); pass.end();
+    return enc;
+  }
+
+  /** Live shader on a canvas; returns a stop function. */
+  async function liveShader(canvas, e, scaleFn) {
+    const src = await shaderSource(e);
+    let stopped = false, raf = 0, frame = 0;
+    const t0 = performance.now() - 4000;
+    const size = () => {
+      const r = canvas.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2), s = scaleFn();
+      return [Math.max(1, Math.round(r.width * dpr * s)), Math.max(1, Math.round(r.height * dpr * s))];
+    };
+    if (isWgsl(e)) {
+      const device = await webgpu();
+      const ctx = canvas.getContext('webgpu');
+      const format = navigator.gpu.getPreferredCanvasFormat();
+      ctx.configure({ device, format, alphaMode: 'opaque' });
+      const p = await gpuPipeline(device, src, format);
+      const loop = () => {
+        if (stopped) return;
+        const [w, h] = size();
+        if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+        gpuUniforms(device, p, w, h, (performance.now() - t0) / 1000, frame++);
+        device.queue.submit([gpuPass(device, p, ctx.getCurrentTexture().createView()).finish()]);
+        raf = requestAnimationFrame(loop);
+      };
+      loop();
+    } else {
+      const gl = canvas.getContext('webgl2', { antialias: false, powerPreference: 'low-power' });
+      if (!gl) throw new Error('WebGL2 tidak tersedia');
+      const prog = glProgram(gl, src);
+      const loop = () => {
+        if (stopped) return;
+        const [w, h] = size();
+        if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+        glDraw(gl, prog, w, h, (performance.now() - t0) / 1000, frame++);
+        raf = requestAnimationFrame(loop);
+      };
+      loop();
+    }
+    return () => { stopped = true; cancelAnimationFrame(raf); };
+  }
+
+  // ---------- thumbnails ----------
+  const thumbs = new Map();      // id -> data URL (or null when not possible)
+  const thumbQueue = [];
+  let thumbBusy = false;
+  let thumbGl = null;
+  const TW = 320, TH = 180;
+  function queueThumb(e) {
+    if (thumbs.has(e.id) || thumbQueue.some(x => x.id === e.id) || e.kind === 'web') return;
+    thumbQueue.push(e);
+    pumpThumbs();
+  }
+  async function pumpThumbs() {
+    if (thumbBusy) return;
+    thumbBusy = true;
+    while (thumbQueue.length) {
+      const e = thumbQueue.shift();
+      let url = null;
+      try { url = e.kind === 'video' ? await videoThumb(e) : await shaderThumb(e); } catch (_) { url = null; }
+      thumbs.set(e.id, url);
+      if (url) $$(`[data-thumb="${CSS.escape(e.id)}"]`).forEach(el => { el.innerHTML = `<img alt="" src="${url}">` + (el.dataset.on ? `<span class="on">${icon('check')}</span>` : ''); });
+    }
+    thumbBusy = false;
+  }
+  function videoThumb(e) {
+    return new Promise((res, rej) => {
+      const v = document.createElement('video');
+      v.muted = true; v.preload = 'auto'; v.src = libUrl(e);
+      const done = setTimeout(() => { v.removeAttribute('src'); v.load(); rej(new Error('timeout')); }, 8000);
+      v.onloadedmetadata = () => { v.currentTime = Math.min(2, (v.duration || 4) / 3); };
+      v.onseeked = () => {
+        clearTimeout(done);
+        const c = document.createElement('canvas'); c.width = TW; c.height = TH;
+        const r = place({ fit: 'cover', zoom: 1 }, v.videoWidth || TW, v.videoHeight || TH, TW, TH);
+        c.getContext('2d').drawImage(v, r.x, r.y, r.w, r.h);
+        const url = c.toDataURL('image/jpeg', 0.8);
+        v.removeAttribute('src'); v.load();
+        res(url);
+      };
+      v.onerror = () => { clearTimeout(done); rej(new Error('video')); };
+    });
+  }
+  async function shaderThumb(e) {
+    const src = await shaderSource(e);
+    const t = 6;
+    if (isWgsl(e)) {
+      const device = await webgpu();
+      const p = await gpuPipeline(device, src, 'rgba8unorm');
+      const tex = device.createTexture({ size: [TW, TH], format: 'rgba8unorm', usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC });
+      const out = device.createBuffer({ size: TW * TH * 4, usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ });
+      gpuUniforms(device, p, TW, TH, t, 0);
+      const enc = gpuPass(device, p, tex.createView());
+      enc.copyTextureToBuffer({ texture: tex }, { buffer: out, bytesPerRow: TW * 4 }, [TW, TH]);
+      device.queue.submit([enc.finish()]);
+      await out.mapAsync(GPUMapMode.READ);
+      const px = new Uint8ClampedArray(out.getMappedRange().slice(0));
+      out.unmap(); tex.destroy(); out.destroy();
+      const c = document.createElement('canvas'); c.width = TW; c.height = TH;
+      c.getContext('2d').putImageData(new ImageData(px, TW, TH), 0, 0);
+      return c.toDataURL('image/jpeg', 0.85);
+    }
+    if (!thumbGl) { const c = document.createElement('canvas'); c.width = TW; c.height = TH; thumbGl = c.getContext('webgl2', { preserveDrawingBuffer: true }); }
+    const gl = thumbGl;
+    const prog = glProgram(gl, src);
+    glDraw(gl, prog, TW, TH, t, 0);
+    const url = gl.canvas.toDataURL('image/jpeg', 0.85);
+    gl.deleteProgram(prog.p);
+    return url;
+  }
+  function thumbHtml(e, on) {
+    const url = thumbs.get(e.id);
+    if (!thumbs.has(e.id)) queueThumb(e);
+    const badge = on ? `<span class="on" title="Aktif">${icon('check')}</span>` : '';
+    return `<div class="thumb ${e.kind}" data-thumb="${esc(e.id)}"${on ? ' data-on="1"' : ''}>${url ? `<img alt="" src="${url}">` : icon(KIND_ICON[e.kind])}${badge}</div>`;
+  }
+
+  // ---------- library ----------
+  const entry = id => state && state.library.find(e => e.id === id);
+  const activeIds = () => new Set(state.monitors.map(m => m.wallpaper).filter(Boolean));
+  const primary = () => state.monitors.find(m => m.primary) || state.monitors[0] || { index: 0, width: 1920, height: 1080, x: 0, y: 0 };
+  function targetMonitor() {
+    const v = $('#targetSel').value;
+    return v === 'all' || v === '' ? primary() : state.monitors.find(m => m.index === Number(v)) || primary();
+  }
+
+  function renderList() {
+    const active = activeIds();
+    const q = query.toLowerCase();
+    const lib = state.library.filter(e => (filter === 'all' || e.kind === filter) && (!q || e.title.toLowerCase().includes(q)));
     if (!lib.length) {
-      $('#library').innerHTML = `<div class="empty">Belum ada wallpaper${filter !== 'all' ? ' jenis ini' : ''}. Impor video, shader (.glsl, .wgsl) atau halaman HTML.</div>`;
+      $('#library').innerHTML = `<div class="empty">${icon('layers')}<div>${state.library.length ? 'Tidak ada wallpaper yang cocok.' : 'Belum ada wallpaper. Impor video, shader, atau halaman HTML.'}</div></div>`;
       return;
     }
     $('#library').innerHTML = lib.map(e => {
-      const badges = [];
-      badges.push(`<span class="chip">${icon(KIND_ICON[e.kind])}${e.kind === 'shader' ? 'Shader' : e.kind === 'video' ? 'Video' : 'Web'}</span>`);
-      if (e.video) {
-        badges.push(`<span class="chip">${resLabel(e.video.width, e.video.height)}</span>`);
-        if (e.video.fps) badges.push(`<span class="chip">${e.video.fps} fps</span>`);
-        if (e.video.codec) badges.push(`<span class="chip">${esc(e.video.codec.toUpperCase())}</span>`);
-      }
-      if (e.shader_cost) badges.push(`<span class="chip">beban ${e.shader_cost}/5</span>`);
-      if (e.remote) badges.push(`<span class="chip">online</span>`);
-      const worst = e.warnings[0];
-      if (worst) badges.push(`<span class="chip ${worst.severity}" title="${esc(worst.message)}">${icon(SEV_ICON[worst.severity])}${esc(worst.title)}</span>`);
-      const on = active.has(e.id);
-      return `<article class="card${on ? ' active' : ''}" data-id="${esc(e.id)}">
-        <div class="thumb ${e.kind}">${icon(KIND_ICON[e.kind])}${on ? '<span class="chip ok now">' + icon('check') + 'Aktif</span>' : ''}</div>
-        <div class="body">
-          <h3>${esc(e.title)}</h3>
-          <p>${esc(e.description || (e.author ? 'oleh ' + e.author : ''))}</p>
-          <div class="badges">${badges.join('')}</div>
-          <div class="actions">
-            <select aria-label="Monitor tujuan">${monitorOptions()}</select>
-            <button class="btn primary sm" data-act="apply">Pasang</button>
-            <button class="btn ghost sm danger" data-act="remove" title="Hapus" aria-label="Hapus">${icon('trash')}</button>
-          </div>
-        </div>
-      </article>`;
+      const facts = [esc(KIND_NAME[e.kind])];
+      if (e.video) { facts.push(resLabel(e.video.width, e.video.height)); if (e.video.fps) facts.push(`${e.video.fps} fps`); }
+      else if (e.shader_cost) facts.push(`beban ${e.shader_cost}/5`);
+      else if (e.remote) facts.push('online');
+      const w = e.warnings[0];
+      const warn = w && w.severity !== 'info' ? `<span class="sep">·</span><span class="w-${w.severity}" title="${esc(w.title)}">${icon(SEV_ICON[w.severity])}</span>` : '';
+      return `<button class="item" role="option" data-id="${esc(e.id)}" aria-selected="${e.id === selected}">
+        ${thumbHtml(e, active.has(e.id))}
+        <div class="meta"><div class="name" title="${esc(e.title)}">${esc(e.title)}</div><div class="facts">${icon(KIND_ICON[e.kind])}${facts.join('<span class="sep">·</span>')}${warn}</div></div>
+      </button>`;
     }).join('');
   }
 
-  function renderMonitors() {
-    $('#monitors').innerHTML = state.monitors.map(m => {
-      const wp = state.library.find(e => e.id === m.wallpaper);
-      const status = m.paused ? `<span class="chip warn">${icon('pause')}${esc(PAUSE_TEXT[m.paused] || m.paused)}</span>` : `<span class="chip ok">${icon('play')}${esc(m.status || 'berjalan')}</span>`;
-      return `<div class="panel">
-        <div class="screen" style="aspect-ratio:${m.width}/${m.height}">${wp ? icon(KIND_ICON[wp.kind]) : ''}</div>
-        <h2>Monitor ${m.index + 1}${m.primary ? ' <span class="chip">utama</span>' : ''}</h2>
-        <dl class="kv"><dt>Resolusi</dt><dd>${m.width}x${m.height} @ ${m.refresh_hz} Hz</dd>
-        <dt>Wallpaper</dt><dd>${wp ? esc(wp.title) : '<span class="muted">tidak ada</span>'}</dd>
-        <dt>Status</dt><dd>${status}</dd></dl>
-      </div>`;
-    }).join('') || '<div class="empty">Tidak ada monitor terdeteksi.</div>';
+  function monitorOptions(sel) {
+    const ms = state.monitors;
+    let o = `<option value="all">Semua monitor</option>`;
+    if (ms.length > 1) ms.forEach(m => o += `<option value="${m.index}" ${sel === m.index ? 'selected' : ''}>Monitor ${m.index + 1} · ${m.width}×${m.height}</option>`);
+    return o;
   }
 
+  // Stage: rebuilt only when the selected wallpaper changes, so the preview keeps playing across state pushes.
+  let stageKey = '';
+  let stopPreview = null;
+  function renderStage(force = false) {
+    const e = entry(selected);
+    const key = e ? `${e.id}|${e.entry}|${e.kind}` : '';
+    const prevTarget = $('#targetSel').value;
+    $('#targetSel').innerHTML = monitorOptions();
+    if ([...$('#targetSel').options].some(o => o.value === prevTarget)) $('#targetSel').value = prevTarget;
+    $('#controls').hidden = !e;
+    if (!e) {
+      stopLive();
+      stageKey = '';
+      $('#viewport').innerHTML = `<div class="vp-msg">${icon('layers')}Pilih wallpaper untuk melihat pratinjau</div>`;
+      $('#stageInfo').innerHTML = '';
+      return;
+    }
+    if (key !== stageKey || force) {
+      stageKey = key;
+      draft = { ...DEFAULT_DISPLAY, ...(e.display || {}) };
+      draftDirty = false;
+      buildPreview(e);
+    }
+    renderInfo(e);
+    syncControls();
+  }
+
+  function renderInfo(e) {
+    const active = state.monitors.filter(m => m.wallpaper === e.id).map(m => `Monitor ${m.index + 1}`);
+    const chips = [`<span class="chip">${icon(KIND_ICON[e.kind])}${KIND_NAME[e.kind]}</span>`];
+    if (e.video) {
+      chips.push(`<span class="chip">${e.video.width}×${e.video.height}</span>`);
+      if (e.video.fps) chips.push(`<span class="chip">${e.video.fps} fps</span>`);
+      if (e.video.codec) chips.push(`<span class="chip">${esc(e.video.codec.toUpperCase())}</span>`);
+    }
+    if (e.shader_cost) chips.push(`<span class="chip">beban ${e.shader_cost}/5</span>`);
+    if (e.remote) chips.push(`<span class="chip">${icon('globe')}online</span>`);
+    if (active.length) chips.unshift(`<span class="chip ok">${icon('check')}Aktif di ${esc(active.join(', '))}</span>`);
+    const warns = e.warnings.map(w => `<div class="warn-line ${w.severity}">${icon(SEV_ICON[w.severity])}<div><b>${esc(w.title)}</b><span>${esc(w.message)}</span></div></div>`).join('');
+    $('#stageInfo').innerHTML = `
+      <div class="stage-title"><div class="t"><h2>${esc(e.title)}</h2>${e.description || e.author ? `<p>${esc(e.description || 'oleh ' + e.author)}</p>` : ''}</div>
+        <button class="btn ghost sm icon danger" id="delBtn" title="Hapus dari library" aria-label="Hapus dari library">${icon('trash')}</button></div>
+      <div class="badges">${chips.join('')}</div>${warns}`;
+    $('#delBtn').onclick = () => askDelete(e.id);
+  }
+
+  function stopLive() { if (stopPreview) { stopPreview(); stopPreview = null; } }
+
+  function vpMessage(ic, text) {
+    return `<div class="vp-msg">${icon(ic)}<div>${esc(text)}</div></div>`;
+  }
+
+  function buildPreview(e) {
+    stopLive();
+    const vp = $('#viewport');
+    vp.innerHTML = '';
+    const badges = `<div class="vp-badges"><span class="chip live">Pratinjau langsung</span><span class="chip" id="vpRes"></span></div>`;
+    if (e.kind === 'video') {
+      const v = document.createElement('video');
+      v.muted = true; v.loop = true; v.autoplay = true; v.playsInline = true; v.src = libUrl(e);
+      v.onerror = () => { vp.innerHTML = vpMessage('film', 'Codec video ini tidak bisa dipratinjau di sini. Wallpaper tetap bisa dipasang.') + badges; updatePreview(); };
+      v.onloadedmetadata = updatePreview;
+      vp.append(v);
+    } else if (e.kind === 'shader') {
+      const c = document.createElement('canvas');
+      vp.append(c);
+      liveShader(c, e, () => shaderScale()).then(stop => {
+        if (stageKey.startsWith(e.id + '|')) stopPreview = stop; else stop();
+      }).catch(err => { vp.innerHTML = vpMessage('sparkles', 'Pratinjau tidak tersedia: ' + err.message) + badges; updatePreview(); });
+    } else {
+      const f = document.createElement('iframe');
+      // Opaque origin: a wallpaper page must not reach window.ipc of the settings UI.
+      f.setAttribute('sandbox', 'allow-scripts');
+      f.setAttribute('referrerpolicy', 'no-referrer');
+      f.src = e.remote ? e.entry : libUrl(e);
+      vp.append(f);
+    }
+    vp.insertAdjacentHTML('beforeend', badges);
+    updatePreview();
+  }
+
+  function shaderScale() {
+    const m = targetMonitor(), e = entry(selected);
+    if (!e) return 1;
+    if (draft.resolution) return clamp(draft.resolution / m.height, 0.25, 1);
+    return state.tier.budget.render_scale;
+  }
+
+  function updatePreview() {
+    const e = entry(selected);
+    if (!e) return;
+    const m = targetMonitor();
+    const vp = $('#viewport');
+    vp.style.aspectRatio = `${m.width} / ${m.height}`;
+    const vw = vp.clientWidth || 1, vh = vp.clientHeight || 1, k = vw / m.width;
+    const v = vp.querySelector('video');
+    if (v && v.videoWidth) {
+      const r = place(draft, v.videoWidth, v.videoHeight, m.width, m.height);
+      Object.assign(v.style, { left: r.x * k + 'px', top: r.y * k + 'px', width: r.w * k + 'px', height: r.h * k + 'px' });
+    }
+    const f = vp.querySelector('iframe');
+    if (f) {
+      const z = clamp(+draft.zoom || 1, 0.5, 2);
+      const lw = m.width / z, lh = m.height / z;
+      Object.assign(f.style, { left: 0, top: 0, width: lw + 'px', height: lh + 'px', transform: `scale(${vw / lw})` });
+    }
+    const res = $('#vpRes');
+    if (res) {
+      if (e.kind === 'shader') { const s = shaderScale(); res.textContent = `Render ${Math.round(m.width * s)}×${Math.round(m.height * s)}`; }
+      else if (e.kind === 'video') { const [w, h] = renderSize(draft, m.width, m.height); res.textContent = `Render ${w}×${h}`; }
+      else res.textContent = `${m.width}×${m.height} · zoom ${Math.round((+draft.zoom || 1) * 100)}%`;
+    }
+  }
+  new ResizeObserver(() => updatePreview()).observe($('#viewport'));
+
+  const panText = (v, a, b) => v === 0 ? 'tengah' : `${Math.abs(v)}% ${v < 0 ? a : b}`;
+  function syncControls() {
+    const e = entry(selected);
+    if (!e || !draft) return;
+    const m = targetMonitor();
+    const isVideo = e.kind === 'video', isWeb = e.kind === 'web', isShader = e.kind === 'shader';
+    $('#ctlFit').hidden = !isVideo;
+    $('#ctlPanX').hidden = $('#ctlPanY').hidden = !isVideo;
+    $('#ctlZoom').hidden = isShader;
+    $('#ctlRes').hidden = isWeb;
+    $$('#fitSeg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.fit === draft.fit)));
+    $('#fitHint').textContent = { cover: 'Mengisi seluruh layar; tepi yang tidak muat dipotong.', contain: 'Seluruh video terlihat; sisa layar diberi bilah hitam.', stretch: 'Mengisi layar dengan merenggangkan gambar.', center: 'Ukuran piksel asli, di tengah layar.' }[draft.fit];
+    $('#zoomLabel').textContent = isWeb ? 'Zoom halaman' : 'Ukuran';
+    $('#zoomHint').textContent = isWeb ? 'Memperbesar atau memperkecil isi halaman.' : 'Perbesar untuk memotong tepi, perkecil untuk menyisakan ruang.';
+    const z = Math.round((+draft.zoom || 1) * 100);
+    $('#zoom').value = z; $('#zoomVal').textContent = z + '%';
+    const px = Math.round((+draft.pan_x || 0) * 100), py = Math.round((+draft.pan_y || 0) * 100);
+    $('#panX').value = px; $('#panXVal').textContent = panText(px, 'kiri', 'kanan');
+    $('#panY').value = py; $('#panYVal').textContent = panText(py, 'atas', 'bawah');
+    $$('#controls input[type=range]').forEach(setRangeFill);
+    // Resolution choices up to the monitor height.
+    const steps = [2160, 1440, 1080, 900, 720, 540].filter(h => h < m.height);
+    const tierPct = Math.round(state.tier.budget.render_scale * 100);
+    let opts = `<option value="">${isShader ? `Otomatis (tier, ${tierPct}%)` : `Asli (${m.width}×${m.height})`}</option>`;
+    if (isShader && tierPct < 100) opts += `<option value="${m.height}">Penuh (${m.width}×${m.height})</option>`;
+    steps.forEach(h => opts += `<option value="${h}">${h}p · ${Math.round(m.width * h / m.height)}×${h}</option>`);
+    $('#resSel').innerHTML = opts;
+    const rv = draft.resolution ? String(draft.resolution) : '';
+    $('#resSel').value = [...$('#resSel').options].some(o => o.value === rv) ? rv : '';
+    if (isShader) {
+      const s = shaderScale();
+      $('#resVal').textContent = Math.round(s * 100) + '%';
+      $('#resHint').textContent = s < 1 ? `Dirender ${Math.round(m.width * s)}×${Math.round(m.height * s)} lalu diperbesar: lebih ringan, sedikit kurang tajam.` : 'Dirender penuh pada resolusi monitor.';
+    } else {
+      const [w, h] = renderSize(draft, m.width, m.height);
+      const saved = Math.round((1 - (w * h) / (m.width * m.height)) * 100);
+      $('#resVal').textContent = `${w}×${h}`;
+      $('#resHint').textContent = saved > 0 ? `Decode tetap dari sumber; frame disalin dan ditampilkan pada ${w}×${h} (${saved}% lebih sedikit piksel).` : 'Ditampilkan pada resolusi penuh monitor.';
+    }
+    $('#dirty').hidden = !draftDirty;
+    $('#saveDisp').disabled = !draftDirty;
+    updatePreview();
+  }
+
+  function editDraft(patch) {
+    draft = { ...draft, ...patch };
+    const e = entry(selected);
+    draftDirty = JSON.stringify(norm(draft)) !== JSON.stringify(norm({ ...DEFAULT_DISPLAY, ...(e.display || {}) }));
+    syncControls();
+  }
+  const norm = d => ({ fit: d.fit, zoom: +(+d.zoom).toFixed(2), pan_x: +(+d.pan_x).toFixed(2), pan_y: +(+d.pan_y).toFixed(2), resolution: d.resolution || null });
+
+  $$('#fitSeg button').forEach(b => b.onclick = () => editDraft({ fit: b.dataset.fit }));
+  $('#zoom').oninput = ev => editDraft({ zoom: ev.target.value / 100 });
+  $('#panX').oninput = ev => editDraft({ pan_x: ev.target.value / 100 });
+  $('#panY').oninput = ev => editDraft({ pan_y: ev.target.value / 100 });
+  $('#resSel').onchange = ev => editDraft({ resolution: ev.target.value ? Number(ev.target.value) : null });
+  $('#targetSel').onchange = () => syncControls();
+  $('#resetDisp').onclick = () => editDraft({ ...DEFAULT_DISPLAY });
+
+  async function saveDisplay() {
+    const e = entry(selected);
+    const d = norm(draft);
+    await call('display', { id: e.id, display: { ...d, resolution: d.resolution || undefined } });
+    draftDirty = false;
+    syncControls();
+  }
+  $('#saveDisp').onclick = async () => { try { await saveDisplay(); toast('Tampilan disimpan'); } catch (err) { toast(err.message, true); } };
+  $('#applyBtn').onclick = async () => {
+    const e = entry(selected);
+    if (!e) return;
+    try { if (draftDirty) await saveDisplay(); } catch (err) { return toast(err.message, true); }
+    apply(e.id, $('#targetSel').value);
+  };
+
+  $('#library').addEventListener('click', ev => {
+    const item = ev.target.closest('.item');
+    if (!item) return;
+    select(item.dataset.id);
+  });
+  $('#library').addEventListener('dblclick', ev => {
+    const item = ev.target.closest('.item');
+    if (item) apply(item.dataset.id, $('#targetSel').value);
+  });
+  function select(id) {
+    if (id === selected) return;
+    selected = id;
+    store.set('nouwall.sel', id);
+    $$('#library .item').forEach(i => i.setAttribute('aria-selected', String(i.dataset.id === id)));
+    renderStage();
+    if (matchMedia('(max-width: 1080px)').matches) $('#content').scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  $('#search').oninput = ev => { query = ev.target.value; renderList(); };
+  $$('#filterSeg button').forEach(b => b.onclick = () => {
+    filter = b.dataset.filter;
+    $$('#filterSeg button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    renderList();
+  });
+
+  // ---------- monitors ----------
+  function wallpaperOptions(current) {
+    return `<option value="">Pilih wallpaper</option>` + state.library.map(e => `<option value="${esc(e.id)}" ${e.id === current ? 'selected' : ''}>${esc(e.title)}</option>`).join('');
+  }
+  function renderMonitors() {
+    const ms = state.monitors;
+    const map = $('#layoutMap');
+    if (!ms.length) { map.innerHTML = ''; $('#monitors').innerHTML = `<div class="empty">${icon('monitor')}Tidak ada monitor terdeteksi.</div>`; return; }
+    // Diagram drawn to scale inside the map box.
+    const minX = Math.min(...ms.map(m => m.x)), minY = Math.min(...ms.map(m => m.y));
+    const maxX = Math.max(...ms.map(m => m.x + m.width)), maxY = Math.max(...ms.map(m => m.y + m.height));
+    const W = map.clientWidth || 600, H = map.clientHeight || 220, pad = 24;
+    const k = Math.min((W - pad * 2) / (maxX - minX), (H - pad * 2) / (maxY - minY));
+    const ox = (W - (maxX - minX) * k) / 2, oy = (H - (maxY - minY) * k) / 2;
+    map.innerHTML = ms.map(m => {
+      const e = entry(m.wallpaper), t = e && thumbs.get(e.id);
+      return `<div class="mon-box${selMonitor === m.index ? ' sel' : ''}" data-mon="${m.index}" title="Monitor ${m.index + 1}" style="left:${ox + (m.x - minX) * k + 2}px;top:${oy + (m.y - minY) * k + 2}px;width:${m.width * k - 4}px;height:${m.height * k - 4}px;${t ? `background-image:url(${t})` : ''}">
+        <span class="num">${m.index + 1}</span><span class="cap">${m.width}×${m.height}${e ? ' · ' + esc(e.title) : ''}</span></div>`;
+    }).join('');
+    $('#monitors').innerHTML = ms.map(m => {
+      const e = entry(m.wallpaper);
+      const status = m.paused ? `<span class="chip warn">${icon('pause')}${esc(PAUSE_TEXT[m.paused] || m.paused)}</span>` : `<span class="chip ok">${icon('play')}Berjalan</span>`;
+      return `<div class="panel mon-card${selMonitor === m.index ? ' sel' : ''}" data-mon="${m.index}">
+        <div class="mon-head"><div class="num">${m.index + 1}</div><div class="t"><h3>Monitor ${m.index + 1}${m.primary ? ' · Utama' : ''}</h3><span title="${esc(m.status || '')}">${esc(m.status || 'tidak ada renderer')}</span></div>${status}</div>
+        <div class="specs">
+          <div class="spec"><div class="k">Resolusi</div><div class="v">${m.width}×${m.height}</div></div>
+          <div class="spec"><div class="k">Refresh</div><div class="v">${m.refresh_hz} Hz</div></div>
+          <div class="spec wide"><div class="k">Perangkat</div><div class="v mono" title="${esc(m.device)}">${esc(m.device || '-')}</div></div>
+        </div>
+        <div class="mon-wp">
+          ${e ? thumbHtml(e, false) : `<div class="thumb">${icon('monitor')}</div>`}
+          <div class="t"><b title="${esc(e ? e.title : '')}">${e ? esc(e.title) : '<span class="muted">Tidak ada wallpaper</span>'}</b>
+            <select data-assign="${m.index}" aria-label="Wallpaper monitor ${m.index + 1}">${wallpaperOptions(m.wallpaper)}</select></div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  $('#monitors').addEventListener('change', ev => {
+    const s = ev.target.closest('select[data-assign]');
+    if (s && s.value) apply(s.value, s.dataset.assign);
+  });
+  const pickMonitor = ev => {
+    const b = ev.target.closest('[data-mon]');
+    if (!b || ev.target.closest('select')) return;
+    selMonitor = Number(b.dataset.mon);
+    renderMonitors();
+  };
+  $('#layoutMap').addEventListener('click', pickMonitor);
+  $('#monitors').addEventListener('click', pickMonitor);
+  new ResizeObserver(() => { if (state && !$('#tab-monitors').hidden) renderMonitors(); }).observe($('#layoutMap'));
+
+  // ---------- hardware ----------
   function renderHardware() {
     const hw = state.hardware, t = state.tier, b = t.budget;
     $('#tierBig').textContent = t.tier.toUpperCase();
-    $('#tierTitle').textContent = t.overridden ? `Tier ${t.tier} (terdeteksi ${t.detected})` : `Tier ${t.tier}`;
-    $('#tierBudget').textContent = `Video hingga ${resLabel(b.max_video_width, b.max_video_height)} ${b.max_video_fps} fps, shader ${b.shader_fps} fps, render ${Math.round(b.render_scale * 100)}%`;
-    $('#tierReasons').innerHTML = t.reasons.map(r => `<li>${esc(r)}</li>`).join('');
+    $('#medal').style.setProperty('--deg', { low: '120deg', mid: '240deg', high: '360deg' }[t.tier] || '120deg');
+    $('#tierTitle').textContent = t.overridden ? `Tier ${t.tier.toUpperCase()} (dipaksa)` : `Tier ${t.tier.toUpperCase()} terdeteksi`;
+    $('#tierSub').textContent = t.overridden ? `Deteksi otomatis: ${t.detected.toUpperCase()}` : 'Batas di bawah dipakai untuk peringatan dan kualitas render';
     $('#tierOverride').value = state.config.general.tier_override || '';
-    const kind = { integrated: 'Terintegrasi', discrete: 'Diskrit', software: 'Software' }[hw.gpu.kind];
-    const power = hw.power === 'battery' ? `Baterai${hw.battery_percent != null ? ' ' + hw.battery_percent + '%' : ''}` : hw.power === 'ac' ? `Listrik${hw.battery_percent != null ? ' (baterai ' + hw.battery_percent + '%)' : ''}` : 'Tidak diketahui';
-    $('#hwKv').innerHTML = `<dt>GPU</dt><dd>${esc(hw.gpu.name)}</dd><dt>Jenis</dt><dd>${kind}, VRAM ${hw.gpu.dedicated_vram_mb} MB</dd>
-      <dt>CPU</dt><dd>${hw.logical_cpus} thread</dd><dt>RAM</dt><dd>${(hw.ram_mb / 1024).toFixed(1)} GB</dd>
-      <dt>Daya</dt><dd>${power}</dd><dt>Windows</dt><dd>build ${hw.os_build}</dd>
-      <dt>Monitor</dt><dd>${hw.monitors.map(m => `${m.width}x${m.height} @ ${m.refresh_hz} Hz`).join(', ')}</dd>`;
-    const codecs = ['h264', 'hevc', 'vp9', 'av1'];
+    $('#tiles').innerHTML = [
+      ['Video maksimal', resLabel(b.max_video_width, b.max_video_height), `${b.max_video_width}×${b.max_video_height} · ${b.max_video_fps} fps`],
+      ['Shader', `${b.shader_fps} fps`, 'batas frame rate'],
+      ['Skala render', `${Math.round(b.render_scale * 100)}%`, 'resolusi shader'],
+      ['Beban shader', `${b.max_shader_cost}/5`, 'maksimal disarankan'],
+    ].map(([k, v, s]) => `<div class="tile"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join('');
+    $('#tierReasons').innerHTML = t.reasons.map(r => `<li>${icon('check')}<span>${esc(r)}</span></li>`).join('') || '<li class="muted">Tidak ada catatan.</li>';
+    const kind = { integrated: 'Terintegrasi', discrete: 'Diskrit', software: 'Software' }[hw.gpu.kind] || hw.gpu.kind;
+    const power = hw.power === 'battery' ? `Baterai${hw.battery_percent != null ? ' ' + hw.battery_percent + '%' : ''}` : hw.power === 'ac' ? `Listrik${hw.battery_percent != null ? ' · baterai ' + hw.battery_percent + '%' : ''}` : 'Tidak diketahui';
+    const kv = [['GPU', esc(hw.gpu.name)], ['Jenis', `${kind} · VRAM ${hw.gpu.dedicated_vram_mb} MB`], ['CPU', `${hw.logical_cpus} thread`], ['RAM', `${(hw.ram_mb / 1024).toFixed(1)} GB`], ['Daya', power], ['Windows', `build ${hw.os_build}`], ['Monitor', hw.monitors.map(m => `${m.width}×${m.height} @ ${m.refresh_hz} Hz`).join(', ')]];
+    $('#hwKv').innerHTML = kv.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('');
     const names = { h264: 'H.264', hevc: 'HEVC', vp9: 'VP9', av1: 'AV1' };
-    $('#decode').innerHTML = codecs.map(c => {
+    const sizes = [[1920, 1080], [2560, 1440], [3840, 2160], [7680, 4320]];
+    $('#decode').innerHTML = Object.keys(names).map(c => {
       const d = hw.decode.find(x => x.codec === c);
-      if (!d) return `<tr><td>${names[c]}</td><td class="muted">tidak didukung (decode CPU)</td><td><span class="chip critical">tidak</span></td></tr>`;
-      const fourk = Math.max(d.max_width, d.max_height) >= 3840 && Math.min(d.max_width, d.max_height) >= 2160;
-      return `<tr><td>${names[c]}</td><td>${d.max_width}x${d.max_height}</td><td><span class="chip ${fourk ? 'ok' : 'warn'}">${fourk ? 'ya' : 'tidak'}</span></td></tr>`;
+      const cells = sizes.map(([w, h]) => {
+        const ok = d && Math.max(d.max_width, d.max_height) >= w && Math.min(d.max_width, d.max_height) >= h;
+        return `<td class="${ok ? 'yes' : 'no'}" title="${ok ? 'Didukung' : 'Tidak didukung'}">${icon(ok ? 'check' : 'x')}</td>`;
+      }).join('');
+      return `<tr><td><b>${names[c]}</b><small>${d ? `hingga ${d.max_width}×${d.max_height}` : 'decode CPU'}</small></td>${cells}</tr>`;
     }).join('');
   }
 
+  // ---------- settings ----------
   function renderSettings() {
     const g = state.config.general;
     $$('[data-key]').forEach(el => {
       const v = el.dataset.key === 'autostart' ? state.autostart : g[el.dataset.key];
       if (el.type === 'checkbox') el.checked = !!v; else el.value = String(v);
     });
+    $$('#fpsSeg button').forEach(b => b.setAttribute('aria-pressed', String(Number(b.dataset.fps) === g.fps_cap)));
     $('#volLabel').textContent = Math.round(g.volume * 100) + '%';
+    $$('#tab-settings input[type=range]').forEach(setRangeFill);
   }
+  async function saveSettings(patch = {}) {
+    const g = { ...state.config.general, ...patch };
+    $$('[data-key]').forEach(el => {
+      const k = el.dataset.key;
+      g[k] = el.type === 'checkbox' ? el.checked : el.dataset.type === 'number' ? Number(el.value) : el.value;
+    });
+    g.tier_override = $('#tierOverride').value || null;
+    try { await call('settings', { general: g }); } catch (err) { toast(err.message, true); refresh(); }
+  }
+  $$('[data-key]').forEach(el => el.addEventListener('change', () => saveSettings()));
+  $('[data-key="volume"]').addEventListener('input', e => { $('#volLabel').textContent = Math.round(e.target.value * 100) + '%'; setRangeFill(e.target); });
+  $$('#fpsSeg button').forEach(b => b.onclick = () => saveSettings({ fps_cap: Number(b.dataset.fps) }));
+  $('#tierOverride').addEventListener('change', async () => { await saveSettings(); toast('Tier diperbarui'); });
 
+  // ---------- about ----------
   function renderAbout() {
     $('#ver').textContent = 'v' + state.version;
-    $('#paths').innerHTML = `<dt>Library</dt><dd class="mono">${esc(state.paths.library)}</dd><dt>Config</dt><dd class="mono">${esc(state.paths.config)}</dd><dt>Log</dt><dd class="mono">${esc(state.paths.log)}</dd>`;
+    $('#paths').innerHTML = [['Library', state.paths.library], ['Config', state.paths.config], ['Log', state.paths.log]]
+      .map(([k, p]) => `<div class="path"><span class="k">${k}</span><code>${esc(p)}</code><button class="btn ghost sm icon" data-copy="${esc(p)}" title="Salin" aria-label="Salin lokasi ${k}">${icon('copy')}</button></div>`).join('');
   }
+  $('#paths').addEventListener('click', async ev => {
+    const b = ev.target.closest('[data-copy]');
+    if (!b) return;
+    try { await navigator.clipboard.writeText(b.dataset.copy); toast('Lokasi disalin'); } catch (_) { toast('Tidak bisa menyalin ke clipboard', true); }
+  });
 
+  // ---------- render ----------
   function render() {
     if (!state) return;
-    const t = state.tier;
-    $('#tierChip').innerHTML = `${icon('cpu')}Tier ${t.tier.toUpperCase()}`;
+    if (!entry(selected)) {
+      const p = primary();
+      selected = (p && p.wallpaper && entry(p.wallpaper)) ? p.wallpaper : (state.library[0] || {}).id || null;
+    }
+    $('#tierChip').innerHTML = `${icon('cpu')}Tier ${state.tier.tier.toUpperCase()}`;
     $('#pauseBtn').innerHTML = state.paused ? `${icon('play')}<span>Lanjutkan</span>` : `${icon('pause')}<span>Jeda</span>`;
-    const gpu = state.hardware.gpu.name;
-    $('#navFoot').innerHTML = `<b>${esc(gpu)}</b><br>${state.monitors.length} monitor${state.attached ? '' : '<br><span style="color:var(--warn)">Desktop belum terpasang</span>'}`;
-    renderLibrary(); renderMonitors(); renderHardware(); renderSettings(); renderAbout();
+    $('#navFoot').innerHTML = `<div class="gpu" title="${esc(state.hardware.gpu.name)}">${esc(state.hardware.gpu.name)}</div>
+      <div class="sub"><span>${state.monitors.length} monitor</span><span class="chip accent" style="height:20px">${state.tier.tier.toUpperCase()}</span></div>
+      ${state.attached ? '' : '<div class="sub" style="color:var(--warn)">Desktop belum terpasang</div>'}`;
+    renderList(); renderStage(); renderMonitors(); renderHardware(); renderSettings(); renderAbout();
   }
 
   async function refresh() { state = await call('state'); render(); }
-  on('state', s => { state = s; render(); });
+  on('state', s => {
+    const before = entry(selected);
+    state = s;
+    // Keep unsaved edits; refresh the draft when the stored display changed elsewhere.
+    const after = entry(selected);
+    if (before && after && !draftDirty && JSON.stringify(before.display) !== JSON.stringify(after.display)) draft = { ...DEFAULT_DISPLAY, ...(after.display || {}) };
+    render();
+  });
 
-  // Confirmation dialog for hardware warnings.
+  // ---------- apply / confirm / delete / import ----------
   let pendingApply = null;
   function showConfirm(id, monitor, warnings) {
-    const e = state && state.library.find(x => x.id === id);
+    const e = entry(id);
     pendingApply = { id, monitor };
     const crit = warnings.some(w => w.severity === 'critical');
     $('#confirmTitle span').textContent = crit ? 'Perangkat tidak mendukung wallpaper ini dengan baik' : 'Perangkat Anda mungkin tidak mendukung ini dengan lancar';
-    $('#confirmLead').textContent = `${e ? e.title : id} melebihi kemampuan yang disarankan untuk perangkat ini (tier ${state ? state.tier.tier : ''}).`;
-    $('#confirmList').innerHTML = warnings.map(w => `<div class="warn-item ${w.severity}"><span class="ico">${icon(SEV_ICON[w.severity])}</span><div><b>${esc(w.title)}</b><span>${esc(w.message)}</span></div></div>`).join('');
+    $('#confirmLead').textContent = `${e ? e.title : id} melebihi kemampuan yang disarankan untuk perangkat ini (tier ${state ? state.tier.tier.toUpperCase() : ''}).`;
+    $('#confirmList').innerHTML = warnings.map(w => `<div class="warn-line ${w.severity}">${icon(SEV_ICON[w.severity])}<div><b>${esc(w.title)}</b><span>${esc(w.message)}</span></div></div>`).join('');
     $('#confirm').hidden = false;
     $('#confirmOk').focus();
   }
@@ -482,90 +1310,75 @@ a { color: hsl(258 90% 80%); }
     const { id, monitor } = pendingApply; pendingApply = null;
     await apply(id, monitor, true);
   };
-
   async function apply(id, monitor, force = false) {
     try {
-      const r = await call('apply', { id, monitor: monitor === 'all' ? 'all' : Number(monitor), force });
+      const r = await call('apply', { id, monitor: monitor === 'all' || monitor === '' || monitor == null ? 'all' : Number(monitor), force });
       if (!r.applied) return showConfirm(id, monitor, r.warnings);
-      const e = state.library.find(x => x.id === id);
+      const e = entry(id);
       toast(`${e ? e.title : id} dipasang`);
     } catch (err) { toast(err.message, true); }
   }
 
   let pendingDelete = null;
-  $('#library').addEventListener('click', ev => {
-    const btn = ev.target.closest('button[data-act]');
-    if (!btn) return;
-    const card = btn.closest('.card');
-    const id = card.dataset.id;
-    if (btn.dataset.act === 'apply') apply(id, card.querySelector('select').value);
-    if (btn.dataset.act === 'remove') {
-      const e = state.library.find(x => x.id === id);
-      pendingDelete = id;
-      $('#delLead').textContent = `"${e ? e.title : id}" dan berkasnya akan dihapus dari library.`;
-      $('#delDlg').hidden = false;
-    }
-  });
+  function askDelete(id) {
+    const e = entry(id);
+    pendingDelete = id;
+    $('#delLead').textContent = `"${e ? e.title : id}" dan berkasnya akan dihapus dari library.`;
+    $('#delDlg').hidden = false;
+  }
   $('#delCancel').onclick = () => { $('#delDlg').hidden = true; pendingDelete = null; };
   $('#delOk').onclick = async () => {
     $('#delDlg').hidden = true;
-    try { await call('remove', { id: pendingDelete }); toast('Wallpaper dihapus'); } catch (err) { toast(err.message, true); }
+    try { await call('remove', { id: pendingDelete }); thumbs.delete(pendingDelete); srcCache.delete(pendingDelete); toast('Wallpaper dihapus'); } catch (err) { toast(err.message, true); }
     pendingDelete = null;
   };
 
   function afterImport(r) {
     if (!r) return;
     const w = r.warnings && r.warnings[0];
+    selected = r.id; store.set('nouwall.sel', r.id);
     toast(w ? `${r.title} diimpor. ${w.title}` : `${r.title} diimpor`);
   }
-  $('#importFile').onclick = async () => { try { afterImport(await call('import')); } catch (err) { toast(err.message, true); } };
-  $('#importFolder').onclick = async () => { try { afterImport(await call('import_folder')); } catch (err) { toast(err.message, true); } };
-  $('#importUrl').onclick = () => { $('#urlDlg').hidden = false; $('#urlInput').focus(); };
+  const closeMenu = () => { $('#importMenu').hidden = true; $('#importBtn').setAttribute('aria-expanded', 'false'); };
+  $('#importBtn').onclick = ev => { ev.stopPropagation(); const m = $('#importMenu'); m.hidden = !m.hidden; $('#importBtn').setAttribute('aria-expanded', String(!m.hidden)); };
+  document.addEventListener('click', ev => { if (!ev.target.closest('.menu-wrap')) closeMenu(); });
+  $('#importFile').onclick = async () => { closeMenu(); try { afterImport(await call('import')); } catch (err) { toast(err.message, true); } };
+  $('#importFolder').onclick = async () => { closeMenu(); try { afterImport(await call('import_folder')); } catch (err) { toast(err.message, true); } };
+  $('#importUrl').onclick = () => { closeMenu(); $('#urlDlg').hidden = false; $('#urlInput').focus(); };
   $('#urlCancel').onclick = () => { $('#urlDlg').hidden = true; };
   $('#urlOk').onclick = async () => {
     try { afterImport(await call('import_url', { url: $('#urlInput').value.trim(), title: $('#urlName').value })); $('#urlDlg').hidden = true; $('#urlInput').value = ''; $('#urlName').value = ''; }
     catch (err) { toast(err.message, true); }
   };
 
-  $$('.seg button').forEach(b => b.onclick = () => {
-    filter = b.dataset.filter;
-    $$('.seg button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
-    renderLibrary();
-  });
-
+  // ---------- navigation ----------
   function showTab(tab) {
     $$('.nav-btn').forEach(b => b.setAttribute('aria-current', String(b.dataset.tab === tab)));
-    $$('main section').forEach(s => s.hidden = s.id !== 'tab-' + tab);
+    $$('.content > section').forEach(s => s.hidden = s.id !== 'tab-' + tab);
     $('#title').textContent = TITLES[tab][0];
     $('#subtitle').textContent = TITLES[tab][1];
-    try { localStorage.setItem('nouwall.tab', tab); } catch (_) {}
+    $('#content').scrollTop = 0;
+    store.set('nouwall.tab', tab);
+    // Only the Library preview animates; stop it elsewhere to save GPU time.
+    if (tab === 'library') { if (state) renderStage(true); } else { stopLive(); stageKey = ''; $('#viewport').innerHTML = ''; }
+    // Renderer status changes without a state event (loading -> playing); fetch a fresh copy.
+    if (tab === 'monitors' && state) { renderMonitors(); refresh().catch(() => {}); }
   }
   $$('.nav-btn').forEach(b => b.onclick = () => showTab(b.dataset.tab));
-  try { const t = localStorage.getItem('nouwall.tab'); if (t && TITLES[t]) showTab(t); } catch (_) {}
+  { const t = store.get('nouwall.tab'); if (t && TITLES[t]) showTab(t); }
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { stopLive(); stageKey = ''; }
+    else if (state && !$('#tab-library').hidden) renderStage(true);
+  });
 
   $('#pauseBtn').onclick = () => call('pause', { paused: !state.paused });
-
-  async function saveSettings() {
-    const g = { ...state.config.general };
-    $$('[data-key]').forEach(el => {
-      const k = el.dataset.key;
-      g[k] = el.type === 'checkbox' ? el.checked : el.dataset.type === 'number' ? Number(el.value) : el.value;
-    });
-    g.tier_override = $('#tierOverride').value || null;
-    try { await call('settings', { general: g }); } catch (err) { toast(err.message, true); refresh(); }
-  }
-  $$('[data-key]').forEach(el => el.addEventListener('change', saveSettings));
-  $('[data-key="volume"]').addEventListener('input', e => { $('#volLabel').textContent = Math.round(e.target.value * 100) + '%'; });
-  $('#tierOverride').addEventListener('change', async () => { await saveSettings(); toast('Tier diperbarui'); });
   $('#rescan').onclick = async () => { state = await call('rescan'); render(); toast('Hardware dipindai ulang'); };
   $('#openLib').onclick = () => call('open_library');
   $('#openLog').onclick = () => call('open_log');
-  $('#openRepo').onclick = () => call('open_url', { url: 'https://github.com/BBguss/nouwall' });
+  $('#openRepo').onclick = () => call('open_url', { url: 'https://github.com/BBguss/Nouwall' });
   $('#quit').onclick = () => call('quit');
-
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') $$('.overlay').forEach(o => o.hidden = true);
-  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { $$('.overlay').forEach(o => o.hidden = true); closeMenu(); } });
 
   refresh();
 })();
