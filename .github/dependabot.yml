@@ -4,6 +4,13 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    ignore:
+      # windows and windows-core must move together with wgpu/wry/webview2-com;
+      # bump them by hand.
+      - dependency-name: "windows"
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
+      - dependency-name: "windows-core"
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
     groups:
       cargo:
         patterns: ["*"]
