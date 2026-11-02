@@ -407,12 +407,12 @@ impl ShaderRenderer {
             Ok(Err(e)) => return Err(format!("readback: {e}")),
             Err(_) => return Err("readback timed out".into()),
         }
-        let shown = {
-            let pixels = slice.get_mapped_range();
-            self.presenter.present(&pixels, o.row_pitch)
+        let shown = match slice.get_mapped_range() {
+            Ok(pixels) => self.presenter.present(&pixels, o.row_pitch).map_err(|e| e.to_string()),
+            Err(e) => Err(format!("readback: {e}")),
         };
         o.readback.unmap();
-        shown.map_err(|e| e.to_string())?;
+        shown?;
         self.frame = self.frame.wrapping_add(1);
         self.last = now;
         Ok(())
