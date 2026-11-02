@@ -1,6 +1,6 @@
 //! Video wallpapers through the Media Foundation Media Engine in frame-server
 //! mode: the engine decodes on the GPU (DXGI device manager) and we copy each
-//! new frame into a flip-model swap chain, placed according to the wallpaper's
+//! new frame into a blt-model swap chain, placed according to the wallpaper's
 //! display settings (fit, zoom, pan). The swap chain may be smaller than the
 //! monitor (`Display::resolution`); DXGI stretches it to the window.
 
@@ -98,9 +98,14 @@ fn create_swapchain(device: &ID3D11Device, hwnd: HWND, (w, h): (u32, u32)) -> wi
             Format: DXGI_FORMAT_B8G8R8A8_UNORM,
             SampleDesc: DXGI_SAMPLE_DESC { Count: 1, Quality: 0 },
             BufferUsage: DXGI_USAGE_RENDER_TARGET_OUTPUT,
-            BufferCount: 2,
+            BufferCount: 1,
             Scaling: DXGI_SCALING_STRETCH,
-            SwapEffect: DXGI_SWAP_EFFECT_FLIP_DISCARD,
+            // Blt model, not flip: DWM may promote a flip-model swap chain that
+            // covers a monitor to a hardware overlay plane (independent flip),
+            // and on some drivers (Intel Gen9) the taskbar above it blinks out
+            // whenever DWM switches planes. A blt-model swap chain is always
+            // composed by DWM, so the shell stays on top.
+            SwapEffect: DXGI_SWAP_EFFECT_DISCARD,
             AlphaMode: DXGI_ALPHA_MODE_IGNORE,
             ..Default::default()
         };
