@@ -4,6 +4,12 @@
 //! in vec2 fragCoord)` with `iResolution`, `iTime`, `iTimeDelta`, `iFrame`,
 //! `iMouse`, `iDate`). WGSL files define `fn main_image(frag_coord: vec2<f32>) -> vec4<f32>`
 //! and read the same values from the `u` uniform.
+//!
+//! Frames are rendered at the governor's render scale into an offscreen
+//! texture, read back and shown through a blt-model swap chain (see `blt`)
+//! that DXGI stretches to the window. wgpu itself never presents to the
+//! window: its swap chains are flip-model, which DWM may put on an overlay
+//! plane that makes the taskbar blink.
 
 use std::rc::Rc;
 use std::time::{Duration, Instant};
@@ -14,8 +20,12 @@ use nouwall_core::{tr, Governor, Kind};
 use windows::Win32::Foundation::POINT;
 use windows::Win32::UI::WindowsAndMessaging::GetCursorPos;
 
+use super::blt::Presenter;
 use super::{RenderOptions, Renderer};
 use crate::util::Hwnd;
+
+/// Matches the presenter's `DXGI_FORMAT_R8G8B8A8_UNORM` swap chain.
+const FORMAT: wgpu::TextureFormat = wgpu::TextureFormat::Rgba8Unorm;
 
 /// One wgpu device shared by every shader host.
 pub struct Gpu {
@@ -71,27 +81,6 @@ const VERTEX_WGSL: &str = r#"
 fn vs_main(@builtin(vertex_index) i: u32) -> @builtin(position) vec4<f32> {
     let p = vec2<f32>(f32((i << 1u) & 2u), f32(i & 2u));
     return vec4<f32>(p * 2.0 - 1.0, 0.0, 1.0);
-}
-"#;
-
-const BLIT_WGSL: &str = r#"
-@group(0) @binding(0) var src: texture_2d<f32>;
-@group(0) @binding(1) var samp: sampler;
-
-struct V { @builtin(position) pos: vec4<f32>, @location(0) uv: vec2<f32> };
-
-@vertex
-fn vs_main(@builtin(vertex_index) i: u32) -> V {
-    let p = vec2<f32>(f32((i << 1u) & 2u), f32(i & 2u));
-    var o: V;
-    o.pos = vec4<f32>(p * 2.0 - 1.0, 0.0, 1.0);
-    o.uv = vec2<f32>(p.x, 1.0 - p.y);
-    return o;
-}
-
-@fragment
-fn fs_main(v: V) -> @location(0) vec4<f32> {
-    return textureSample(src, samp, v.uv);
 }
 "#;
 
@@ -186,23 +175,25 @@ fn fragment_module(device: &wgpu::Device, lang: &Language, source: &str) -> Resu
     }
 }
 
+/// Render target at the current render scale plus its read-back buffer.
 struct Offscreen {
+    texture: wgpu::Texture,
     view: wgpu::TextureView,
-    bind: wgpu::BindGroup,
+    readback: wgpu::Buffer,
+    /// Bytes per row in `readback`, padded to wgpu's copy alignment.
+    row_pitch: u32,
     width: u32,
     height: u32,
 }
 
 pub struct ShaderRenderer {
     gpu: Rc<Gpu>,
-    surface: wgpu::Surface<'static>,
-    config: wgpu::SurfaceConfiguration,
+    presenter: Presenter,
+    /// Window (monitor) size.
+    size: (u32, u32),
     pipeline: wgpu::RenderPipeline,
     uniform_buf: wgpu::Buffer,
     uniform_bind: wgpu::BindGroup,
-    blit_pipeline: wgpu::RenderPipeline,
-    blit_layout: wgpu::BindGroupLayout,
-    sampler: wgpu::Sampler,
     offscreen: Option<Offscreen>,
     governor: Governor,
     auto_downgrade: bool,
@@ -226,32 +217,8 @@ impl ShaderRenderer {
         opts: RenderOptions,
     ) -> Result<Self, String> {
         let device = &gpu.device;
-        let surface = gpu.instance.create_surface(hwnd).map_err(|e| e.to_string())?;
-        let caps = surface.get_capabilities(&gpu.adapter);
-        let format = caps
-            .formats
-            .iter()
-            .copied()
-            .find(|f| !f.is_srgb())
-            .or_else(|| caps.formats.first().copied())
-            .ok_or("surface has no formats")?;
-        let present_mode = if caps.present_modes.contains(&wgpu::PresentMode::Mailbox) {
-            wgpu::PresentMode::Mailbox
-        } else {
-            wgpu::PresentMode::Fifo
-        };
-        let config = wgpu::SurfaceConfiguration {
-            usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
-            format,
-            width: size.0.max(1),
-            height: size.1.max(1),
-            present_mode,
-            desired_maximum_frame_latency: 1,
-            alpha_mode: caps.alpha_modes[0],
-            view_formats: vec![],
-            color_space: Default::default(),
-        };
-        surface.configure(device, &config);
+        let size = (size.0.max(1), size.1.max(1));
+        let presenter = Presenter::new(hwnd.0, size).map_err(|e| e.to_string())?;
 
         let (fragment, entry) = fragment_module(device, &lang, source)?;
         let vertex = device.create_shader_module(wgpu::ShaderModuleDescriptor {
@@ -303,7 +270,7 @@ impl ShaderRenderer {
                 module: &fragment,
                 entry_point: Some(entry),
                 compilation_options: Default::default(),
-                targets: &[Some(format.into())],
+                targets: &[Some(FORMAT.into())],
             }),
             primitive: Default::default(),
             depth_stencil: None,
@@ -315,74 +282,14 @@ impl ShaderRenderer {
             return Err(e.to_string());
         }
 
-        let blit_module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("blit"),
-            source: wgpu::ShaderSource::Wgsl(BLIT_WGSL.into()),
-        });
-        let blit_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-            label: Some("blit"),
-            entries: &[
-                wgpu::BindGroupLayoutEntry {
-                    binding: 0,
-                    visibility: wgpu::ShaderStages::FRAGMENT,
-                    ty: wgpu::BindingType::Texture {
-                        sample_type: wgpu::TextureSampleType::Float { filterable: true },
-                        view_dimension: wgpu::TextureViewDimension::D2,
-                        multisampled: false,
-                    },
-                    count: None,
-                },
-                wgpu::BindGroupLayoutEntry {
-                    binding: 1,
-                    visibility: wgpu::ShaderStages::FRAGMENT,
-                    ty: wgpu::BindingType::Sampler(wgpu::SamplerBindingType::Filtering),
-                    count: None,
-                },
-            ],
-        });
-        let blit_pl = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-            label: Some("blit"),
-            bind_group_layouts: &[Some(&blit_layout)],
-            ..Default::default()
-        });
-        let blit_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-            label: Some("blit"),
-            layout: Some(&blit_pl),
-            vertex: wgpu::VertexState {
-                module: &blit_module,
-                entry_point: Some("vs_main"),
-                compilation_options: Default::default(),
-                buffers: &[],
-            },
-            fragment: Some(wgpu::FragmentState {
-                module: &blit_module,
-                entry_point: Some("fs_main"),
-                compilation_options: Default::default(),
-                targets: &[Some(format.into())],
-            }),
-            primitive: Default::default(),
-            depth_stencil: None,
-            multisample: Default::default(),
-            multiview_mask: None,
-            cache: None,
-        });
-        let sampler = device.create_sampler(&wgpu::SamplerDescriptor {
-            mag_filter: wgpu::FilterMode::Linear,
-            min_filter: wgpu::FilterMode::Linear,
-            ..Default::default()
-        });
-
         let now = Instant::now();
         let mut r = Self {
             gpu: gpu.clone(),
-            surface,
-            config,
+            presenter,
+            size,
             pipeline,
             uniform_buf,
             uniform_bind,
-            blit_pipeline,
-            blit_layout,
-            sampler,
             offscreen: None,
             governor: Governor::new(opts.fps, opts.render_scale),
             auto_downgrade: opts.auto_downgrade,
@@ -401,42 +308,40 @@ impl ShaderRenderer {
 
     fn rebuild_offscreen(&mut self) {
         let scale = self.governor.quality().render_scale.clamp(0.25, 1.0);
-        if scale >= 0.999 {
-            self.offscreen = None;
-            return;
-        }
-        let width = ((self.config.width as f32 * scale) as u32).max(1);
-        let height = ((self.config.height as f32 * scale) as u32).max(1);
+        let width = ((self.size.0 as f32 * scale) as u32).max(1);
+        let height = ((self.size.1 as f32 * scale) as u32).max(1);
         if self.offscreen.as_ref().is_some_and(|o| o.width == width && o.height == height) {
             return;
         }
         let device = &self.gpu.device;
-        let tex = device.create_texture(&wgpu::TextureDescriptor {
+        let texture = device.create_texture(&wgpu::TextureDescriptor {
             label: Some("offscreen"),
             size: wgpu::Extent3d { width, height, depth_or_array_layers: 1 },
             mip_level_count: 1,
             sample_count: 1,
             dimension: wgpu::TextureDimension::D2,
-            format: self.config.format,
-            usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::TEXTURE_BINDING,
+            format: FORMAT,
+            usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::COPY_SRC,
             view_formats: &[],
         });
-        let view = tex.create_view(&Default::default());
-        let bind = device.create_bind_group(&wgpu::BindGroupDescriptor {
-            label: Some("blit"),
-            layout: &self.blit_layout,
-            entries: &[
-                wgpu::BindGroupEntry { binding: 0, resource: wgpu::BindingResource::TextureView(&view) },
-                wgpu::BindGroupEntry { binding: 1, resource: wgpu::BindingResource::Sampler(&self.sampler) },
-            ],
+        let view = texture.create_view(&Default::default());
+        let row_pitch = (width * 4).div_ceil(wgpu::COPY_BYTES_PER_ROW_ALIGNMENT) * wgpu::COPY_BYTES_PER_ROW_ALIGNMENT;
+        let readback = device.create_buffer(&wgpu::BufferDescriptor {
+            label: Some("readback"),
+            size: u64::from(row_pitch) * u64::from(height),
+            usage: wgpu::BufferUsages::COPY_DST | wgpu::BufferUsages::MAP_READ,
+            mapped_at_creation: false,
         });
-        self.offscreen = Some(Offscreen { view, bind, width, height });
+        if let Err(e) = self.presenter.resize((width, height)) {
+            log::warn!("shader resize: {e}");
+        }
+        self.offscreen = Some(Offscreen { texture, view, readback, row_pitch, width, height });
     }
 
     fn uniforms(&self, now: Instant, width: u32, height: u32) -> Uniforms {
         let time = (now - self.start).saturating_sub(self.paused_total).as_secs_f32();
         let delta = (now - self.last).as_secs_f32();
-        let scale = width as f32 / self.config.width.max(1) as f32;
+        let scale = width as f32 / self.size.0 as f32;
         let mut p = POINT::default();
         let (mx, my) = if unsafe { GetCursorPos(&mut p) }.is_ok() {
             let x = (p.x - self.monitor_origin.0) as f32 * scale;
@@ -461,29 +366,16 @@ impl ShaderRenderer {
     }
 
     fn render(&mut self, now: Instant) -> Result<(), String> {
-        let surface_tex = match self.surface.get_current_texture() {
-            wgpu::CurrentSurfaceTexture::Success(t) | wgpu::CurrentSurfaceTexture::Suboptimal(t) => t,
-            wgpu::CurrentSurfaceTexture::Outdated | wgpu::CurrentSurfaceTexture::Lost => {
-                self.surface.configure(&self.gpu.device, &self.config);
-                return Ok(());
-            }
-            other => return Err(format!("surface: {other:?}")),
-        };
-        let target = surface_tex.texture.create_view(&Default::default());
-        let (w, h) = match &self.offscreen {
-            Some(o) => (o.width, o.height),
-            None => (self.config.width, self.config.height),
-        };
-        let u = self.uniforms(now, w, h);
+        let o = self.offscreen.as_ref().ok_or("no render target")?;
+        let u = self.uniforms(now, o.width, o.height);
         self.gpu.queue.write_buffer(&self.uniform_buf, 0, bytemuck::bytes_of(&u));
 
         let mut enc = self.gpu.device.create_command_encoder(&Default::default());
         {
-            let view = self.offscreen.as_ref().map(|o| &o.view).unwrap_or(&target);
             let mut pass = enc.begin_render_pass(&wgpu::RenderPassDescriptor {
                 label: Some("wallpaper"),
                 color_attachments: &[Some(wgpu::RenderPassColorAttachment {
-                    view,
+                    view: &o.view,
                     resolve_target: None,
                     depth_slice: None,
                     ops: wgpu::Operations { load: wgpu::LoadOp::Clear(wgpu::Color::BLACK), store: wgpu::StoreOp::Store },
@@ -494,23 +386,33 @@ impl ShaderRenderer {
             pass.set_bind_group(0, &self.uniform_bind, &[]);
             pass.draw(0..3, 0..1);
         }
-        if let Some(o) = &self.offscreen {
-            let mut pass = enc.begin_render_pass(&wgpu::RenderPassDescriptor {
-                label: Some("blit"),
-                color_attachments: &[Some(wgpu::RenderPassColorAttachment {
-                    view: &target,
-                    resolve_target: None,
-                    depth_slice: None,
-                    ops: wgpu::Operations { load: wgpu::LoadOp::Clear(wgpu::Color::BLACK), store: wgpu::StoreOp::Store },
-                })],
-                ..Default::default()
-            });
-            pass.set_pipeline(&self.blit_pipeline);
-            pass.set_bind_group(0, &o.bind, &[]);
-            pass.draw(0..3, 0..1);
-        }
+        enc.copy_texture_to_buffer(
+            o.texture.as_image_copy(),
+            wgpu::TexelCopyBufferInfo {
+                buffer: &o.readback,
+                layout: wgpu::TexelCopyBufferLayout { offset: 0, bytes_per_row: Some(o.row_pitch), rows_per_image: None },
+            },
+            wgpu::Extent3d { width: o.width, height: o.height, depth_or_array_layers: 1 },
+        );
         self.gpu.queue.submit([enc.finish()]);
-        self.gpu.queue.present(surface_tex);
+
+        let slice = o.readback.slice(..);
+        let (tx, rx) = std::sync::mpsc::channel();
+        slice.map_async(wgpu::MapMode::Read, move |r| {
+            let _ = tx.send(r);
+        });
+        let _ = self.gpu.device.poll(wgpu::PollType::Wait { submission_index: None, timeout: Some(Duration::from_secs(1)) });
+        match rx.try_recv() {
+            Ok(Ok(())) => {}
+            Ok(Err(e)) => return Err(format!("readback: {e}")),
+            Err(_) => return Err("readback timed out".into()),
+        }
+        let shown = {
+            let pixels = slice.get_mapped_range();
+            self.presenter.present(&pixels, o.row_pitch)
+        };
+        o.readback.unmap();
+        shown.map_err(|e| e.to_string())?;
         self.frame = self.frame.wrapping_add(1);
         self.last = now;
         Ok(())
@@ -523,9 +425,7 @@ impl Renderer for ShaderRenderer {
     }
 
     fn resize(&mut self, width: u32, height: u32) {
-        self.config.width = width.max(1);
-        self.config.height = height.max(1);
-        self.surface.configure(&self.gpu.device, &self.config);
+        self.size = (width.max(1), height.max(1));
         self.offscreen = None;
         self.rebuild_offscreen();
     }

@@ -5,6 +5,7 @@ use std::time::Instant;
 
 use nouwall_core::Kind;
 
+pub mod blt;
 pub mod shader;
 pub mod solid;
 pub mod video;

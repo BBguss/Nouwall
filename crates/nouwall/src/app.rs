@@ -409,8 +409,8 @@ impl App {
             if !force && want == self.hosts[i].wallpaper && self.hosts[i].renderer.is_some() {
                 continue;
             }
-            // A window can hold only one flip-model swap chain and wgpu frees its
-            // surface lazily, so every renderer gets a fresh window.
+            // A window keeps its swap chain (and wgpu its probe surface, which it
+            // frees lazily) until destroyed, so every renderer gets a fresh window.
             self.hosts[i].renderer = None;
             if let Some(gpu) = &self.gpu {
                 let _ = gpu.device.poll(wgpu::PollType::Wait { submission_index: None, timeout: Some(Duration::from_secs(1)) });
