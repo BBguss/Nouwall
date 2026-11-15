@@ -31,7 +31,7 @@ pollster = "1.0"
 bytemuck = { version = "1", features = ["derive"] }
 wry = "0.57"
 tray-icon = "0.26"
-rfd = "0.17"
+rfd = "0.18"
 raw-window-handle = "0.6"
 windows-core = "0.62"
 
